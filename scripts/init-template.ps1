@@ -6,60 +6,60 @@ param(
 
 $solutionFile = Get-ChildItem -Path "." -Filter "*.slnx" | Select-Object -First 1
 if ($null -eq $solutionFile) {
-    Write-Error "Không tìm thấy solution file (.slnx) trong thư mục hiện tại. Hãy chạy lại từ thư mục gốc của repo."
+    Write-Error "Khong tim thay solution file (.slnx) trong thu muc hien tai."
     exit 1
 }
 
 if ((-not (Test-Path ".env")) -or $Force) {
     if (Test-Path ".env.example") {
         Copy-Item -Path ".env.example" -Destination ".env" -Force:$Force
-        Write-Host "Tạo file .env từ .env.example" -ForegroundColor Green
+        Write-Host "Tao file .env tu .env.example" -ForegroundColor Green
     }
     else {
-        Write-Host "Không tìm thấy .env.example. Bỏ qua bước tạo .env." -ForegroundColor Yellow
+        Write-Host "Khong tim thay .env.example. Bo qua." -ForegroundColor Yellow
     }
 }
 else {
-    Write-Host ".env đã tồn tại, giữ nguyên." -ForegroundColor Gray
+    Write-Host ".env da ton tai, giu nguyen." -ForegroundColor Gray
 }
 
 if ($UseDockerEnv) {
     if ((-not (Test-Path ".env.docker")) -or $Force) {
         if (Test-Path ".env.docker.example") {
             Copy-Item -Path ".env.docker.example" -Destination ".env.docker" -Force:$Force
-            Write-Host "Tạo file .env.docker từ .env.docker.example" -ForegroundColor Green
+            Write-Host "Tao file .env.docker tu .env.docker.example" -ForegroundColor Green
         }
         else {
-            Write-Host "Không tìm thấy .env.docker.example. Bỏ qua bước tạo .env.docker." -ForegroundColor Yellow
+            Write-Host "Khong tim thay .env.docker.example. Bo qua." -ForegroundColor Yellow
         }
     }
     else {
-        Write-Host ".env.docker đã tồn tại, giữ nguyên." -ForegroundColor Gray
+        Write-Host ".env.docker da ton tai, giu nguyen." -ForegroundColor Gray
     }
 }
 
-Write-Host "Khởi tạo template: restore + build" -ForegroundColor Cyan
+Write-Host "Khoi tao template: restore + build" -ForegroundColor Cyan
 
 dotnet restore $solutionFile.Name
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "dotnet restore thất bại.";
+    Write-Error "dotnet restore that bai."
     exit $LASTEXITCODE
 }
 
 dotnet build $solutionFile.Name -c Release
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "dotnet build thất bại.";
+    Write-Error "dotnet build that bai."
     exit $LASTEXITCODE
 }
 
 if ($RunTests) {
-    Write-Host "Chạy test..." -ForegroundColor Cyan
+    Write-Host "Chay test..." -ForegroundColor Cyan
     dotnet test $solutionFile.Name -c Release
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "dotnet test thất bại.";
+        Write-Error "dotnet test that bai."
         exit $LASTEXITCODE
     }
 }
 
-Write-Host "\nTemplate khởi tạo hoàn tất." -ForegroundColor Green
-Write-Host "Sử dụng \`dotnet run\` trong thư mục src/YourProject.WebApi để chạy API." -ForegroundColor Cyan
+Write-Host "Khoi tao template hoan tat." -ForegroundColor Green
+Write-Host "Su dung 'dotnet run' trong thu muc src/YourProject.WebApi de chay API." -ForegroundColor Cyan
