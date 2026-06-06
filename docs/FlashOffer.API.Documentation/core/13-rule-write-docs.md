@@ -18,17 +18,17 @@ Base project .NET Web API chuyÃªn nghiá»‡p vá»›i kiáº¿n trÃºc Cle
 
 ## ðŸ›  CÃ´ng nghá»‡ sá»­ dá»¥ng
 
-| CÃ´ng nghá»‡ | PhiÃªn báº£n | Má»¥c Ä‘Ã­ch |
-|-----------|-----------|----------|
-| .NET | 9.0 | Runtime & Framework |
-| Entity Framework Core | 9.0 | ORM - Truy cáº­p database |
-| ASP.NET Core WebAPI | 9.0 | RESTful API |
-| AutoMapper | 12.0.1 | Map Ä‘á»‘i tÆ°á»£ng (Entity â†” DTO) |
-| FluentValidation | 11.x | Validate request |
-| JWT Bearer | 8.x | XÃ¡c thá»±c ngÆ°á»i dÃ¹ng |
-| xUnit | 2.6.2 | Unit Testing |
-| Serilog | 8.0.0 | Ghi log cÃ³ cáº¥u trÃºc |
-| Swagger/Swashbuckle | 6.5.0 | TÃ i liá»‡u API |
+| CÃ´ng nghá»‡                     | PhiÃªn báº£n | Má»¥c Ä‘Ã­ch                               |
+|-------------------------------|-----------|----------------------------------------|
+| .NET                          | 9.0       | Runtime & Framework                    |
+| Entity Framework Core         | 8.0       | ORM - Truy cáº­p database                |
+| ASP.NET Core WebAPI           | 9.0       | RESTful API                            |
+| AutoMapper                    | 12.0.1    | Map Ä‘á»‘i tÆ°á»£ng (Entity â†” DTO)           |
+| FluentValidation              | 11.x      | Validate request                       |
+| JWT Bearer                    | 8.x       | XÃ¡c thá»±c ngÆ°á»i dÃ¹ng                    |
+| xUnit                         | 2.6.2     | Unit Testing                           |
+| Serilog                       | 8.0.0     | Ghi log cÃ³ cáº¥u trÃºc                    |
+| Swagger/Swashbuckle           | 6.5.0     | TÃ i liá»‡u API                           |
 
 ## âœ¨ TÃ­nh nÄƒng
 
@@ -70,29 +70,11 @@ git clone https://github.com/TEN_CUA_BAN/dotnet-api-base.git
 cd dotnet-api-base
 ```
 
-### 1.1 Sá»­ dá»¥ng repo lÃ m template má»›i
-Náº¿u báº¡n dÃ¹ng repo nÃ y lÃ m base project má»›i, cháº¡y script rename vÃ  init:
-
-```powershell
-cd dotnet-api-base
-.\scripts\rename-project.ps1 -NewProjectName YourProjectName
-.\scripts\init-template.ps1
-```
-
-Náº¿u thay Ä‘á»•i cáº¥u trÃºc hoáº·c scripts, cháº¡y thÃªm:
-
-```powershell
-.\scripts\validate-docs-sync.ps1
-```
-
 ### 2. KhÃ´i phá»¥c packages
 
 ```bash
 dotnet restore
 ```
-
-> Xem thÃªm tÃ i liá»‡u chi tiáº¿t trong `docs/FlashOffer.API.Documentation/`.
-> Xem thÃªm `docs/FlashOffer.API.Documentation/14-project-bootstrap.md` Ä‘á»ƒ sá»­ dá»¥ng project nÃ y nhÆ° má»™t template base.
 
 ### 3. Build solution
 
@@ -111,8 +93,6 @@ Má»Ÿ file `src/FlashOffer.API.WebApi/appsettings.json` vÃ  sá»­a connect
   }
 }
 ```
-
-> Ghi chÃº: báº¡n cÃ³ thá»ƒ dÃ¹ng file `.env` Ä‘á»ƒ ghi Ä‘Ã¨ cáº¥u hÃ¬nh `JwtSettings` vÃ  connection string khi cháº¡y local.
 
 ### 5. Cháº¡y migration (táº¡o database)
 
@@ -138,63 +118,21 @@ Má»Ÿ trÃ¬nh duyá»‡t táº¡i: `https://localhost:5001/swagger`
 ```
 dotnet-api-base/
 â”‚
+â”œâ”€â”€ docs/
+â”‚   â””â”€â”€ FlashOffer.API.Documentation/       # TÃ i liá»‡u dá»± Ã¡n
+â”‚
 â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ FlashOffer.API.Domain/                    # Layer 1: Domain
-â”‚   â”‚   â”œâ”€â”€ Entities/
-â”‚   â”‚   â”‚   â”œâ”€â”€ BaseEntity.cs
-â”‚   â”‚   â”‚   â””â”€â”€ Product.cs
-â”‚   â”‚   â””â”€â”€ Enums/
-â”‚   â”‚
-â”‚   â”œâ”€â”€ FlashOffer.API.Application/               # Layer 2: Application
-â”‚   â”‚   â”œâ”€â”€ Common/
-â”‚   â”‚   â”‚   â””â”€â”€ Interfaces/
-â”‚   â”‚   â”‚       â”œâ”€â”€ IRepository.cs
-â”‚   â”‚   â”‚       â”œâ”€â”€ IApplicationDbContext.cs
-â”‚   â”‚   â”‚       â””â”€â”€ IJwtService.cs
-â”‚   â”‚   â”œâ”€â”€ DTOs/
-â”‚   â”‚   â”‚   â”œâ”€â”€ ProductDto.cs
-â”‚   â”‚   â”‚   â”œâ”€â”€ PaginationDto.cs
-â”‚   â”‚   â”‚   â””â”€â”€ AuthDtos.cs
-â”‚   â”‚   â”œâ”€â”€ Mappings/
-â”‚   â”‚   â”‚   â””â”€â”€ MappingProfile.cs
-â”‚   â”‚   â”œâ”€â”€ Validators/
-â”‚   â”‚   â”‚   â””â”€â”€ ProductValidators.cs
-â”‚   â”‚   â””â”€â”€ DependencyInjection.cs
-â”‚   â”‚
-â”‚   â”œâ”€â”€ FlashOffer.API.Infrastructure/            # Layer 3: Infrastructure
-â”‚   â”‚   â”œâ”€â”€ Data/
-â”‚   â”‚   â”‚   â””â”€â”€ ApplicationDbContext.cs
-â”‚   â”‚   â”œâ”€â”€ Repositories/
-â”‚   â”‚   â”‚   â””â”€â”€ GenericRepository.cs
-â”‚   â”‚   â”œâ”€â”€ Services/
-â”‚   â”‚   â”‚   â””â”€â”€ JwtService.cs
-â”‚   â”‚   â”œâ”€â”€ Configurations/
-â”‚   â”‚   â”‚   â””â”€â”€ JwtSettings.cs
-â”‚   â”‚   â””â”€â”€ DependencyInjection.cs
-â”‚   â”‚
-â”‚   â””â”€â”€ FlashOffer.API.WebApi/                    # Layer 4: WebApi
-â”‚       â”œâ”€â”€ Controllers/
-â”‚       â”‚   â”œâ”€â”€ ApiControllerBase.cs
-â”‚       â”‚   â””â”€â”€ v1/
-â”‚       â”‚       â”œâ”€â”€ SampleController.cs
-â”‚       â”‚       â””â”€â”€ AuthController.cs
-â”‚       â”œâ”€â”€ Middlewares/
-â”‚       â”‚   â””â”€â”€ GlobalExceptionMiddleware.cs
-â”‚       â”œâ”€â”€ Filters/
-â”‚       â”‚   â””â”€â”€ ValidationFilter.cs
-â”‚       â”œâ”€â”€ Responses/
-â”‚       â”‚   â””â”€â”€ ApiResponse.cs
-â”‚       â”œâ”€â”€ Configurations/
-â”‚       â”‚   â”œâ”€â”€ ApiVersioningConfig.cs
-â”‚       â”‚   â””â”€â”€ SwaggerConfig.cs
-â”‚       â”œâ”€â”€ Program.cs
-â”‚       â”œâ”€â”€ DependencyInjection.cs
-â”‚       â””â”€â”€ appsettings.json
+â”‚   â”œâ”€â”€ FlashOffer.API.Domain/              # Layer 1: Domain
+â”‚   â”œâ”€â”€ FlashOffer.API.Application/         # Layer 2: Application
+â”‚   â”œâ”€â”€ FlashOffer.API.Infrastructure/      # Layer 3: Infrastructure
+â”‚   â””â”€â”€ FlashOffer.API.WebApi/              # Layer 4: WebApi
 â”‚
 â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ FlashOffer.API.UnitTests/                 # Unit Tests
-â”‚   â””â”€â”€ FlashOffer.API.IntegrationTests/          # Integration Tests
+â”‚   â”œâ”€â”€ FlashOffer.API.UnitTests/           # Unit Tests
+â”‚   â””â”€â”€ FlashOffer.API.IntegrationTests/    # Integration Tests
 â”‚
+â”œâ”€â”€ .env                                   # Cáº¥u hÃ¬nh mÃ´i trÆ°á»ng (khÃ´ng commit)
+â”œâ”€â”€ .env.example                           # Máº«u cáº¥u hÃ¬nh mÃ´i trÆ°á»ng
 â”œâ”€â”€ .gitignore
 â”œâ”€â”€ Directory.Build.props
 â”œâ”€â”€ Directory.Packages.props
@@ -228,19 +166,33 @@ dotnet-api-base/
 }
 ```
 
+### Cáº¥u hÃ¬nh .env (Æ°u tiÃªn cao hÆ¡n appsettings.json)
+
+Táº¡o file `.env` tá»« `.env.example` vÃ  Ä‘iá»n giÃ¡ trá»‹ tháº­t:
+
+```
+DB_CONNECTION_STRING=Server=(localdb)\\mssqllocaldb;Database=YourDatabase;Trusted_Connection=True
+JWT_SECRET=YourSuperSecretKeyHereAtLeast32CharactersLong!
+JWT_ISSUER=YourAppName
+JWT_AUDIENCE=YourAppClient
+JWT_EXPIRY_MINUTES=60
+LOG_LEVEL=Information
+```
+
 ### JWT Secret
 
-**Quan trá»ng:** Thay Ä‘á»•i `Secret` trong `JwtSettings` thÃ nh khÃ³a bÃ­ máº­t cá»§a riÃªng báº¡n (Ã­t nháº¥t 32 kÃ½ tá»±).
+**Quan trá»ng:** Thay Ä‘á»•i `Secret` trong `JwtSettings` hoáº·c `.env` thÃ nh khÃ³a bÃ­ máº­t cá»§a riÃªng báº¡n (Ã­t nháº¥t 32 kÃ½ tá»±).
 
 ## ðŸ”Œ API Endpoints
 
 ### Auth Endpoints
 
-| Method | Endpoint | MÃ´ táº£ | XÃ¡c thá»±c |
-|--------|----------|-------|----------|
-| POST | `/api/v1/auth/login` | ÄÄƒng nháº­p láº¥y token | KhÃ´ng |
+| Method | Endpoint                   | MÃ´ táº£                  | XÃ¡c thá»±c |
+|--------|----------------------------|------------------------|----------|
+| POST   | `/api/v1/auth/login`       | ÄÄƒng nháº­p láº¥y token    | KhÃ´ng    |
 
 **Login request:**
+
 ```json
 {
   "username": "admin",
@@ -249,6 +201,7 @@ dotnet-api-base/
 ```
 
 **Login response:**
+
 ```json
 {
   "success": true,
@@ -263,13 +216,13 @@ dotnet-api-base/
 
 ### Sample Endpoints
 
-| Method | Endpoint | MÃ´ táº£ | XÃ¡c thá»±c |
-|--------|----------|-------|----------|
-| GET | `/api/v1/sample` | Láº¥y táº¥t cáº£ sáº£n pháº©m | KhÃ´ng |
-| GET | `/api/v1/sample/{id}` | Láº¥y sáº£n pháº©m theo id | KhÃ´ng |
-| POST | `/api/v1/sample` | Táº¡o sáº£n pháº©m má»›i | Cáº§n JWT |
-| PUT | `/api/v1/sample/{id}` | Cáº­p nháº­t sáº£n pháº©m | Cáº§n JWT |
-| DELETE | `/api/v1/sample/{id}` | XÃ³a sáº£n pháº©m | Cáº§n JWT |
+| Method | Endpoint                           | MÃ´ táº£                     | XÃ¡c thá»±c      |
+|--------|------------------------------------|---------------------------|---------------|
+| GET    | `/api/v1/sample`                   | Láº¥y táº¥t cáº£ sáº£n pháº©m       | KhÃ´ng         |
+| GET    | `/api/v1/sample/{id}`              | Láº¥y sáº£n pháº©m theo id      | KhÃ´ng         |
+| POST   | `/api/v1/sample`                   | Táº¡o sáº£n pháº©m má»›i          | Cáº§n JWT       |
+| PUT    | `/api/v1/sample/{id}`              | Cáº­p nháº­t sáº£n pháº©m         | Cáº§n JWT       |
+| DELETE | `/api/v1/sample/{id}`              | XÃ³a sáº£n pháº©m              | Cáº§n JWT       |
 
 ## ðŸ” XÃ¡c thá»±c JWT
 
@@ -328,6 +281,7 @@ ren src\FlashOffer.API.Infrastructure src\TenDuAnMoi.Infrastructure
 ren src\FlashOffer.API.WebApi src\TenDuAnMoi.WebApi
 ren tests\FlashOffer.API.UnitTests tests\TenDuAnMoi.UnitTests
 ren tests\FlashOffer.API.IntegrationTests tests\TenDuAnMoi.IntegrationTests
+ren docs\FlashOffer.API.Documentation docs\TenDuAnMoi.Documentation
 ```
 
 ### CÃ¡ch 3: Cáº­p nháº­t file .csproj
@@ -337,7 +291,7 @@ Sau khi Ä‘á»•i tÃªn thÆ° má»¥c, cáº­p nháº­t tá»«ng file 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>TenDuAnMoi.Domain</RootNamespace>
     <AssemblyName>TenDuAnMoi.Domain</AssemblyName>
   </PropertyGroup>
@@ -388,22 +342,24 @@ dotnet tool install --global dotnet-ef
 ### Lá»—i: "Cannot connect to database"
 
 1. Kiá»ƒm tra SQL Server Ä‘ang cháº¡y:
-   ```bash
-   sqlcmd -S (localdb)\mssqllocaldb -Q "SELECT 1"
-   ```
 
-2. Cáº­p nháº­t connection string trong `appsettings.json`
+```bash
+sqlcmd -S (localdb)\mssqllocaldb -Q "SELECT 1"
+```
+
+2. Cáº­p nháº­t connection string trong `appsettings.json` hoáº·c `.env`
 
 ### Lá»—i: "Build failed - warnings as errors"
 
 Trong `Directory.Build.props`, táº¡m thá»i set:
+
 ```xml
 <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 ```
 
 ### Lá»—i: JWT token khÃ´ng há»£p lá»‡
 
-Äáº£m báº£o `Secret` trong `appsettings.json` dÃ i Ã­t nháº¥t 32 kÃ½ tá»±.
+Äáº£m báº£o `Secret` trong `appsettings.json` hoáº·c `.env` dÃ i Ã­t nháº¥t 32 kÃ½ tá»±.
 
 ## ðŸ“ Giáº¥y phÃ©p
 

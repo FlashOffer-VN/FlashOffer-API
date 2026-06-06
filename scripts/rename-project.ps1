@@ -1,9 +1,9 @@
-param(
+﻿param(
     [Parameter(Mandatory = $true)]
     [string]$NewProjectName
 )
 
-$OldProjectName = "FlashOffer-API"
+$OldProjectName = "FlashOffer.API"
 $RootPath = "."
 
 Write-Host "======================================================================" -ForegroundColor Cyan
