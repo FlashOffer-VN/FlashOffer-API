@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Your Name",
+  "classifications": ["WebAPI", "Clean Architecture", ".NET 9"],
+  "name": "Dotnet API Base Template",
+  "identity": "FlashOffer-API.Template",
+  "shortName": "dotnet-api-base",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FlashOffer-API",
+  "preferNameDirectory": true
+}
