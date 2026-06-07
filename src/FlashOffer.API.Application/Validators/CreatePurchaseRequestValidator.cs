@@ -1,5 +1,9 @@
 ﻿using FlashOffer.API.Application.DTOs.requests;
 using FluentValidation;
+using Microsoft.Extensions.Localization;
+using FlashOffer.API.Application.Resources;
+
+namespace FlashOffer.API.Application.Validators; 
 
 public class CreatePurchaseRequestValidator : AbstractValidator<CreatePurchaseRequestDto>
 {

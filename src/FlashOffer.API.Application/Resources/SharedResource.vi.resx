@@ -1,12 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
 	<data name="CreateSuccess" xml:space="preserve">
-    <value>Purchase request has been recorded</value>
+    <value>Đã ghi nhận yêu cầu tìm hàng</value>
   </data>
 	<data name="NotFound" xml:space="preserve">
-    <value>Not found</value>
+    <value>Không tìm thấy</value>
+  </data>
+	<data name="ProductNameRequired" xml:space="preserve">
+    <value>Tên sản phẩm không được để trống</value>
+  </data>
+	<data name="ProductNameMaxLength" xml:space="preserve">
+    <value>Tên sản phẩm tối đa 500 ký tự</value>
+  </data>
+	<data name="QuantityMin" xml:space="preserve">
+    <value>Số lượng phải lớn hơn hoặc bằng 1</value>
+  </data>
+	<data name="FullNameRequired" xml:space="preserve">
+    <value>Họ tên không được để trống</value>
+  </data>
+	<data name="FullNameMaxLength" xml:space="preserve">
+    <value>Họ tên tối đa 200 ký tự</value>
+  </data>
+	<data name="PhoneRequired" xml:space="preserve">
+    <value>Số điện thoại không được để trống</value>
+  </data>
+	<data name="PhoneInvalid" xml:space="preserve">
+    <value>Số điện thoại phải có 10-11 chữ số</value>
+  </data>
+	<data name="EmailInvalid" xml:space="preserve">
+    <value>Email không đúng định dạng</value>
+  </data>
+	<data name="ExpectedPricePositive" xml:space="preserve">
+    <value>Giá kỳ vọng phải lớn hơn 0</value>
   </data>
 	<data name="ValidationError" xml:space="preserve">
-    <value>Invalid data</value>
-  </data>
+    <value>Dữ liệu không hợp lệ</value>
+</data>
 </root>

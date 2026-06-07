@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
-using System.Reflection;
 using FlashOffer.API.Application.Common.Mappings;
+using FlashOffer.API.Application.DTOs.requests;
+using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
+using System.Reflection;
 
 namespace FlashOffer.API.Application.Mappings;
 
@@ -9,7 +11,8 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
-    }
+		CreateMap<CreatePurchaseRequestDto, CreatePurchaseRequestCommand>();
+	}
 
     private void ApplyMappingsFromAssembly(Assembly assembly)
     {
