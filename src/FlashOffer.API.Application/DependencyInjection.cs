@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Services;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using FluentValidation;
 
@@ -14,7 +17,12 @@ public static class DependencyInjection
         
         // Add FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        
-        return services;
+
+		services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly)); services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
+		// Register services
+		services.AddScoped<IPurchaseRequestService, PurchaseRequestService>();
+
+		return services;
     }
 }

@@ -1,26 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using FlashOffer.API.WebApi.Responses;
+using Microsoft.Extensions.Localization;
+using FlashOffer.API.Application.Resources;
 
 namespace FlashOffer.API.WebApi.Filters;
 
 public class ValidationFilter : IAsyncActionFilter
 {
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        if (!context.ModelState.IsValid)
-        {
-            var errors = context.ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .SelectMany(x => x.Value!.Errors)
-                .Select(x => x.ErrorMessage)
-                .ToList();
+	private readonly IStringLocalizer<SharedResource> _localizer;
 
-            var response = ApiResponse<object>.Fail("Validation failed", errors);
-            context.Result = new BadRequestObjectResult(response);
-            return;
-        }
+	public ValidationFilter(IStringLocalizer<SharedResource> localizer)
+	{
+		_localizer = localizer;
+	}
 
-        await next();
-    }
+	public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+	{
+		// Kiểm tra validate TRƯỚC khi action chạy
+		if (!context.ModelState.IsValid)
+		{
+			var errors = context.ModelState.Values
+				.SelectMany(v => v.Errors)
+				.Select(e => e.ErrorMessage)
+				.ToList();
+
+			var response = ApiResponse<object>.Fail(_localizer["ValidationError"], errors);
+			context.Result = new BadRequestObjectResult(response);
+			return; // Dừng lại, không chạy action
+		}
+
+		await next();
+	}
 }
