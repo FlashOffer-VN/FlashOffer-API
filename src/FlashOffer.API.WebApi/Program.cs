@@ -7,7 +7,19 @@ using FlashOffer.API.WebApi.Configurations;
 using DotNetEnv;
 
 // Load .env file (ưu tiên cao nhất)
-Env.Load();
+// Load .env từ thư mục FlashOffer-API (nơi chứa thư mục src)
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+envPath = Path.GetFullPath(envPath);
+
+if (File.Exists(envPath))
+{
+	Env.Load(envPath);
+	Console.WriteLine($".env loaded from: {envPath}");
+}
+else
+{
+	Console.WriteLine($".env not found at: {envPath}");
+}
 
 var builder = WebApplication.CreateBuilder(args);
 

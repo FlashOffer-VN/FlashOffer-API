@@ -15,9 +15,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _currentUserService = currentUserService;
     }
 
-    public DbSet<Product> Products => Set<Product>();
+	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 

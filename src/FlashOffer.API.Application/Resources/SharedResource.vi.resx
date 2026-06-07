@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="CreateSuccess" xml:space="preserve">
+    <value>Purchase request has been recorded</value>
+  </data>
+	<data name="NotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+	<data name="ValidationError" xml:space="preserve">
+    <value>Invalid data</value>
+  </data>
+</root>
