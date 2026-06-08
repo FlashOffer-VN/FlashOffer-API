@@ -22,7 +22,9 @@ public class CreatePurchaseRequestValidator : AbstractValidator<CreatePurchaseRe
 
 		RuleFor(x => x.Phone)
 			.NotEmpty().WithMessage(localizer["PhoneRequired"])
-			.Matches(@"^\d{10,11}$").WithMessage(localizer["PhoneInvalid"]);
+			.Must(phone => System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0[0-9]{9,10}$"))
+			.WithMessage(localizer["PhoneInvalid"])
+			.When(x => !string.IsNullOrEmpty(x.Phone));
 
 		RuleFor(x => x.Email)
 			.EmailAddress().WithMessage(localizer["EmailInvalid"])

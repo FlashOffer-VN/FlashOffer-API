@@ -26,7 +26,9 @@ public class CreateGroupBuyingRequestValidator : AbstractValidator<CreateGroupBu
 
 		RuleFor(x => x.Phone)
 			.NotEmpty().WithMessage(localizer["PhoneRequired"])
-			.Matches(@"^0[0-9]{9,10}$").WithMessage(localizer["PhoneInvalid"]);
+			.Must(phone => System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0[0-9]{9,10}$"))
+			.WithMessage(localizer["PhoneInvalid"])
+			.When(x => !string.IsNullOrEmpty(x.Phone));
 
 		RuleFor(x => x.Note)
 			.MaximumLength(1000).WithMessage(localizer["NoteMaxLength"])
