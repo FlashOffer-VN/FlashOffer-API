@@ -2,9 +2,9 @@
 
 on:
   push:
-    branches: [ master ]
+    branches: [ testing, production ]  # Chỉ chạy khi push lên testing hoặc production
   pull_request:
-    branches: [ master ]
+    branches: [ testing, production ]  # Chỉ chạy PR vào testing hoặc production
 
 jobs:
   build:
