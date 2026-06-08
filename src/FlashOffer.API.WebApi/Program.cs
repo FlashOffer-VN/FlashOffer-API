@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using FlashOffer.API.WebApi.Configurations;
 using DotNetEnv;
-using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 
 // Load .env file
@@ -24,20 +23,25 @@ else
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuration
+// Configuration - Env ưu tiên cao nhất
+var envConfig = new Dictionary<string, string?>
+{
+	["ConnectionStrings:DefaultConnection"] = Env.GetString("DB_CONNECTION_STRING"),
+	["JwtSettings:Secret"] = Env.GetString("JWT_SECRET"),
+	["JwtSettings:Issuer"] = Env.GetString("JWT_ISSUER"),
+	["JwtSettings:Audience"] = Env.GetString("JWT_AUDIENCE"),
+	["JwtSettings:ExpiryMinutes"] = Env.GetString("JWT_EXPIRY_MINUTES"),
+	["Logging:LogLevel:Default"] = Env.GetString("LOG_LEVEL"),
+	["CorsSettings:Policy"] = Env.GetString("CORS_POLICY"),
+	["CorsSettings:AllowedOrigins"] = Env.GetString("ALLOWED_ORIGINS")
+};
+
 builder.Configuration
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-	.AddEnvironmentVariables()
-	.AddInMemoryCollection(new Dictionary<string, string?>
-	{
-		["ConnectionStrings:DefaultConnection"] = Env.GetString("DB_CONNECTION_STRING"),
-		["JwtSettings:Secret"] = Env.GetString("JWT_SECRET"),
-		["JwtSettings:Issuer"] = Env.GetString("JWT_ISSUER"),
-		["JwtSettings:Audience"] = Env.GetString("JWT_AUDIENCE"),
-		["JwtSettings:ExpiryMinutes"] = Env.GetString("JWT_EXPIRY_MINUTES"),
-		["Logging:LogLevel:Default"] = Env.GetString("LOG_LEVEL")
-	});
+	.AddInMemoryCollection(envConfig.Where(x => x.Value != null)
+		.ToDictionary(x => x.Key, x => x.Value))
+	.AddEnvironmentVariables();
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -52,6 +56,28 @@ builder.Host.UseSerilog();
 // Add services
 builder.Services.AddWebApiServices(builder.Configuration);
 builder.Services.AddHealthChecks();
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+	// Policy cho production (có AllowCredentials)
+	var allowedOrigins = Env.GetString("ALLOWED_ORIGINS")?.Split(',') ?? new[] { "http://localhost:4200" };
+	options.AddPolicy("AllowSpecific", policy =>
+	{
+		policy.WithOrigins(allowedOrigins)
+			  .AllowAnyMethod()
+			  .AllowAnyHeader()
+			  .AllowCredentials();
+	});
+
+	// Policy cho development/Swagger (không AllowCredentials)
+	options.AddPolicy("SwaggerPolicy", policy =>
+	{
+		policy.AllowAnyOrigin()
+			  .AllowAnyMethod()
+			  .AllowAnyHeader();
+	});
+});
 
 // Add Swagger configuration
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
@@ -84,7 +110,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
+
+// Dùng policy khác nhau cho môi trường
+if (app.Environment.IsDevelopment())
+{
+	app.UseCors("SwaggerPolicy");
+}
+else
+{
+	var corsPolicy = Env.GetString("CORS_POLICY") ?? "AllowSpecific";
+	app.UseCors(corsPolicy);
+}
+
+if (!app.Environment.IsDevelopment())
+{
+	app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

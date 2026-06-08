@@ -36,4 +36,16 @@
 	<data name="ValidationError" xml:space="preserve">
     <value>Dữ liệu không hợp lệ</value>
 </data>
+	<data name="CreateGroupBuyingRequestSuccess" xml:space="preserve">
+  <value>Đã ghi nhận yêu cầu mua chung</value>
+</data>
+	<data name="TargetPeopleCountInvalid" xml:space="preserve">
+  <value>Số lượng người mua chung phải từ 2 đến 100</value>
+</data>
+	<data name="TargetPriceInvalid" xml:space="preserve">
+  <value>Giá mục tiêu phải lớn hơn 0</value>
+</data>
+	<data name="NoteMaxLength" xml:space="preserve">
+  <value>Ghi chú không vượt quá 1000 ký tự</value>
+</data>
 </root>

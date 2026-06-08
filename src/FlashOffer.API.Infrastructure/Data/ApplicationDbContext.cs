@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     }
 
 	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+	public DbSet<GroupBuyingRequest> GroupBuyingRequests { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,20 +54,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 entry.State = EntityState.Modified;
                 entry.Entity.IsDeleted = true;
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
-                entry.Entity.UpdatedBy = currentUserName ?? currentUserId;
+                entry.Entity.UpdatedBy = currentUserName ?? currentUserId ?? "System";
                 continue;
             }
 
             if (entry.State == EntityState.Added)
             {
                 entry.Entity.CreatedAt = DateTime.UtcNow;
-                entry.Entity.CreatedBy = currentUserName ?? currentUserId;
+                entry.Entity.CreatedBy = currentUserName ?? currentUserId ?? "System";
             }
 
             if (entry.State == EntityState.Modified)
             {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
-                entry.Entity.UpdatedBy = currentUserName ?? currentUserId;
+                entry.Entity.UpdatedBy = currentUserName ?? currentUserId ?? "System";
             }
         }
 

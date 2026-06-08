@@ -35,5 +35,17 @@
   </data>
 	<data name="ValidationError" xml:space="preserve">
     <value>Invalid data</value>
-</data>
+  </data>
+	<data name="CreateGroupBuyingRequestSuccess" xml:space="preserve">
+    <value>Group buying request has been recorded</value>
+  </data>
+	<data name="TargetPeopleCountInvalid" xml:space="preserve">
+    <value>Target people count must be between 2 and 100</value>
+  </data>
+	<data name="TargetPriceInvalid" xml:space="preserve">
+    <value>Target price must be greater than 0</value>
+  </data>
+	<data name="NoteMaxLength" xml:space="preserve">
+    <value>Note cannot exceed 1000 characters</value>
+  </data>
 </root>
