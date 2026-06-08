@@ -22,6 +22,7 @@ public static class DependencyInjection
 
 		// Register services
 		services.AddScoped<IPurchaseRequestService, PurchaseRequestService>();
+		services.AddScoped<IGroupBuyingRequestService, GroupBuyingRequestService>();
 
 		return services;
     }

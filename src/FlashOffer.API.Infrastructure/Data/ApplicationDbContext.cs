@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     }
 
 	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+	public DbSet<GroupBuyingRequest> GroupBuyingRequests { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
