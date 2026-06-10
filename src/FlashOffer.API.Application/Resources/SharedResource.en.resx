@@ -48,4 +48,22 @@
 	<data name="NoteMaxLength" xml:space="preserve">
     <value>Note cannot exceed 1000 characters</value>
   </data>
+		<data name="CreateOfferRequestSuccess" xml:space="preserve">
+	  <value>Recorded! Discount code will be sent via Zalo within 24 hours</value>
+	</data>
+		<data name="OfferRequestNotFound" xml:space="preserve">
+	  <value>Offer request not found</value>
+	</data>
+		<data name="SelectedOfferRequired" xml:space="preserve">
+	  <value>Selected offer is required</value>
+	</data>
+		<data name="SelectedOfferMaxLength" xml:space="preserve">
+	  <value>Selected offer cannot exceed 500 characters</value>
+	</data>
+		<data name="ZaloRequired" xml:space="preserve">
+	  <value>Zalo account is required to receive the code</value>
+	</data>
+		<data name="ZaloMaxLength" xml:space="preserve">
+	  <value>Zalo account cannot exceed 50 characters</value>
+	</data>
 </root>
