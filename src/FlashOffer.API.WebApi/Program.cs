@@ -14,11 +14,11 @@ envPath = Path.GetFullPath(envPath);
 if (File.Exists(envPath))
 {
 	Env.Load(envPath);
-	Console.WriteLine($".env loaded from: {envPath}");
+	Console.WriteLine("✓ .env loaded");
 }
 else
 {
-	Console.WriteLine($".env not found at: {envPath}");
+	Console.WriteLine("⚠ .env not found");
 }
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,7 +60,6 @@ builder.Services.AddHealthChecks();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-	// Policy cho production (có AllowCredentials)
 	var allowedOrigins = Env.GetString("ALLOWED_ORIGINS")?.Split(',') ?? new[] { "http://localhost:4200" };
 	options.AddPolicy("AllowSpecific", policy =>
 	{
@@ -70,7 +69,6 @@ builder.Services.AddCors(options =>
 			  .AllowCredentials();
 	});
 
-	// Policy cho development/Swagger (không AllowCredentials)
 	options.AddPolicy("SwaggerPolicy", policy =>
 	{
 		policy.AllowAnyOrigin()
@@ -111,7 +109,6 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
 
-// Dùng policy khác nhau cho môi trường
 if (app.Environment.IsDevelopment())
 {
 	app.UseCors("SwaggerPolicy");
@@ -126,9 +123,12 @@ if (!app.Environment.IsDevelopment())
 {
 	app.UseHttpsRedirection();
 }
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program { }
