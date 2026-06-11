@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FlashOffer.API.Application.Common.Models;
 using FlashOffer.API.WebApi.Responses;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
@@ -35,4 +36,8 @@ public abstract class ApiControllerBase : ControllerBase
     {
         return base.Unauthorized(ApiResponse<object>.Fail(message, errors));
     }
+	protected IActionResult OkPaged<T>(PagedList<T> pagedData, string message = "Success")
+	{
+		return base.Ok(PagedResponse<T>.Ok(pagedData, message));
+	}
 }
