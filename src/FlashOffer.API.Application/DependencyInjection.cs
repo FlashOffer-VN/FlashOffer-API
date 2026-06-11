@@ -18,11 +18,12 @@ public static class DependencyInjection
         // Add FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-		services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly)); services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+		services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
 		// Register services
 		services.AddScoped<IPurchaseRequestService, PurchaseRequestService>();
 		services.AddScoped<IGroupBuyingRequestService, GroupBuyingRequestService>();
+		services.AddScoped<ICtvRegistrationService, CtvRegistrationService>();
 
 		return services;
     }
