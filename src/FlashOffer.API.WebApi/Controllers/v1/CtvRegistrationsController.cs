@@ -1,10 +1,6 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
-using FlashOffer.API.Application.Common.Models;
 using FlashOffer.API.Application.DTOs.requests;
-using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Resources;
-using FlashOffer.API.Application.Services;
-using FlashOffer.API.WebApi.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 

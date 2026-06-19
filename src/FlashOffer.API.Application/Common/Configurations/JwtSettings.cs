@@ -1,4 +1,4 @@
-﻿namespace FlashOffer.API.Infrastructure.Configurations;
+﻿namespace FlashOffer.API.Application.Common.Configurations;
 
 public class JwtSettings
 {

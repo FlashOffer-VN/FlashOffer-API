@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FlashOffer.API.Application.Common.Models;
+namespace FlashOffer.API.Domain.Models;
 
 public class PagedList<T>
 {

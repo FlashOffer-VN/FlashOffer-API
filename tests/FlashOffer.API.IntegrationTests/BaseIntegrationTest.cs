@@ -1,4 +1,5 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -12,10 +13,14 @@ namespace FlashOffer.API.IntegrationTests;
 public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
 	protected readonly HttpClient Client;
+	protected readonly WebApplicationFactory<Program> Factory;
 
 	protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
 	{
 		Console.WriteLine("🧪 Initializing test fixture...");
+
+		// Use a deterministic in-memory database name for this test instance so seeding and app use the same DB
+		var dbName = $"FlashOfferTestDb_{Guid.NewGuid()}";
 
 		var application = factory.WithWebHostBuilder(builder =>
 		{
@@ -37,7 +42,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 				// Thêm InMemory database
 				services.AddDbContext<ApplicationDbContext>(options =>
 				{
-					options.UseInMemoryDatabase($"FlashOfferTestDb_{Guid.NewGuid()}");
+					options.UseInMemoryDatabase(dbName);
 					options.EnableSensitiveDataLogging();
 				});
 
@@ -48,6 +53,8 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 		});
 
 		Client = application.CreateClient();
+		// Expose the configured factory so tests can access the same service provider to seed data
+		Factory = application;
 		Console.WriteLine("✅ Test fixture ready");
 	}
 }

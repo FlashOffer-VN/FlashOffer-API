@@ -1,6 +1,6 @@
-﻿using FlashOffer.API.Application.Common.Models;
-using FlashOffer.API.Application.DTOs.requests;
+﻿using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Domain.Models;
 
 namespace FlashOffer.API.Application.Common.Interfaces;
 

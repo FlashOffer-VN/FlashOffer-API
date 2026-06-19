@@ -1,4 +1,4 @@
-﻿using FlashOffer.API.Application.Common.Models;
+﻿using FlashOffer.API.Domain.Models;
 using FlashOffer.API.WebApi.Responses;
 using Microsoft.AspNetCore.Mvc;
 

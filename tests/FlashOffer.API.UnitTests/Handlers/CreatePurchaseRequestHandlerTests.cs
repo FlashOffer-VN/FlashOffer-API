@@ -3,6 +3,7 @@ using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
 using FlashOffer.API.Application.Features.PurchaseRequests.Handlers;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
