@@ -5,7 +5,7 @@
     <Project Path="src/FlashOffer.API.Infrastructure/FlashOffer.API.Infrastructure.csproj" />
     <Project Path="src/FlashOffer.API.Shared/FlashOffer.API.Shared.csproj" />
     <Project Path="src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj" />
-    <Project Path="docs/FlashOffer.API.Documentation/FlashOffer.API.Documentation.csproj"/>
+    <Project Path="docs/FlashOffer.API.Documentation/FlashOffer.API.Documentation.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FlashOffer.API.IntegrationTests/FlashOffer.API.IntegrationTests.csproj" />
