@@ -1,431 +1,73 @@
-﻿```markdown
-# ðŸš€ FlashOffer.API - Base Project .NET Core API vá»›i Clean Architecture
+﻿# FlashOffer.API
 
-Base project .NET Web API chuyÃªn nghiá»‡p vá»›i kiáº¿n trÃºc Clean Architecture, Ä‘Æ°á»£c thiáº¿t káº¿ Ä‘á»ƒ tÃ¡i sá»­ dá»¥ng cho má»i dá»± Ã¡n.
+FlashOffer.API is a .NET 9 Web API project structured with a Clean Architecture approach. Developer documentation and contribution guidelines are kept under docs/FlashOffer.API.Documentation/.
 
-## ðŸ“‹ Má»¥c lá»¥c
+Table of contents
+- Features
+- Requirements
+- Quick start
+- Project structure
+- Contributing
 
-- [CÃ´ng nghá»‡ sá»­ dá»¥ng](#cÃ´ng-nghá»‡-sá»­-dá»¥ng)
-- [TÃ­nh nÄƒng](#tÃ­nh-nÄƒng)
-- [YÃªu cáº§u cÃ i Ä‘áº·t](#yÃªu-cáº§u-cÃ i-Ä‘áº·t)
-- [Báº¯t Ä‘áº§u nhanh](#báº¯t-Ä‘áº§u-nhanh)
-- [Cáº¥u trÃºc dá»± Ã¡n](#cáº¥u-trÃºc-dá»±-Ã¡n)
-- [Cáº¥u hÃ¬nh](#cáº¥u-hÃ¬nh)
-- [API Endpoints](#api-endpoints)
-- [XÃ¡c thá»±c JWT](#xÃ¡c-thá»±c-jwt)
-- [CÃ¡ch tÃ¡i sá»­ dá»¥ng cho dá»± Ã¡n má»›i](#cÃ¡ch-tÃ¡i-sá»­-dá»¥ng-cho-dá»±-Ã¡n-má»›i)
-- [Xá»­ lÃ½ lá»—i thÆ°á»ng gáº·p](#xá»­-lÃ½-lá»—i-thÆ°á»ng-gáº·p)
+Key technologies
 
-## ðŸ›  CÃ´ng nghá»‡ sá»­ dá»¥ng
+| Technology | Version |
+|---|---:|
+| .NET SDK | 9.0 |
+| Entity Framework Core | 9.0 |
+| ASP.NET Core Web API | 9.0 |
+| AutoMapper | 12.x |
+| FluentValidation | 11.x |
+| Microsoft.IdentityModel.Tokens / JwtBearer | 8.x |
+| xUnit | 2.6.2 |
+| Serilog | 8.x |
+| Swagger/Swashbuckle | 6.5.x |
 
-| CÃ´ng nghá»‡ | PhiÃªn báº£n | Má»¥c Ä‘Ã­ch |
-|-----------|-----------|----------|
-| .NET | 9.0 | Runtime & Framework |
-| Entity Framework Core | 9.0 | ORM - Truy cáº­p database |
-| ASP.NET Core WebAPI | 9.0 | RESTful API |
-| AutoMapper | 12.0.1 | Map Ä‘á»‘i tÆ°á»£ng (Entity â†” DTO) |
-| FluentValidation | 11.x | Validate request |
-| JWT Bearer | 8.x | XÃ¡c thá»±c ngÆ°á»i dÃ¹ng |
-| xUnit | 2.6.2 | Unit Testing |
-| Serilog | 8.0.0 | Ghi log cÃ³ cáº¥u trÃºc |
-| Swagger/Swashbuckle | 6.5.0 | TÃ i liá»‡u API |
+Before you start
 
-## âœ¨ TÃ­nh nÄƒng
+- Install .NET 9 SDK: https://dotnet.microsoft.com/download/dotnet/9.0
+- Install Git and clone the repository
 
-- âœ… Clean Architecture (Domain, Application, Infrastructure, WebApi)
-- âœ… Dependency Injection extensions cho tá»«ng layer
-- âœ… Chuáº©n hÃ³a response (ApiResponse<T>)
-- âœ… Há»— trá»£ version API (v1, dá»… má»Ÿ rá»™ng)
-- âœ… FluentValidation (tá»± Ä‘á»™ng validate request)
-- âœ… XÃ¡c thá»±c JWT (báº£o vá»‡ API endpoints)
-- âœ… AutoMapper (tá»± Ä‘á»™ng map Entity â†” DTO)
-- âœ… Xá»­ lÃ½ ngoáº¡i lá»‡ toÃ n cá»¥c (Global Exception)
-- âœ… Ghi log vá»›i Serilog (console + file)
-- âœ… Swagger/OpenAPI há»— trá»£ nhiá»u version
-- âœ… Soft delete (lá»c IsDeleted)
-- âœ… Tá»± Ä‘á»™ng Ä‘Ã¡nh dáº¥u thá»i gian (CreatedAt, UpdatedAt)
+Quick start
 
-## ðŸ“¦ YÃªu cáº§u cÃ i Ä‘áº·t
-
-TrÆ°á»›c khi cháº¡y project, báº¡n cáº§n cÃ i Ä‘áº·t:
-
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (hoáº·c SQL Server LocalDB, Docker)
-- [Git](https://git-scm.com/)
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) hoáº·c [VS Code](https://code.visualstudio.com/)
-
-### Kiá»ƒm tra cÃ i Ä‘áº·t:
+1. Clone the repository
 
 ```bash
-dotnet --version     # Pháº£i hiá»ƒn thá»‹ 9.0.x
-git --version        # Kiá»ƒm tra Git
+git clone https://github.com/FlashOffer-VN/FlashOffer-API.git
+cd FlashOffer-API
 ```
 
-## ðŸš€ Báº¯t Ä‘áº§u nhanh
-
-### 1. Clone repository
-
-```bash
-git clone https://github.com/TEN_CUA_BAN/dotnet-api-base.git
-cd dotnet-api-base
-```
-
-### 1.1 Sá»­ dá»¥ng repo lÃ m template má»›i
-Náº¿u báº¡n dÃ¹ng repo nÃ y lÃ m base project má»›i, cháº¡y script rename vÃ  init:
-
-```powershell
-cd dotnet-api-base
-.\scripts\rename-project.ps1 -NewProjectName YourProjectName
-.\scripts\init-template.ps1
-```
-
-Náº¿u thay Ä‘á»•i cáº¥u trÃºc hoáº·c scripts, cháº¡y thÃªm:
-
-```powershell
-.\scripts\validate-docs-sync.ps1
-```
-
-### 2. KhÃ´i phá»¥c packages
+2. Restore and build
 
 ```bash
 dotnet restore
-```
-
-> Xem thÃªm tÃ i liá»‡u chi tiáº¿t trong `docs/FlashOffer.API.Documentation/`.
-> Xem thÃªm `docs/FlashOffer.API.Documentation/14-project-bootstrap.md` Ä‘á»ƒ sá»­ dá»¥ng project nÃ y nhÆ° má»™t template base.
-
-### 3. Build solution
-
-```bash
 dotnet build
 ```
 
-### 4. Cáº¥u hÃ¬nh káº¿t ná»‘i database
-
-Má»Ÿ file `src/FlashOffer.API.WebApi/appsettings.json` vÃ  sá»­a connection string náº¿u cáº§n:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=FlashOffer.APIDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-  }
-}
-```
-
-> Ghi chÃº: báº¡n cÃ³ thá»ƒ dÃ¹ng file `.env` Ä‘á»ƒ ghi Ä‘Ã¨ cáº¥u hÃ¬nh `JwtSettings` vÃ  connection string khi cháº¡y local.
-
-### 5. Cháº¡y migration (táº¡o database)
+3. Run tests
 
 ```bash
-cd src/FlashOffer.API.WebApi
-dotnet ef database update
-cd ../..
+dotnet test
 ```
 
-### 6. Cháº¡y API
+4. Run the API
 
 ```bash
 cd src/FlashOffer.API.WebApi
 dotnet run
 ```
 
-### 7. Kiá»ƒm tra API
+Developer docs
 
-Má»Ÿ trÃ¬nh duyá»‡t táº¡i: `https://localhost:5001/swagger`
+See docs/FlashOffer.API.Documentation/ for detailed developer guidance, contributing rules, coding conventions, and API templates.
 
-## ðŸ“ Cáº¥u trÃºc dá»± Ã¡n
+Contributing
 
-```
-dotnet-api-base/
-â”‚
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ FlashOffer.API.Domain/                    # Layer 1: Domain
-â”‚   â”‚   â”œâ”€â”€ Entities/
-â”‚   â”‚   â”‚   â”œâ”€â”€ BaseEntity.cs
-â”‚   â”‚   â”‚   â””â”€â”€ Product.cs
-â”‚   â”‚   â””â”€â”€ Enums/
-â”‚   â”‚
-â”‚   â”œâ”€â”€ FlashOffer.API.Application/               # Layer 2: Application
-â”‚   â”‚   â”œâ”€â”€ Common/
-â”‚   â”‚   â”‚   â””â”€â”€ Interfaces/
-â”‚   â”‚   â”‚       â”œâ”€â”€ IRepository.cs
-â”‚   â”‚   â”‚       â”œâ”€â”€ IApplicationDbContext.cs
-â”‚   â”‚   â”‚       â””â”€â”€ IJwtService.cs
-â”‚   â”‚   â”œâ”€â”€ DTOs/
-â”‚   â”‚   â”‚   â”œâ”€â”€ ProductDto.cs
-â”‚   â”‚   â”‚   â”œâ”€â”€ PaginationDto.cs
-â”‚   â”‚   â”‚   â””â”€â”€ AuthDtos.cs
-â”‚   â”‚   â”œâ”€â”€ Mappings/
-â”‚   â”‚   â”‚   â””â”€â”€ MappingProfile.cs
-â”‚   â”‚   â”œâ”€â”€ Validators/
-â”‚   â”‚   â”‚   â””â”€â”€ ProductValidators.cs
-â”‚   â”‚   â””â”€â”€ DependencyInjection.cs
-â”‚   â”‚
-â”‚   â”œâ”€â”€ FlashOffer.API.Infrastructure/            # Layer 3: Infrastructure
-â”‚   â”‚   â”œâ”€â”€ Data/
-â”‚   â”‚   â”‚   â””â”€â”€ ApplicationDbContext.cs
-â”‚   â”‚   â”œâ”€â”€ Repositories/
-â”‚   â”‚   â”‚   â””â”€â”€ GenericRepository.cs
-â”‚   â”‚   â”œâ”€â”€ Services/
-â”‚   â”‚   â”‚   â””â”€â”€ JwtService.cs
-â”‚   â”‚   â”œâ”€â”€ Configurations/
-â”‚   â”‚   â”‚   â””â”€â”€ JwtSettings.cs
-â”‚   â”‚   â””â”€â”€ DependencyInjection.cs
-â”‚   â”‚
-â”‚   â””â”€â”€ FlashOffer.API.WebApi/                    # Layer 4: WebApi
-â”‚       â”œâ”€â”€ Controllers/
-â”‚       â”‚   â”œâ”€â”€ ApiControllerBase.cs
-â”‚       â”‚   â””â”€â”€ v1/
-â”‚       â”‚       â”œâ”€â”€ SampleController.cs
-â”‚       â”‚       â””â”€â”€ AuthController.cs
-â”‚       â”œâ”€â”€ Middlewares/
-â”‚       â”‚   â””â”€â”€ GlobalExceptionMiddleware.cs
-â”‚       â”œâ”€â”€ Filters/
-â”‚       â”‚   â””â”€â”€ ValidationFilter.cs
-â”‚       â”œâ”€â”€ Responses/
-â”‚       â”‚   â””â”€â”€ ApiResponse.cs
-â”‚       â”œâ”€â”€ Configurations/
-â”‚       â”‚   â”œâ”€â”€ ApiVersioningConfig.cs
-â”‚       â”‚   â””â”€â”€ SwaggerConfig.cs
-â”‚       â”œâ”€â”€ Program.cs
-â”‚       â”œâ”€â”€ DependencyInjection.cs
-â”‚       â””â”€â”€ appsettings.json
-â”‚
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ FlashOffer.API.UnitTests/                 # Unit Tests
-â”‚   â””â”€â”€ FlashOffer.API.IntegrationTests/          # Integration Tests
-â”‚
-â”œâ”€â”€ .gitignore
-â”œâ”€â”€ Directory.Build.props
-â”œâ”€â”€ Directory.Packages.props
-â”œâ”€â”€ FlashOffer.API.sln
-â””â”€â”€ README.md
-```
+Before opening a PR:
+- Run `dotnet build` and `dotnet test` and ensure tests pass.
+- Follow the detailed guide in `docs/FlashOffer.API.Documentation/CONTRIBUTING.md`.
+- If you change package versions, update `Directory.Packages.props` and document the reason in the PR.
 
-## âš™ï¸ Cáº¥u hÃ¬nh
+License
 
-### appsettings.json
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=FlashOffer.APIDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-  },
-  "JwtSettings": {
-    "Secret": "YourSuperSecretKeyHereAtLeast32CharactersLong!",
-    "Issuer": "FlashOffer.API",
-    "Audience": "FlashOffer.APIClient",
-    "ExpiryMinutes": 60
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.EntityFrameworkCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*"
-}
-```
-
-### JWT Secret
-
-**Quan trá»ng:** Thay Ä‘á»•i `Secret` trong `JwtSettings` thÃ nh khÃ³a bÃ­ máº­t cá»§a riÃªng báº¡n (Ã­t nháº¥t 32 kÃ½ tá»±).
-
-## ðŸ”Œ API Endpoints
-
-### Auth Endpoints
-
-| Method | Endpoint | MÃ´ táº£ | XÃ¡c thá»±c |
-|--------|----------|-------|----------|
-| POST | `/api/v1/auth/login` | ÄÄƒng nháº­p láº¥y token | KhÃ´ng |
-
-**Login request:**
-```json
-{
-  "username": "admin",
-  "password": "password"
-}
-```
-
-**Login response:**
-```json
-{
-  "success": true,
-  "message": "Success",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIs...",
-    "expiresAt": "2024-01-01T00:00:00Z",
-    "username": "admin"
-  }
-}
-```
-
-### Sample Endpoints
-
-| Method | Endpoint | MÃ´ táº£ | XÃ¡c thá»±c |
-|--------|----------|-------|----------|
-| GET | `/api/v1/sample` | Láº¥y táº¥t cáº£ sáº£n pháº©m | KhÃ´ng |
-| GET | `/api/v1/sample/{id}` | Láº¥y sáº£n pháº©m theo id | KhÃ´ng |
-| POST | `/api/v1/sample` | Táº¡o sáº£n pháº©m má»›i | Cáº§n JWT |
-| PUT | `/api/v1/sample/{id}` | Cáº­p nháº­t sáº£n pháº©m | Cáº§n JWT |
-| DELETE | `/api/v1/sample/{id}` | XÃ³a sáº£n pháº©m | Cáº§n JWT |
-
-## ðŸ” XÃ¡c thá»±c JWT
-
-### CÃ¡ch láº¥y token:
-
-```bash
-curl -X POST https://localhost:5001/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "password"}'
-```
-
-### CÃ¡ch dÃ¹ng token:
-
-```bash
-curl -X GET https://localhost:5001/api/v1/sample \
-  -H "Authorization: Bearer TOKEN_CUA_BAN"
-```
-
-## ðŸ”„ CÃ¡ch tÃ¡i sá»­ dá»¥ng cho dá»± Ã¡n má»›i
-
-### CÃ¡ch 1: Clone vÃ  Ä‘á»•i tÃªn (nhanh nháº¥t)
-
-```bash
-# Clone base project
-git clone https://github.com/TEN_CUA_BAN/dotnet-api-base.git TenDuAnMoi
-cd TenDuAnMoi
-
-# XÃ³a thÆ° má»¥c .git Ä‘á»ƒ táº¡o repo má»›i
-rm -rf .git
-
-# Khá»Ÿi táº¡o Git má»›i
-git init
-git add .
-git commit -m "Initial commit from base template"
-
-# Táº¡o repo má»›i trÃªn GitHub vÃ  push
-git remote add origin https://github.com/TEN_CUA_BAN/TenDuAnMoi.git
-git push -u origin main
-```
-
-### CÃ¡ch 2: Äá»•i namespace (PowerShell - Windows)
-
-```powershell
-# Äá»•i tÃªn solution
-ren FlashOffer.API.sln TenDuAnMoi.sln
-
-# Äá»•i namespace trong táº¥t cáº£ file .cs
-Get-ChildItem -Recurse -Include *.cs | ForEach-Object {
-    (Get-Content $_.FullName) -replace 'FlashOffer.API', 'TenDuAnMoi' | Set-Content $_.FullName
-}
-
-# Äá»•i tÃªn thÆ° má»¥c
-ren src\FlashOffer.API.Domain src\TenDuAnMoi.Domain
-ren src\FlashOffer.API.Application src\TenDuAnMoi.Application
-ren src\FlashOffer.API.Infrastructure src\TenDuAnMoi.Infrastructure
-ren src\FlashOffer.API.WebApi src\TenDuAnMoi.WebApi
-ren tests\FlashOffer.API.UnitTests tests\TenDuAnMoi.UnitTests
-ren tests\FlashOffer.API.IntegrationTests tests\TenDuAnMoi.IntegrationTests
-```
-
-### CÃ¡ch 3: Cáº­p nháº­t file .csproj
-
-Sau khi Ä‘á»•i tÃªn thÆ° má»¥c, cáº­p nháº­t tá»«ng file `.csproj`:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>TenDuAnMoi.Domain</RootNamespace>
-    <AssemblyName>TenDuAnMoi.Domain</AssemblyName>
-  </PropertyGroup>
-</Project>
-```
-
-### CÃ¡ch 4: Cáº­p nháº­t solution references
-
-Má»Ÿ solution trong Visual Studio hoáº·c VS Code, sau Ä‘Ã³ chuá»™t pháº£i vÃ o Solution â†’ Add â†’ Existing Project, chá»n cÃ¡c project Ä‘Ã£ Ä‘á»•i tÃªn.
-
-## ðŸ—„ï¸ Migration database cho dá»± Ã¡n má»›i
-
-Sau khi Ä‘á»•i tÃªn vÃ  cáº¥u hÃ¬nh connection string:
-
-```bash
-cd src/TenDuAnMoi.WebApi
-
-# XÃ³a migrations cÅ© (náº¿u cÃ³)
-rm -rf ../TenDuAnMoi.Infrastructure/Migrations
-
-# Táº¡o migration má»›i
-dotnet ef migrations add InitialCreate --context ApplicationDbContext
-
-# Cáº­p nháº­t database
-dotnet ef database update --context ApplicationDbContext
-
-cd ../..
-```
-
-## ðŸ§ª Cháº¡y kiá»ƒm thá»­
-
-```bash
-# Cháº¡y táº¥t cáº£ test
-dotnet test
-
-# Cháº¡y test vá»›i Ä‘á»™ phá»§ code
-dotnet test --collect:"XPlat Code Coverage"
-```
-
-## ðŸ”§ Xá»­ lÃ½ lá»—i thÆ°á»ng gáº·p
-
-### Lá»—i: "dotnet ef not found"
-
-```bash
-dotnet tool install --global dotnet-ef
-```
-
-### Lá»—i: "Cannot connect to database"
-
-1. Kiá»ƒm tra SQL Server Ä‘ang cháº¡y:
-   ```bash
-   sqlcmd -S (localdb)\mssqllocaldb -Q "SELECT 1"
-   ```
-
-2. Cáº­p nháº­t connection string trong `appsettings.json`
-
-### Lá»—i: "Build failed - warnings as errors"
-
-Trong `Directory.Build.props`, táº¡m thá»i set:
-```xml
-<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-```
-
-### Lá»—i: JWT token khÃ´ng há»£p lá»‡
-
-Äáº£m báº£o `Secret` trong `appsettings.json` dÃ i Ã­t nháº¥t 32 kÃ½ tá»±.
-
-## ðŸ“ Giáº¥y phÃ©p
-
-Sá»­ dá»¥ng ná»™i bá»™
-
-## ðŸ‘¥ NgÆ°á»i Ä‘Ã³ng gÃ³p
-
-TÃªn cá»§a báº¡n - CÃ´ng viá»‡c ban Ä‘áº§u
-
----
-
-## ðŸŽ¯ Káº¿ hoáº¡ch phÃ¡t triá»ƒn (tÃ¹y chá»n)
-
-- [ ] Redis Caching
-- [ ] Há»— trá»£ Docker
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Serilog vá»›i Seq/Elasticsearch
-- [ ] Health checks endpoint
-- [ ] Giá»›i háº¡n tá»‘c Ä‘á»™ (Rate limiting)
-- [ ] Background services
-
----
-
-**ChÃºc báº¡n code vui váº»! ðŸš€**
-```
+Internal use only.

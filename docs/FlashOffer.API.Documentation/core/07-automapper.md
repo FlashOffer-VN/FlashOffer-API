@@ -54,3 +54,9 @@ CreateMap<UpdateCategoryDto, Category>()
 - KHÔNG dùng AutoMapper trong Domain layer
 - Profile được tự động scan, không cần đăng ký thủ công
 - Inject IMapper vào constructor của Controller
+
+### Chú ý về phiên bản AutoMapper
+
+- Hiện tại repository sử dụng AutoMapper 12.x cùng AutoMapper.Extensions.Microsoft.DependencyInjection 12.x.
+- Nếu muốn nâng cấp lên AutoMapper 16.x, phải đồng bộ cả AutoMapper.Extensions package hoặc thay đổi cách đăng ký (manual MapperConfiguration + IMapper singleton). Không mix các phiên bản lớn khác nhau.
+- Khuyến nghị hiện tại: giữ AutoMapper 12.x để tránh runtime MissingMethodException. Ghi rõ trong PR nếu kế hoạch nâng cấp và cập nhật MappingProfile/DI tương ứng.

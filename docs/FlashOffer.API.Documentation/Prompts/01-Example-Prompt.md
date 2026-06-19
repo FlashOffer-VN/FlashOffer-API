@@ -1,64 +1,59 @@
 ﻿# Prompt template cho AI
 
-## MÃ´ táº£
-ÄÃ¢y lÃ  template prompt dÃ¹ng cho AI khi thÃªm feature CRUD má»›i vÃ o dá»± Ã¡n `dotnet-api-base`.
+## Mô tả
 
-## NguyÃªn táº¯c chÃ­nh
-- LuÃ´n Æ°u tiÃªn `docs/FlashOffer.API.Documentation/` náº¿u ná»™i dung local khÃ¡c vá»›i kiáº¿n thá»©c chung.
-- Dá»± Ã¡n sá»­ dá»¥ng Clean Architecture, AutoMapper, FluentValidation, soft delete vÃ  chuáº©n `ApiResponse<T>`.
-- Chá»‰ táº¡o/sá»­a file cáº§n thiáº¿t cho feature má»›i.
-- TrÃ¡nh thay Ä‘á»•i cÃ¡c file quan trá»ng trá»« khi thá»±c sá»± cáº§n thiáº¿t.
-- Build solution vÃ  kiá»ƒm tra compile sau khi hoÃ n thÃ nh.
+Đây là template prompt dùng cho AI khi thêm feature CRUD mới vào dự án `dotnet-api-base`.
+
+## Nguyên tắc chính
+- Luôn ưu tiên `docs/FlashOffer.API.Documentation/` nếu nội dung local khác với kiến thức chung.
+- Dự án sử dụng Clean Architecture, AutoMapper, FluentValidation, soft delete và chuẩn `ApiResponse<T>`.
+- Chỉ tạo/sửa file cần thiết cho feature mới.
+- Tránh thay đổi các file quan trọng trừ khi thực sự cần thiết.
+- Build solution và kiểm tra compile sau khi hoàn thành.
 
 ## Format prompt
-Sá»­ dá»¥ng cáº¥u trÃºc: 
-- `Context:` mÃ´ táº£ ngáº¯n vá» repo
-- `Task:` mÃ´ táº£ feature cáº§n táº¡o
-- `Constraints:` cÃ¡c giá»›i háº¡n vÃ  quy táº¯c
-- `Done when:` chá»‰ ra tiÃªu chÃ­ hoÃ n thÃ nh
+Sử dụng cấu trúc:
+- `Context:` mô tả ngắn về repo
+- `Task:` mô tả feature cần tạo
+- `Constraints:` các giới hạn và quy tắc
+- `Done when:` chỉ ra tiêu chí hoàn thành
 
-## Máº«u prompt
+## Mẫu prompt
 Add Brand: Name*, Description (max 500)
 
-## Checklist AI cáº§n thá»±c hiá»‡n
-1. Äá»c `docs/FlashOffer.API.Documentation/` Ä‘á»ƒ náº¯m convention vÃ  rule.
-2. XÃ¡c Ä‘á»‹nh cÃ´ng viá»‡c dá»±a trÃªn template thÃªm feature má»›i cá»§a repo.
-3. Táº¡o cÃ¡c file sau:
+## Checklist AI cần thực hiện
+1. Đọc `docs/FlashOffer.API.Documentation/` để nắm convention và rule.
+2. Xác định công việc dựa trên template thêm feature mới của repo.
+3. Tạo các file sau:
    - `src/FlashOffer.API.Domain/Entities/{EntityName}.cs`
    - `src/FlashOffer.API.Infrastructure/Data/Configurations/{EntityName}Configuration.cs`
    - `src/FlashOffer.API.Application/DTOs/{EntityName}Dto.cs`, `Create{EntityName}Dto.cs`, `Update{EntityName}Dto.cs`
    - `src/FlashOffer.API.Application/Validators/{EntityName}Validators.cs`
    - `src/FlashOffer.API.WebApi/Controllers/v1/{EntityName}Controller.cs`
-4. Äáº£m báº£o DTO sá»­ dá»¥ng `IMapFrom<T>` Ä‘á»ƒ AutoMapper tá»± nháº­n mapping.
-5. ThÃªm `DbSet<{EntityName}>` vÃ o `src/FlashOffer.API.Infrastructure/Data/ApplicationDbContext.cs`.
-6. Build solution Ä‘á»ƒ xÃ¡c nháº­n khÃ´ng cÃ³ lá»—i.
-7. Náº¿u cÃ³ thay Ä‘á»•i liÃªn quan tá»›i cáº¥u trÃºc, template hoáº·c khá»Ÿi táº¡o repo, cháº¡y `scripts/validate-docs-sync.ps1` Ä‘á»ƒ kiá»ƒm tra Ä‘á»“ng bá»™ docs.
-8. Tá»•ng há»£p cÃ¡c file Ä‘Ã£ táº¡o/sá»­a vÃ  tráº£ lá»i ngáº¯n gá»n.
+4. Đảm bảo DTO sử dụng `IMapFrom<T>` để AutoMapper tự nhận mapping.
+5. Thêm `DbSet<{EntityName}>` vào `src/FlashOffer.API.Infrastructure/Data/ApplicationDbContext.cs`.
+6. Build solution để xác nhận không có lỗi.
+7. Nếu có thay đổi liên quan tới cấu trúc, template hoặc khởi tạo repo, chạy `scripts/validate-docs-sync.ps1` để kiểm tra đồng bộ docs (nếu script có sẵn).
+8. Tổng hợp các file đã tạo/sửa và trả lời ngắn gọn.
 
-## VÃ­ dá»¥ prompt cá»¥ thá»ƒ
-> Context: `dotnet-api-base` lÃ  dá»± Ã¡n Clean Architecture cÃ³ docs local táº¡i `docs/FlashOffer.API.Documentation/`.
-> Task: ThÃªm feature `Brand` vá»›i cÃ¡c trÆ°á»ng:
+## Ví dụ prompt cụ thể
+> Context: `dotnet-api-base` là dự án Clean Architecture có docs local tại `docs/FlashOffer.API.Documentation/`.
+> Task: Thêm feature `Brand` với các trường:
 > - `Name` (required, max 200)
 > - `Description` (optional, max 500)
-> Constraints: KhÃ´ng sá»­a file quan trá»ng trá»« khi cáº§n, Æ°u tiÃªn local docs, pháº£i táº¡o entity/config/DTO/validator/controller/DbSet, build Ä‘á»ƒ kiá»ƒm tra.
-> Done when: code compile thÃ nh cÃ´ng, endpoint CRUD tá»“n táº¡i, validation Ä‘Ãºng.
+> Constraints: Không sửa file quan trọng trừ khi cần, ưu tiên local docs, phải tạo entity/config/DTO/validator/controller/DbSet, build để kiểm tra.
+> Done when: code compile thành công, endpoint CRUD tồn tại, validation đúng.
 
-## LÆ°u Ã½ cáº£i thiá»‡n
-- Náº¿u prompt chá»‰ cÃ³ ná»™i dung ngáº¯n nhÆ° `Add Brand: Name*, Description (max 500)`, AI váº«n pháº£i hiá»ƒu task lÃ  táº¡o feature CRUD Ä‘áº§y Ä‘á»§ theo convention cá»§a repo.
-- Náº¿u local docs cÃ³ rule cá»¥ thá»ƒ, Æ°u tiÃªn Ã¡p dá»¥ng chÃºng hÆ¡n kiáº¿n thá»©c chung.
-- Náº¿u tháº¥y model `Product` hoáº·c `SampleController`, hÃ£y dÃ¹ng nÃ³ lÃ m máº«u Ä‘á»‹nh dáº¡ng.
+## Lưu ý cải thiện
+- Nếu prompt chỉ có nội dung ngắn như `Add Brand: Name*, Description (max 500)`, AI vẫn phải hiểu task là tạo feature CRUD đầy đủ theo convention của repo.
+- Nếu local docs có rule cụ thể, ưu tiên áp dụng chúng hơn kiến thức chung.
+- Nếu thấy model `Product` hoặc `SampleController`, hãy dùng nó làm mẫu định dạng.
 
 ## Template repo bootstrap
-Náº¿u cáº§n dÃ¹ng repo nÃ y nhÆ° starter template, AI nÃªn há»— trá»£ cÃ¡c bÆ°á»›c bootstrap sau:
-- Giá»¯ nguyÃªn cáº¥u trÃºc `src/Domain`, `src/Application`, `src/Infrastructure`, `src/WebApi`.
-- Cháº¡y `scripts/rename-project.ps1 -NewProjectName <TÃªnProject>` Ä‘á»ƒ Ä‘á»•i tÃªn project vÃ  namespace.
-- Cháº¡y `scripts/init-template.ps1` Ä‘á»ƒ táº¡o file `.env`, restore packages vÃ  build solution.
-- Náº¿u cáº§n Docker env, dÃ¹ng `scripts/init-template.ps1 -UseDockerEnv`.
-- Náº¿u cáº§n kiá»ƒm tra toÃ n bá»™, dÃ¹ng `scripts/init-template.ps1 -RunTests`.
-
-### VÃ­ dá»¥ prompt bootstrap
-> Context: `dotnet-api-base` lÃ  starter repo template vá»›i scripts bootstrap.
-> Task: Äá»•i tÃªn project thÃ nh `MyApiApp`, táº¡o `.env` tá»« `.env.example`, restore vÃ  build.
-> Constraints: chá»‰ dÃ¹ng script cÃ³ sáºµn, khÃ´ng sá»­a logic core cá»§a repo.
-> Done when: repo Ä‘Æ°á»£c Ä‘á»•i tÃªn, build thÃ nh cÃ´ng.
+Nên hỗ trợ các bước bootstrap sau khi dùng repo như starter template:
+- Giữ nguyên cấu trúc `src/Domain`, `src/Application`, `src/Infrastructure`, `src/WebApi`.
+- Chạy `scripts/rename-project.ps1 -NewProjectName <TênProject>` để đổi tên project và namespace.
+- Chạy `scripts/init-template.ps1` để tạo file `.env`, restore packages và build solution.
+- Nếu cần Docker env, dùng `scripts/init-template.ps1 -UseDockerEnv`.
+- Nếu cần kiểm tra toàn bộ, dùng `scripts/init-template.ps1 -RunTests`.
 

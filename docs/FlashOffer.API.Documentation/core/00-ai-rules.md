@@ -1,8 +1,8 @@
-﻿# AI Rules - Quy táº¯c lÃ m viá»‡c vá»›i dá»± Ã¡n FlashOffer.API
+﻿# AI Rules - Quy tắc làm việc với dự án FlashOffer.API
 
-## Má»¥c Ä‘Ã­ch
+## Mục đích
 
-File nÃ y Ä‘á»‹nh nghÄ©a cÃ¡ch AI pháº£i lÃ m viá»‡c khi thÃªm feature má»›i vÃ o dá»± Ã¡n, Ä‘áº£m báº£o AI cÃ³ thá»ƒ tá»± Ä‘á»™ng theo dÃµi vÃ  bÃ¡o cÃ¡o thay Ä‘á»•i.
+File này định nghĩa cách AI phải làm việc khi thêm feature mới vào dự án, đảm bảo AI có thể tự động theo dõi và báo cáo thay đổi.
 
 ---
 
