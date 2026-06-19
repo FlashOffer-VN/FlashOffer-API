@@ -3,6 +3,7 @@ using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Features.OfferRequests.Commands;
 using FlashOffer.API.Application.Features.OfferRequests.Handlers;
 using FlashOffer.API.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace FlashOffer.API.UnitTests.Handlers;
@@ -46,5 +47,29 @@ public class CreateOfferRequestHandlerTests
 		Assert.False(entity.IsOfferSent);
 		_repositoryMock.Verify(r => r.AddAsync(It.IsAny<OfferRequest>(), It.IsAny<CancellationToken>()), Times.Once);
 		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+	}
+
+	[Fact]
+	public async Task Handle_WhenSaveFails_ShouldThrowException()
+	{
+		// Arrange
+		var command = new CreateOfferRequestCommand
+		{
+			SelectedOffer = "Test Offer",
+			FullName = "Test User",
+			Phone = "0978123456",
+			Zalo = "testzalo"
+		};
+
+		var entity = new OfferRequest();
+		_mapperMock.Setup(m => m.Map<OfferRequest>(command)).Returns(entity);
+		_repositoryMock.Setup(r => r.AddAsync(It.IsAny<OfferRequest>(), It.IsAny<CancellationToken>()))
+			.Returns(Task.CompletedTask);
+		_repositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()))
+			.ThrowsAsync(new DbUpdateException("Database error"));
+
+		// Act & Assert
+		await Assert.ThrowsAsync<DbUpdateException>(() => _handler.Handle(command, CancellationToken.None));
+		_repositoryMock.Verify(r => r.AddAsync(It.IsAny<OfferRequest>(), It.IsAny<CancellationToken>()), Times.Once);
 	}
 }

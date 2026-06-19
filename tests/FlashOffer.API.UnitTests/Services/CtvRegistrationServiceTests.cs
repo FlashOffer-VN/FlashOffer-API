@@ -4,6 +4,7 @@ using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Services;
 using FlashOffer.API.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace FlashOffer.API.UnitTests.Services;
@@ -50,5 +51,28 @@ public class CtvRegistrationServiceTests
 		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 		Assert.Equal(response.FullName, result.FullName);
 		Assert.False(entity.IsApproved);
+	}
+
+	[Fact]
+	public async Task CreateAsync_WhenSaveFails_ShouldThrowException()
+	{
+		// Arrange
+		var dto = new CreateCtvRegistrationDto
+		{
+			FullName = "Nguyen Van A",
+			Phone = "0933123456"
+		};
+
+		var entity = new CtvRegistration { FullName = dto.FullName, Phone = dto.Phone };
+
+		_mapperMock.Setup(m => m.Map<CtvRegistration>(dto)).Returns(entity);
+		_repositoryMock.Setup(r => r.AddAsync(It.IsAny<CtvRegistration>(), It.IsAny<CancellationToken>()))
+			.Returns(Task.CompletedTask);
+		_repositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()))
+			.ThrowsAsync(new DbUpdateException("Database error"));
+
+		// Act & Assert
+		await Assert.ThrowsAsync<DbUpdateException>(() => _service.CreateAsync(dto));
+		_repositoryMock.Verify(r => r.AddAsync(It.IsAny<CtvRegistration>(), It.IsAny<CancellationToken>()), Times.Once);
 	}
 }
