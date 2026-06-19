@@ -92,4 +92,50 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 		// Assert
 		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 	}
+
+	[Fact]
+	public async Task GetList_WithValidParams_ReturnsOk()
+	{
+		// Arrange
+		var url = "/api/leads/group-buying-requests?page=1&pageSize=10";
+
+		// Act
+		var response = await Client.GetAsync(url);
+		var result = await response.Content.ReadFromJsonAsync<PagedResponse<GroupBuyingRequestResponseDto>>();
+
+		// Assert
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		Assert.NotNull(result);
+		Assert.True(result.Success);
+		Assert.NotNull(result.Data);
+	}
+
+	[Fact]
+	public async Task GetList_WithStatusFilter_ReturnsOk()
+	{
+		// Arrange
+		var url = "/api/leads/group-buying-requests?page=1&pageSize=10&status=Pending";
+
+		// Act
+		var response = await Client.GetAsync(url);
+		var result = await response.Content.ReadFromJsonAsync<PagedResponse<GroupBuyingRequestResponseDto>>();
+
+		// Assert
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		Assert.True(result.Success);
+		// Verify chỉ có item với status Pending (có thể kiểm tra thêm)
+	}
+
+	[Fact]
+	public async Task GetList_WithInvalidStatus_ReturnsBadRequest()
+	{
+		// Arrange
+		var url = "/api/leads/group-buying-requests?page=1&pageSize=10&status=InvalidStatus";
+
+		// Act
+		var response = await Client.GetAsync(url);
+
+		// Assert
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+	}
 }

@@ -32,7 +32,7 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
 		return _mapper.Map<GroupBuyingRequestResponseDto>(entity);
 	}
 
-	public async Task<PagedResultDto<GroupBuyingRequestResponseDto>> GetPagedAsync(GetGroupBuyingRequestsQueryDto query)
+	public async Task<PagedList<GroupBuyingRequestResponseDto>> GetPagedAsync(GetGroupBuyingRequestsQueryDto query)
 	{
 		// Build predicate filter
 		System.Linq.Expressions.Expression<Func<GroupBuyingRequest, bool>>? predicate = null;
@@ -57,12 +57,11 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
 		// Map to response DTOs
 		var items = _mapper.Map<List<GroupBuyingRequestResponseDto>>(sortedItems);
 
-		return new PagedResultDto<GroupBuyingRequestResponseDto>
-		{
-			Items = items,
-			TotalCount = pagedEntities.TotalCount,
-			PageNumber = query.Page,
-			PageSize = query.PageSize
-		};
+		// Return PagedList
+		return new PagedList<GroupBuyingRequestResponseDto>(
+			items,
+			pagedEntities.TotalCount,
+			query.Page,
+			query.PageSize);
 	}
 }
