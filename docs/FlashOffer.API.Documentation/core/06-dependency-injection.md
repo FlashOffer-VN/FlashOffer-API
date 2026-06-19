@@ -71,4 +71,18 @@ services.AddScoped<ICategoryService, CategoryService>();
 
 - Đăng ký đúng lifetime: AddSingleton, AddScoped, AddTransient
 - Repository đã được đăng ký generic, không cần đăng ký từng entity
-- KHÔNG đăng ký service trong Program.cs trực tiếp
+ - KHÔNG đăng ký service trong Program.cs trực tiếp
+
+### Quan trọng: Localization và Validator
+
+- GỌI services.AddLocalization() *trước* khi đăng ký FluentValidation hoặc AddControllers().AddFluentValidation().
+- Lý do: Validators inject IStringLocalizer<SharedResource> và cần được resolve khi validator được đăng ký/khởi tạo.
+- Ví dụ đúng:
+
+```csharp
+services.AddLocalization();
+services.AddControllers()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<SharedResource>());
+```
+
+Nếu không tuân thủ, validator có thể throw tại thời điểm khởi tạo.

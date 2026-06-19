@@ -85,6 +85,12 @@ public ProductController(IRepository<Product> repository, IMapper mapper)
     _mapper = mapper;
 }
 
+### Testing guidelines
+
+- Unit tests should mock external dependencies using Moq and explicitly include CancellationToken parameters in setups when the method signature includes them (e.g., It.IsAny<CancellationToken>()).
+- Integration tests should use the provided BaseIntegrationTest which creates a deterministic InMemory database name and seeds data using Factory.Server.Services.CreateScope().
+- Prefer Guid for entity Ids; if using numeric Ids, document the choice in the entity's file header.
+
 ## Validation
 
 | Quy tắc                                 | Ví dụ                                           |

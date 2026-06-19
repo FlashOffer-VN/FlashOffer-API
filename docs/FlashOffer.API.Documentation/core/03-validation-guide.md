@@ -52,3 +52,20 @@ Chỉ cần sửa 1 file: ValidationFilter.cs
 - Validator được tự động scan nhờ AddValidatorsFromAssembly
 - KHÔNG cần gọi validator thủ công trong controller
 - KHÔNG cần kiểm tra ModelState.IsValid
+
+### Localization in Validators
+
+- If a validator injects IStringLocalizer<T> (for localized messages), ensure services.AddLocalization() is called before AddControllers().AddFluentValidation(...) so the localizer is resolvable when validators are registered.
+- Example validator constructor:
+
+```csharp
+public class CreateProductValidator : AbstractValidator<CreateProductDto>
+{
+    public CreateProductValidator(IStringLocalizer<SharedResource> L)
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage(L["NameRequired"])
+            .MaximumLength(200).WithMessage(L["NameMaxLength"]);
+    }
+}
+```

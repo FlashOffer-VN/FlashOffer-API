@@ -158,4 +158,23 @@ cd ../..
 | 4 | GET endpoints thêm [AllowAnonymous] nếu muốn công khai |
 | 5 | POST, PUT, DELETE không cần decorate vì controller có [Authorize] |
 | 6 | **MỚI:** Tạo file Configuration riêng cho mỗi entity, KHÔNG thêm Fluent API vào DbContext |
+
+## Resource keys, localization and tests
+
+- When adding new user-facing messages (validation, errors, UI text), add resource keys for both English (en) and Vietnamese (vi) under `src/FlashOffer.API.WebApi/Resources/` or the project's shared resource location. Use sensible keys (e.g., "Category.NameRequired").
+- Update resource files: `Resources.en.resx` and `Resources.vi.resx` (or per-area resource files) with the new keys.
+- Validators should use IStringLocalizer<SharedResource> to fetch localized messages.
+
+## Test and PR checklist (must pass before PR)
+
+- Run `dotnet build` and `dotnet test` for the solution; all tests must pass locally.
+- If you add validators that depend on localization, ensure that the application DI calls `services.AddLocalization()` before `AddControllers().AddFluentValidation(...)` as documented in the DI guide.
+- For integration tests, follow the BaseIntegrationTest pattern: use the deterministic InMemory database name and seed data using `Factory.Server.Services.CreateScope()` so seeded data is visible to the test server.
+- If you modify package versions, update `Directory.Packages.props` and explain the reason and compatibility considerations in the PR description (especially for AutoMapper or authentication packages).
+- Include migration files only when database schema changes are required; run `dotnet ef migrations add` and commit the generated migration files.
+
+## Notes for reviewers
+
+- Verify new mappings are covered by unit tests or integration tests that exercise mapping logic.
+- Check that new resource keys are present in both locale files and that validators use localized strings.
 "@ | Out-File -FilePath docs/FlashOffer.API.Documentation/core/11-how-to-add-new-api.md -Encoding UTF8

@@ -28,6 +28,14 @@ Thank you for considering contributing to this project!
 - Use _camelCase for private fields
 - Add [AllowAnonymous] to public GET endpoints
 
+### Testing and PR checklist
+
+- Run dotnet build and dotnet test locally before opening a PR.
+- Ensure new validators that need localization follow the docs: call AddLocalization() before AddControllers().AddFluentValidation().
+- If your change modifies package versions, update Directory.Packages.props and explain version decisions in the PR description.
+- Add or update tests for new behavior; integration tests should follow the BaseIntegrationTest pattern (deterministic InMemory database name and seeding via Factory.Server.Services.CreateScope()).
+- For mapping changes, avoid mixing major AutoMapper versions; note chosen version in PR.
+
 ## Pull Request Process
 
 1. Ensure your code builds without warnings
