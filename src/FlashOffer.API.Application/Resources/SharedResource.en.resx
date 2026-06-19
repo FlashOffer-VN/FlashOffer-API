@@ -78,4 +78,10 @@
 	<data name="CreateCtvRegistrationSuccess" xml:space="preserve">
     <value>CTV registration recorded! We will contact you soon</value>
   </data>
+  <data name="GroupBuyingRequestsRetrievedSuccess" xml:space="preserve">
+    <value>Group buying requests retrieved successfully</value>
+  </data>
+  <data name="InvalidStatus" xml:space="preserve">
+    <value>Invalid status value</value>
+  </data>
 </root>

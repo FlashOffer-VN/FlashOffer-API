@@ -78,4 +78,10 @@
 	<data name="CreateCtvRegistrationSuccess" xml:space="preserve">
     <value>Đã ghi nhận đăng ký CTV! Chúng tôi sẽ liên hệ sớm</value>
   </data>
+  <data name="GroupBuyingRequestsRetrievedSuccess" xml:space="preserve">
+    <value>Lấy danh sách yêu cầu mua chung thành công</value>
+  </data>
+  <data name="InvalidStatus" xml:space="preserve">
+    <value>Giá trị trạng thái không hợp lệ</value>
+  </data>
 </root>

@@ -1,56 +1,100 @@
-﻿using AutoMapper;
-using FlashOffer.API.Application.Common.Interfaces;
-using FlashOffer.API.Application.DTOs.requests;
-using FlashOffer.API.Application.DTOs.responses;
-using FlashOffer.API.Application.Services;
-using FlashOffer.API.Domain.Entities;
-using FlashOffer.API.Domain.Enums;
+﻿using FlashOffer.API.Application.DTOs.requests;
+using FlashOffer.API.Application.Validators;
+using FlashOffer.API.Application.Resources;
+using Microsoft.Extensions.Localization;
 using Moq;
 
-namespace FlashOffer.API.UnitTests.Services;
+namespace FlashOffer.API.UnitTests.Validators;
 
 public class CreateGroupBuyingRequestValidatorTests
 {
-	private readonly Mock<IRepository<GroupBuyingRequest>> _repositoryMock;
-	private readonly Mock<IMapper> _mapperMock;
-	private readonly GroupBuyingRequestService _service;
+	private readonly Mock<IStringLocalizer<SharedResource>> _localizerMock;
+	private readonly CreateGroupBuyingRequestValidator _validator;
 
 	public CreateGroupBuyingRequestValidatorTests()
 	{
-		_repositoryMock = new Mock<IRepository<GroupBuyingRequest>>();
-		_mapperMock = new Mock<IMapper>();
-		_service = new GroupBuyingRequestService(_repositoryMock.Object, _mapperMock.Object);
+		_localizerMock = new Mock<IStringLocalizer<SharedResource>>();
+
+		_localizerMock.Setup(l => l["ProductNameRequired"]).Returns(new LocalizedString("ProductNameRequired", "Product name is required"));
+		_localizerMock.Setup(l => l["ProductNameMaxLength"]).Returns(new LocalizedString("ProductNameMaxLength", "Product name max 500"));
+		_localizerMock.Setup(l => l["TargetPeopleCountInvalid"]).Returns(new LocalizedString("TargetPeopleCountInvalid", "Target people count must be between 2 and 100"));
+		_localizerMock.Setup(l => l["FullNameRequired"]).Returns(new LocalizedString("FullNameRequired", "Full name is required"));
+		_localizerMock.Setup(l => l["FullNameMaxLength"]).Returns(new LocalizedString("FullNameMaxLength", "Full name max 200"));
+		_localizerMock.Setup(l => l["PhoneRequired"]).Returns(new LocalizedString("PhoneRequired", "Phone is required"));
+		_localizerMock.Setup(l => l["PhoneInvalid"]).Returns(new LocalizedString("PhoneInvalid", "Phone is invalid"));
+		_localizerMock.Setup(l => l["TargetPriceInvalid"]).Returns(new LocalizedString("TargetPriceInvalid", "Target price must be greater than 0"));
+		_localizerMock.Setup(l => l["NoteMaxLength"]).Returns(new LocalizedString("NoteMaxLength", "Note max 1000"));
+
+		_validator = new CreateGroupBuyingRequestValidator(_localizerMock.Object);
 	}
 
 	[Fact]
-	public async Task CreateAsync_Should_Set_CurrentPeopleCount_To_1()
+	public void Validate_ValidDto_ShouldSucceed()
 	{
-		// Arrange
-		var request = new CreateGroupBuyingRequestDto
+		var dto = new CreateGroupBuyingRequestDto
 		{
-			ProductName = "Test Product",
+			ProductName = "Laptop",
 			TargetPeopleCount = 5,
 			FullName = "Test User",
 			Phone = "0978123456"
 		};
+		var result = _validator.Validate(dto);
+		Assert.True(result.IsValid);
+	}
 
-		var entity = new GroupBuyingRequest();
-		var response = new GroupBuyingRequestResponseDto();
+	[Fact]
+	public void Validate_ProductNameEmpty_ShouldFail()
+	{
+		var dto = new CreateGroupBuyingRequestDto
+		{
+			ProductName = "",
+			TargetPeopleCount = 5
+		};
+		var result = _validator.Validate(dto);
+		Assert.False(result.IsValid);
+		Assert.Contains(result.Errors, e => e.PropertyName == "ProductName");
+	}
 
-		_mapperMock.Setup(m => m.Map<GroupBuyingRequest>(request)).Returns(entity);
-		_mapperMock.Setup(m => m.Map<GroupBuyingRequestResponseDto>(entity)).Returns(response);
-		_repositoryMock.Setup(r => r.AddAsync(It.IsAny<GroupBuyingRequest>(), It.IsAny<CancellationToken>()))
-			.Returns(Task.CompletedTask);
-		_repositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(1);
+	[Fact]
+	public void Validate_TargetPeopleCountZero_ShouldFail()
+	{
+		var dto = new CreateGroupBuyingRequestDto
+		{
+			ProductName = "Laptop",
+			TargetPeopleCount = 0
+		};
+		var result = _validator.Validate(dto);
+		Assert.False(result.IsValid);
+		Assert.Contains(result.Errors, e => e.PropertyName == "TargetPeopleCount");
+	}
 
-		// Act
-		var result = await _service.CreateAsync(request);
+	[Fact]
+	public void Validate_FullNameEmpty_ShouldFail()
+	{
+		var dto = new CreateGroupBuyingRequestDto
+		{
+			ProductName = "Laptop",
+			TargetPeopleCount = 5,
+			FullName = "",
+			Phone = "0978123456"
+		};
+		var result = _validator.Validate(dto);
+		Assert.False(result.IsValid);
+		Assert.Contains(result.Errors, e => e.PropertyName == "FullName");
+	}
 
-		// Assert
-		Assert.Equal(1, entity.CurrentPeopleCount);
-		Assert.Equal(GroupBuyingStatus.Pending, entity.Status);
-		_repositoryMock.Verify(r => r.AddAsync(It.IsAny<GroupBuyingRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+	[Fact]
+	public void Validate_PhoneInvalid_ShouldFail()
+	{
+		var dto = new CreateGroupBuyingRequestDto
+		{
+			ProductName = "Laptop",
+			TargetPeopleCount = 5,
+			FullName = "Test User",
+			Phone = "123"
+		};
+		var result = _validator.Validate(dto);
+		Assert.False(result.IsValid);
+		Assert.Contains(result.Errors, e => e.PropertyName == "Phone");
 	}
 }
