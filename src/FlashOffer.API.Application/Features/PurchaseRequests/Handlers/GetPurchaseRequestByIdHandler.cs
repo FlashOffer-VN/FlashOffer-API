@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using AutoMapper;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Features.PurchaseRequests.Queries;
 using FlashOffer.API.Application.DTOs.responses;

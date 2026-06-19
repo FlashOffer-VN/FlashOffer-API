@@ -1,4 +1,4 @@
-﻿namespace FlashOffer.API.Application.Common.Interfaces;
+﻿namespace FlashOffer.API.Shared.Common.Interfaces;
 
 public interface ICurrentUserService
 {

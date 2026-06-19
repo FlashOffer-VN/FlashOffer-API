@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Interfaces;
-using FlashOffer.API.Application.Common.Models;
-using FlashOffer.API.Application.DTOs;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
+using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Domain.Models;
 
 namespace FlashOffer.API.Application.Services;
 

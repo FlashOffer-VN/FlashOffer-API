@@ -1,16 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+﻿using FlashOffer.API.Application;
+using FlashOffer.API.Application.Common.Configurations;
+using FlashOffer.API.Application.Resources;
+using FlashOffer.API.Application.Validators;
+using FlashOffer.API.Infrastructure;
+using FlashOffer.API.WebApi.Configurations;
+using FlashOffer.API.WebApi.Filters;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using FlashOffer.API.Application;
-using FlashOffer.API.Infrastructure;
-using FlashOffer.API.Infrastructure.Configurations;
-using FlashOffer.API.WebApi.Filters;
-using FlashOffer.API.WebApi.Configurations;
-using FluentValidation.AspNetCore;
-using FlashOffer.API.Application.Validators;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FlashOffer.API.WebApi;
 
@@ -76,7 +75,7 @@ public static class DependencyInjection
 		})
 		.AddFluentValidation(fv =>
 		{
-			fv.RegisterValidatorsFromAssemblyContaining<CreatePurchaseRequestValidator>();
+			fv.RegisterValidatorsFromAssemblyContaining<SharedResource>();
 			fv.AutomaticValidationEnabled = true;
 		});
 

@@ -1,4 +1,4 @@
-﻿using FlashOffer.API.Application.Common.Models;
+﻿using FlashOffer.API.Domain.Models;
 
 namespace FlashOffer.API.WebApi.Responses;
 

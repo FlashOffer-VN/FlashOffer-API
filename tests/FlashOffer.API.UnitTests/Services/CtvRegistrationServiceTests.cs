@@ -4,6 +4,7 @@ using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Services;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

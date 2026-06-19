@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
-using FlashOffer.API.Application.Common.Interfaces;
-using FlashOffer.API.Application.Common.Models;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
-using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Application.Services;
-using FlashOffer.API.Application.Validators;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
+using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using Moq;
 using System.Linq.Expressions;
 

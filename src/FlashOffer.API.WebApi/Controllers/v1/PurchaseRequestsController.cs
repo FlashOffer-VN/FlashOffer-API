@@ -1,11 +1,11 @@
-﻿using MediatR;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using FlashOffer.API.Application.Resources;
+﻿using AutoMapper;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
 using FlashOffer.API.Application.Features.PurchaseRequests.Queries;
+using FlashOffer.API.Application.Resources;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 

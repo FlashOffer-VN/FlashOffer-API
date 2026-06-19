@@ -1,87 +1,108 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<data name="CreateSuccess" xml:space="preserve">
-    <value>Đã ghi nhận yêu cầu tìm hàng</value>
-  </data>
-	<data name="NotFound" xml:space="preserve">
-    <value>Không tìm thấy</value>
-  </data>
-	<data name="ProductNameRequired" xml:space="preserve">
-    <value>Tên sản phẩm không được để trống</value>
-  </data>
-	<data name="ProductNameMaxLength" xml:space="preserve">
-    <value>Tên sản phẩm tối đa 500 ký tự</value>
-  </data>
-	<data name="QuantityMin" xml:space="preserve">
-    <value>Số lượng phải lớn hơn hoặc bằng 1</value>
-  </data>
-	<data name="FullNameRequired" xml:space="preserve">
-    <value>Họ tên không được để trống</value>
-  </data>
-	<data name="FullNameMaxLength" xml:space="preserve">
-    <value>Họ tên tối đa 200 ký tự</value>
-  </data>
-	<data name="PhoneRequired" xml:space="preserve">
-    <value>Số điện thoại không được để trống</value>
-  </data>
-	<data name="PhoneInvalid" xml:space="preserve">
-    <value>Số điện thoại phải có 10-11 chữ số</value>
-  </data>
-	<data name="EmailInvalid" xml:space="preserve">
-    <value>Email không đúng định dạng</value>
-  </data>
-	<data name="ExpectedPricePositive" xml:space="preserve">
-    <value>Giá kỳ vọng phải lớn hơn 0</value>
-  </data>
-	<data name="ValidationError" xml:space="preserve">
-    <value>Dữ liệu không hợp lệ</value>
-  </data>
-	<data name="CreateGroupBuyingRequestSuccess" xml:space="preserve">
-    <value>Đã ghi nhận yêu cầu mua chung</value>
-  </data>
-	<data name="TargetPeopleCountInvalid" xml:space="preserve">
-    <value>Số lượng người mua chung phải từ 2 đến 100</value>
-  </data>
-	<data name="TargetPriceInvalid" xml:space="preserve">
-    <value>Giá mục tiêu phải lớn hơn 0</value>
-  </data>
-	<data name="NoteMaxLength" xml:space="preserve">
-    <value>Ghi chú không vượt quá 1000 ký tự</value>
-  </data>
-	<data name="CreateOfferRequestSuccess" xml:space="preserve">
-    <value>Đã ghi nhận! Mã giảm giá sẽ được gửi qua Zalo trong 24h</value>
-  </data>
-	<data name="OfferRequestNotFound" xml:space="preserve">
-    <value>Không tìm thấy yêu cầu nhận offer</value>
-  </data>
-	<data name="SelectedOfferRequired" xml:space="preserve">
-    <value>Offer được chọn là bắt buộc</value>
-  </data>
-	<data name="SelectedOfferMaxLength" xml:space="preserve">
-    <value>Offer được chọn không vượt quá 500 ký tự</value>
-  </data>
-	<data name="ZaloRequired" xml:space="preserve">
-    <value>Zalo là bắt buộc để nhận mã</value>
-  </data>
-	<data name="ZaloMaxLength" xml:space="preserve">
-    <value>Zalo không được vượt quá 50 ký tự</value>
-  </data>
-	<data name="EmailMaxLength" xml:space="preserve">
-    <value>Email không được vượt quá 100 ký tự</value>
-  </data>
-	<data name="SalesChannelMaxLength" xml:space="preserve">
-    <value>Kênh bán hàng không được vượt quá 100 ký tự</value>
-  </data>
-	<data name="ExperienceMaxLength" xml:space="preserve">
-    <value>Kinh nghiệm không được vượt quá 1000 ký tự</value>
-  </data>
-	<data name="CreateCtvRegistrationSuccess" xml:space="preserve">
-    <value>Đã ghi nhận đăng ký CTV! Chúng tôi sẽ liên hệ sớm</value>
-  </data>
-  <data name="GroupBuyingRequestsRetrievedSuccess" xml:space="preserve">
-    <value>Lấy danh sách yêu cầu mua chung thành công</value>
-  </data>
-  <data name="InvalidStatus" xml:space="preserve">
-    <value>Giá trị trạng thái không hợp lệ</value>
-  </data>
+<data name="CreateSuccess" xml:space="preserve">
+<value>Đã ghi nhận yêu cầu tìm hàng</value>
+</data>
+<data name="NotFound" xml:space="preserve">
+<value>Không tìm thấy</value>
+</data>
+<data name="ProductNameRequired" xml:space="preserve">
+<value>Tên sản phẩm không được để trống</value>
+</data>
+<data name="ProductNameMaxLength" xml:space="preserve">
+<value>Tên sản phẩm tối đa 500 ký tự</value>
+</data>
+<data name="QuantityMin" xml:space="preserve">
+<value>Số lượng phải lớn hơn hoặc bằng 1</value>
+</data>
+<data name="FullNameRequired" xml:space="preserve">
+<value>Họ tên không được để trống</value>
+</data>
+<data name="FullNameMaxLength" xml:space="preserve">
+<value>Họ tên tối đa 200 ký tự</value>
+</data>
+<data name="PhoneRequired" xml:space="preserve">
+<value>Số điện thoại không được để trống</value>
+</data>
+<data name="PhoneInvalid" xml:space="preserve">
+<value>Số điện thoại phải có 10-11 chữ số</value>
+</data>
+<data name="EmailInvalid" xml:space="preserve">
+<value>Email không đúng định dạng</value>
+</data>
+<data name="ExpectedPricePositive" xml:space="preserve">
+<value>Giá kỳ vọng phải lớn hơn 0</value>
+</data>
+<data name="ValidationError" xml:space="preserve">
+<value>Dữ liệu không hợp lệ</value>
+</data>
+<data name="CreateGroupBuyingRequestSuccess" xml:space="preserve">
+<value>Đã ghi nhận yêu cầu mua chung</value>
+</data>
+<data name="TargetPeopleCountInvalid" xml:space="preserve">
+<value>Số lượng người mua chung phải từ 2 đến 100</value>
+</data>
+<data name="TargetPriceInvalid" xml:space="preserve">
+<value>Giá mục tiêu phải lớn hơn 0</value>
+</data>
+<data name="NoteMaxLength" xml:space="preserve">
+<value>Ghi chú không vượt quá 1000 ký tự</value>
+</data>
+<data name="CreateOfferRequestSuccess" xml:space="preserve">
+<value>Đã ghi nhận! Mã giảm giá sẽ được gửi qua Zalo trong 24h</value>
+</data>
+<data name="OfferRequestNotFound" xml:space="preserve">
+<value>Không tìm thấy yêu cầu nhận offer</value>
+</data>
+<data name="SelectedOfferRequired" xml:space="preserve">
+<value>Offer được chọn là bắt buộc</value>
+</data>
+<data name="SelectedOfferMaxLength" xml:space="preserve">
+<value>Offer được chọn không vượt quá 500 ký tự</value>
+</data>
+<data name="ZaloRequired" xml:space="preserve">
+<value>Zalo là bắt buộc để nhận mã</value>
+</data>
+<data name="ZaloMaxLength" xml:space="preserve">
+<value>Zalo không được vượt quá 50 ký tự</value>
+</data>
+<data name="EmailMaxLength" xml:space="preserve">
+<value>Email không được vượt quá 100 ký tự</value>
+</data>
+<data name="SalesChannelMaxLength" xml:space="preserve">
+<value>Kênh bán hàng không được vượt quá 100 ký tự</value>
+</data>
+<data name="ExperienceMaxLength" xml:space="preserve">
+<value>Kinh nghiệm không được vượt quá 1000 ký tự</value>
+</data>
+<data name="CreateCtvRegistrationSuccess" xml:space="preserve">
+<value>Đã ghi nhận đăng ký CTV! Chúng tôi sẽ liên hệ sớm</value>
+</data>
+<data name="GroupBuyingRequestsRetrievedSuccess" xml:space="preserve">
+<value>Lấy danh sách yêu cầu mua chung thành công</value>
+</data>
+<data name="InvalidStatus" xml:space="preserve">
+<value>Giá trị trạng thái không hợp lệ</value>
+</data>
+	<data name="UsernameRequired" xml:space="preserve">
+    <value>Tên đăng nhập là bắt buộc</value>
+</data>
+	<data name="UsernameMinLength" xml:space="preserve">
+    <value>Tên đăng nhập phải có ít nhất 3 ký tự</value>
+</data>
+	<data name="UsernameMaxLength" xml:space="preserve">
+    <value>Tên đăng nhập không vượt quá 50 ký tự</value>
+</data>
+	<data name="PasswordRequired" xml:space="preserve">
+    <value>Mật khẩu là bắt buộc</value>
+</data>
+	<data name="PasswordMinLength" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 6 ký tự</value>
+</data>
+	<data name="LoginSuccess" xml:space="preserve">
+    <value>Đăng nhập thành công</value>
+</data>
+	<data name="LoginFailed" xml:space="preserve">
+    <value>Tên đăng nhập hoặc mật khẩu không đúng</value>
+</data>
 </root>

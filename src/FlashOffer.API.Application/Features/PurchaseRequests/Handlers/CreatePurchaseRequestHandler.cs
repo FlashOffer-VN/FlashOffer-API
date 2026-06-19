@@ -1,9 +1,9 @@
-﻿using MediatR;
-using AutoMapper;
-using FlashOffer.API.Domain.Entities;
-using FlashOffer.API.Application.Common.Interfaces;
-using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
+﻿using AutoMapper;
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
+using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
+using MediatR;
 
 namespace FlashOffer.API.Application.Features.PurchaseRequests.Handlers;
 
