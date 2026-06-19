@@ -66,4 +66,10 @@
 		<data name="ZaloMaxLength" xml:space="preserve">
 	  <value>Zalo account cannot exceed 50 characters</value>
 	</data>
+	<data name="GroupBuyingRequestsRetrievedSuccess" xml:space="preserve">
+		<value>Group buying requests retrieved successfully</value>
+	</data>
+	<data name="InvalidStatus" xml:space="preserve">
+		<value>Invalid status value</value>
+	</data>
 </root>
