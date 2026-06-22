@@ -1,0 +1,19 @@
+{
+  "name": "FlashOffer Hybrid (toolchain + Docker)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "start": "sudo service docker start || true",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "API stack (docker compose)",
+      "command": "bash .cursor/start-api.sh"
+    },
+    {
+      "name": "UI dev server (npm)",
+      "command": "bash .cursor/start-ui.sh"
+    }
+  ]
+}

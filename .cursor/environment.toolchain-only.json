@@ -1,0 +1,10 @@
+{
+  "name": "FlashOffer Toolchain Only (no Docker)",
+  "install": "dotnet restore && dotnet build && (cd ../FlashOffer-UI 2>/dev/null && npm ci --legacy-peer-deps || true)",
+  "terminals": [
+    {
+      "name": "UI dev server",
+      "command": "cd ../FlashOffer-UI && npm start -- --host 0.0.0.0 --port 4200"
+    }
+  ]
+}
