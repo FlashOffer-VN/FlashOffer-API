@@ -108,4 +108,13 @@
 <data name="PurchaseRequestsRetrievedSuccess" xml:space="preserve">
     <value>Lấy danh sách yêu cầu tìm hàng thành công</value>
 </data>
+<data name="StatusInvalid" xml:space="preserve">
+  <value>Trạng thái phải là Pending, Contacted hoặc Completed</value>
+</data>
+	<data name="UpdateStatusSuccess" xml:space="preserve">
+  <value>Cập nhật trạng thái thành công</value>
+</data>
+	<data name="PurchaseRequestNotFound" xml:space="preserve">
+  <value>Không tìm thấy yêu cầu tìm hàng</value>
+</data>
 </root>

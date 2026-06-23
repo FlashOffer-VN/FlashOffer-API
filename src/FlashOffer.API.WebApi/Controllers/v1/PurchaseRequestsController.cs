@@ -51,4 +51,14 @@ public class PurchaseRequestsController : ApiControllerBase
 		var result = await _service.GetPagedAsync(query);
 		return OkPaged(result, _localizer["PurchaseRequestsRetrievedSuccess"]);
 	}
+
+	[HttpPatch("purchase-requests/{id}/status")]
+	//[Authorize(Roles = "Admin")]
+	public async Task<IActionResult> UpdateStatus(
+	Guid id,
+	[FromBody] UpdatePurchaseRequestStatusDto dto)
+	{
+		var result = await _service.UpdateStatusAsync(id, dto);
+		return Ok(result, _localizer["UpdateStatusSuccess"]);
+	}
 }

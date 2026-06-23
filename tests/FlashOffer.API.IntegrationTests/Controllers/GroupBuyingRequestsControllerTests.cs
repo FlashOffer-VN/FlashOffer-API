@@ -32,9 +32,11 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-		Assert.True(result.Success);
-		Assert.Equal(1, result.Data.CurrentPeopleCount);
-		Assert.Equal(5, result.Data.TargetPeopleCount);
+		Assert.NotNull(result); // ✅ Thêm null check
+		Assert.True(result!.Success);
+		Assert.NotNull(result.Data); // ✅ Thêm null check
+		Assert.Equal(1, result.Data!.CurrentPeopleCount);
+		Assert.Equal(5, result.Data!.TargetPeopleCount);
 	}
 
 	[Fact]
@@ -105,9 +107,9 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-		Assert.NotNull(result);
-		Assert.True(result.Success);
-		Assert.NotNull(result.Data);
+		Assert.NotNull(result); // ✅ Thêm null check
+		Assert.True(result!.Success);
+		Assert.NotNull(result.Data); // ✅ Thêm null check
 	}
 
 	[Fact]
@@ -122,8 +124,8 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-		Assert.True(result.Success);
-		// Verify chỉ có item với status Pending (có thể kiểm tra thêm)
+		Assert.NotNull(result); // ✅ Thêm null check
+		Assert.True(result!.Success);
 	}
 
 	[Fact]

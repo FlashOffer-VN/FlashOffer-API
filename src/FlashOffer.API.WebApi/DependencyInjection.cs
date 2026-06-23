@@ -5,6 +5,7 @@ using FlashOffer.API.Application.Validators;
 using FlashOffer.API.Infrastructure;
 using FlashOffer.API.WebApi.Configurations;
 using FlashOffer.API.WebApi.Filters;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -72,12 +73,10 @@ public static class DependencyInjection
 		services.AddControllers(options =>
 		{
 			options.Filters.Add<ValidationFilter>();
-		})
-		.AddFluentValidation(fv =>
-		{
-			fv.RegisterValidatorsFromAssemblyContaining<SharedResource>();
-			fv.AutomaticValidationEnabled = true;
 		});
+		services.AddValidatorsFromAssemblyContaining<SharedResource>();
+		services.AddFluentValidationAutoValidation();
+		services.AddFluentValidationClientsideAdapters();
 
 		// QUAN TRỌNG: Tắt filter mặc định của .NET
 		services.Configure<ApiBehaviorOptions>(options =>
