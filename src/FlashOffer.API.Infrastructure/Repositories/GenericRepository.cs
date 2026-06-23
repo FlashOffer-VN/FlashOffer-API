@@ -39,12 +39,45 @@ public class GenericRepository<T> : IRepository<T> where T : class
 	public async Task<PagedList<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
 	{
 		IQueryable<T> query = _dbSet;
-
 		if (predicate != null)
-		{
 			query = query.Where(predicate);
-		}
+		return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
+	}
 
+	// Overload 1: Có sắp xếp
+	public async Task<PagedList<T>> GetPagedWithOrderAsync(
+		int pageNumber,
+		int pageSize,
+		Expression<Func<T, bool>>? predicate,
+		Expression<Func<T, object>>? orderBy,
+		bool isDescending = true,
+		CancellationToken cancellationToken = default)
+	{
+		IQueryable<T> query = _dbSet;
+		if (predicate != null)
+			query = query.Where(predicate);
+		if (orderBy != null)
+			query = isDescending ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
+		return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
+	}
+
+	// Overload 2: Có Include + sắp xếp
+	public async Task<PagedList<T>> GetPagedWithIncludesAsync(
+		int pageNumber,
+		int pageSize,
+		Func<IQueryable<T>, IQueryable<T>>? includes = null,
+		Expression<Func<T, bool>>? predicate = null,
+		Expression<Func<T, object>>? orderBy = null,
+		bool isDescending = true,
+		CancellationToken cancellationToken = default)
+	{
+		IQueryable<T> query = _dbSet;
+		if (includes != null)
+			query = includes(query);
+		if (predicate != null)
+			query = query.Where(predicate);
+		if (orderBy != null)
+			query = isDescending ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
 		return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
 	}
 

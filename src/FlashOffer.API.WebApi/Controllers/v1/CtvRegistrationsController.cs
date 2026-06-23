@@ -7,6 +7,7 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers.v1;
 
 [Route("api/leads")]
+//[Authorize]
 public class CtvRegistrationsController : ApiControllerBase
 {
 	private readonly ICtvRegistrationService _ctvRegistrationService;
@@ -19,7 +20,7 @@ public class CtvRegistrationsController : ApiControllerBase
 	}
 
 	[HttpPost("ctv-registrations")]
-	public async Task<IActionResult> Create(
+	public async Task<IActionResult> CreateAsync(
 		[FromBody] CreateCtvRegistrationDto request)
 	{
 		var result = await _ctvRegistrationService.CreateAsync(request);
