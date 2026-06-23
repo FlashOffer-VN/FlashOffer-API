@@ -1,13 +1,15 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Application.Services;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Domain.Models;
+using Microsoft.Extensions.Localization;
 using Moq;
+using System.Linq.Expressions;
 using Xunit;
 
 namespace FlashOffer.API.UnitTests.Services;
@@ -16,13 +18,15 @@ public class PurchaseRequestServiceTests
 {
 	private readonly Mock<IRepository<PurchaseRequest>> _repositoryMock;
 	private readonly Mock<IMapper> _mapperMock;
-	private readonly PurchaseRequestService _service;
+	private readonly PurchaseRequestService _service; 
+	private readonly Mock<IStringLocalizer<SharedResource>> _localizerMock;
 
 	public PurchaseRequestServiceTests()
 	{
 		_repositoryMock = new Mock<IRepository<PurchaseRequest>>();
 		_mapperMock = new Mock<IMapper>();
-		_service = new PurchaseRequestService(_repositoryMock.Object, _mapperMock.Object);
+		_localizerMock = new Mock<IStringLocalizer<SharedResource>>();
+		_service = new PurchaseRequestService(_repositoryMock.Object, _mapperMock.Object, _localizerMock.Object);
 	}
 
 	[Fact]
