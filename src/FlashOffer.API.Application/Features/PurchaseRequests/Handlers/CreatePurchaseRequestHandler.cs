@@ -4,6 +4,7 @@ using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
 using MediatR;
+using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Application.Features.PurchaseRequests.Handlers;
 
@@ -21,7 +22,7 @@ public class CreatePurchaseRequestHandler : IRequestHandler<CreatePurchaseReques
 	public async Task<PurchaseRequestResponseDto> Handle(CreatePurchaseRequestCommand request, CancellationToken cancellationToken)
 	{
 		var entity = _mapper.Map<PurchaseRequest>(request);
-		entity.Status = "Pending";
+		entity.Status = PurchaseRequestStatus.Pending;
 
 		await _repository.AddAsync(entity);
 		await _repository.SaveChangesAsync();

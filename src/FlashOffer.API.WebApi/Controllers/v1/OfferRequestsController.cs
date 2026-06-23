@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Route("api/leads")]
+//[Authorize]
 public class OfferRequestsController : ApiControllerBase
 {
 	private readonly IMediator _mediator;
@@ -23,7 +24,7 @@ public class OfferRequestsController : ApiControllerBase
 	}
 
 	[HttpPost("offer-requests")]
-	public async Task<IActionResult> Create([FromBody] CreateOfferRequestDto request)
+	public async Task<IActionResult> CreateAsync([FromBody] CreateOfferRequestDto request)
 	{
 		var command = _mapper.Map<CreateOfferRequestCommand>(request);
 		var response = await _mediator.Send(command);

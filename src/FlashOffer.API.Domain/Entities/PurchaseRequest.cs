@@ -1,4 +1,6 @@
 ﻿// src/FlashOffer.API.Domain/Entities/PurchaseRequest.cs
+using FlashOffer.API.Domain.Enums;
+
 namespace FlashOffer.API.Domain.Entities;
 
 public class PurchaseRequest : BaseEntity
@@ -10,5 +12,9 @@ public class PurchaseRequest : BaseEntity
 	public string Phone { get; set; } = string.Empty;
 	public string? Email { get; set; }
 	public string? Note { get; set; }
-	public string Status { get; set; } = "Pending";
+	public PurchaseRequestStatus Status { get; set; } = PurchaseRequestStatus.Pending;
+	public string? AdminNote { get; set; }
+	public Guid? AssignedTo { get; set; }
+	public DateTime? ResolvedAt { get; set; }
+	public string? Source { get; set; }
 }

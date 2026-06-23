@@ -105,4 +105,7 @@
 	<data name="LoginFailed" xml:space="preserve">
     <value>Tên đăng nhập hoặc mật khẩu không đúng</value>
 </data>
+<data name="PurchaseRequestsRetrievedSuccess" xml:space="preserve">
+    <value>Lấy danh sách yêu cầu tìm hàng thành công</value>
+</data>
 </root>

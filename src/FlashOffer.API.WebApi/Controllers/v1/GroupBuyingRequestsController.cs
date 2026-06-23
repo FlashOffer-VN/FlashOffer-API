@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Route("api/leads")]
+//[Authorize]
 public class GroupBuyingRequestsController : ApiControllerBase
 {
 	private readonly IGroupBuyingRequestService _service;
@@ -22,7 +23,7 @@ public class GroupBuyingRequestsController : ApiControllerBase
 	}
 
 	[HttpPost("group-buying-requests")]
-	public async Task<IActionResult> Create([FromBody] CreateGroupBuyingRequestDto request)
+	public async Task<IActionResult> CreateAsync([FromBody] CreateGroupBuyingRequestDto request)
 	{
 		var response = await _service.CreateAsync(request);
 		return Ok(response, _localizer["CreateGroupBuyingRequestSuccess"]);
