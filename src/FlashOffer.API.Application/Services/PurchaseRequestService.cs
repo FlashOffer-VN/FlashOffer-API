@@ -2,10 +2,13 @@
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Domain.Models;
+using FlashOffer.API.Shared.Exceptions;
+using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.Application.Services;
 
@@ -13,11 +16,13 @@ public class PurchaseRequestService : IPurchaseRequestService
 {
 	private readonly IRepository<PurchaseRequest> _repository;
 	private readonly IMapper _mapper;
+	private readonly IStringLocalizer<SharedResource> _localizer;
 
-	public PurchaseRequestService(IRepository<PurchaseRequest> repository, IMapper mapper)
+	public PurchaseRequestService(IRepository<PurchaseRequest> repository, IMapper mapper, IStringLocalizer<SharedResource> stringLocalizer)
 	{
 		_repository = repository;
 		_mapper = mapper;
+		_localizer = stringLocalizer;
 	}
 
 	public async Task<PurchaseRequestResponseDto> CreateAsync(CreatePurchaseRequestDto request)
@@ -58,5 +63,22 @@ public class PurchaseRequestService : IPurchaseRequestService
 			return x => x.Status == query.Status.Value;
 		}
 		return null;
+	}
+
+	public async Task<PurchaseRequestStatusResponseDto> UpdateStatusAsync(
+	Guid id,
+	UpdatePurchaseRequestStatusDto dto)
+	{
+		var entity = await _repository.GetByIdAsync(id);
+		if (entity == null)
+			throw new NotFoundException(_localizer["PurchaseRequestNotFound"]);
+
+		entity.Status = dto.Status;
+		entity.UpdatedAt = DateTime.UtcNow;
+
+		_repository.Update(entity);
+		await _repository.SaveChangesAsync();
+
+		return _mapper.Map<PurchaseRequestStatusResponseDto>(entity);
 	}
 }

@@ -8,4 +8,5 @@ public interface IPurchaseRequestService
 {
 	Task<PurchaseRequestResponseDto> CreateAsync(CreatePurchaseRequestDto request);
 	Task<PagedList<PurchaseRequestResponseDto>> GetPagedAsync(PurchaseRequestQueryDto query);
+	Task<PurchaseRequestStatusResponseDto> UpdateStatusAsync(Guid id, UpdatePurchaseRequestStatusDto dto);
 }

@@ -108,4 +108,13 @@
 <data name="PurchaseRequestsRetrievedSuccess" xml:space="preserve">
     <value>Purchase requests retrieved successfully</value>
 </data>
+<data name="StatusInvalid" xml:space="preserve">
+  <value>Status must be Pending, Contacted, or Completed</value>
+</data>
+	<data name="UpdateStatusSuccess" xml:space="preserve">
+  <value>Status updated successfully</value>
+</data>
+	<data name="PurchaseRequestNotFound" xml:space="preserve">
+  <value>Purchase request not found</value>
+</data>
 </root>

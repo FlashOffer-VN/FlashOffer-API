@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Mappings;
-using FlashOffer.API.Domain.Exceptions;
+using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Authorize]
-public abstract class CrudControllerBase<TEntity, TDto, TCreateDto, TUpdateDto> : ApiControllerBase
+public abstract class CrudControllerBase<TEntity, TDto> : ApiControllerBase
 	where TEntity : class
 {
 	protected readonly IRepository<TEntity> _repository;
@@ -38,7 +39,7 @@ public abstract class CrudControllerBase<TEntity, TDto, TCreateDto, TUpdateDto> 
 	}
 
 	[HttpPost]
-	public virtual async Task<IActionResult> Create([FromBody] TCreateDto createDto)
+	public virtual async Task<IActionResult> Create([FromBody] TDto createDto)
 	{
 		var entity = _mapper.Map<TEntity>(createDto);
 		await _repository.AddAsync(entity);
@@ -49,7 +50,7 @@ public abstract class CrudControllerBase<TEntity, TDto, TCreateDto, TUpdateDto> 
 	}
 
 	[HttpPut("{id:guid}")]
-	public virtual async Task<IActionResult> Update(Guid id, [FromBody] TUpdateDto updateDto)
+	public virtual async Task<IActionResult> Update(Guid id, [FromBody] TDto updateDto)
 	{
 		var existing = await _repository.GetByIdAsync(id);
 		if (existing == null) throw new NotFoundException(typeof(TEntity).Name, id);

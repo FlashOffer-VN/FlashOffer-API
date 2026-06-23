@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿// tests/FlashOffer.API.IntegrationTests/Controllers/GroupBuyingRequestsControllerTests.cs
+using Microsoft.AspNetCore.Mvc.Testing;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.WebApi;
 using FlashOffer.API.WebApi.Responses;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
 using System.Net.Http.Json;
 using Xunit;
@@ -32,9 +32,11 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-		Assert.True(result.Success);
-		Assert.Equal(1, result.Data.CurrentPeopleCount);
-		Assert.Equal(5, result.Data.TargetPeopleCount);
+		Assert.NotNull(result);
+		Assert.True(result!.Success);
+		Assert.NotNull(result.Data);
+		Assert.Equal(1, result.Data!.CurrentPeopleCount);
+		Assert.Equal(5, result.Data!.TargetPeopleCount);
 	}
 
 	[Fact]
@@ -106,7 +108,7 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 		Assert.NotNull(result);
-		Assert.True(result.Success);
+		Assert.True(result!.Success);
 		Assert.NotNull(result.Data);
 	}
 
@@ -122,8 +124,8 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-		Assert.True(result.Success);
-		// Verify chỉ có item với status Pending (có thể kiểm tra thêm)
+		Assert.NotNull(result);
+		Assert.True(result!.Success);
 	}
 
 	[Fact]

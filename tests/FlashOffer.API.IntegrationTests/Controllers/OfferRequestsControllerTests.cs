@@ -33,7 +33,9 @@ public class OfferRequestsControllerTests : BaseIntegrationTest
 
 		// Assert
 		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		Assert.NotNull(result);
 		Assert.True(result.Success);
+		Assert.NotNull(result.Data);
 		Assert.False(result.Data.IsOfferSent);
 	}
 
