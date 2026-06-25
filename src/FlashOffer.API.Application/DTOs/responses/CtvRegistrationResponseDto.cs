@@ -16,6 +16,7 @@ public class CtvRegistrationResponseDto : IMapFrom<CtvRegistration>
 	public string? Experience { get; set; }
 	public bool IsApproved { get; set; }
 	public DateTime CreatedAt { get; set; }
+	public DateTime? ApprovedAt { get; set; }
 
 	public void Mapping(Profile profile)
 		=> profile.CreateMap<CtvRegistration, CtvRegistrationResponseDto>();

@@ -53,4 +53,22 @@ public class CtvRegistrationService : ICtvRegistrationService
 		if (!isApproved.HasValue) return null;
 		return x => x.IsApproved == isApproved.Value;
 	}
+
+	public async Task<CtvRegistrationResponseDto> ApproveAsync(Guid id)
+	{
+		var entity = await _repository.GetByIdAsync(id);
+		if (entity == null)
+			throw new KeyNotFoundException($"CtvRegistration with ID {id} not found");
+
+		if (entity.IsApproved)
+			throw new InvalidOperationException("CTV already approved");
+
+		entity.IsApproved = true;
+		entity.ApprovedAt = DateTime.UtcNow.AddHours(7); // UTC+7
+
+		_repository.Update(entity);
+		await _repository.SaveChangesAsync();
+
+		return _mapper.Map<CtvRegistrationResponseDto>(entity);
+	}
 }

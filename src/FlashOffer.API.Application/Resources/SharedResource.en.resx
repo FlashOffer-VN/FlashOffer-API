@@ -126,4 +126,13 @@
 	<data name="CtvRegistrationListRetrievedSuccess" xml:space="preserve">
   <value>CTV registration list retrieved successfully</value>
 </data>
+<data name="CtvRegistrationApprovedSuccess" xml:space="preserve">
+  <value>CTV registration approved successfully</value>
+</data>
+	<data name="CtvRegistrationNotFound" xml:space="preserve">
+  <value>CTV registration not found</value>
+</data>
+	<data name="CtvRegistrationAlreadyApproved" xml:space="preserve">
+  <value>CTV registration has already been approved</value>
+</data>
 </root>

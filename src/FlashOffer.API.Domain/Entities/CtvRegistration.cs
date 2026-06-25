@@ -9,4 +9,5 @@ public class CtvRegistration : BaseEntity
 	public string? SalesChannel { get; set; }
 	public string? Experience { get; set; }
 	public bool IsApproved { get; set; }
+	public DateTime? ApprovedAt { get; set; }
 }

@@ -34,4 +34,11 @@ public class CtvRegistrationsController : ApiControllerBase
 		var result = await _ctvRegistrationService.GetPagedAsync(query);
 		return OkPaged(result, _localizer["CtvRegistrationListRetrievedSuccess"]);
 	}
+
+	[HttpPatch("ctv-registrations/{id}/approve")]
+	public async Task<IActionResult> Approve(Guid id)
+	{
+		var result = await _ctvRegistrationService.ApproveAsync(id);
+		return Ok(result, _localizer["CtvRegistrationApprovedSuccess"]);
+	}
 }
