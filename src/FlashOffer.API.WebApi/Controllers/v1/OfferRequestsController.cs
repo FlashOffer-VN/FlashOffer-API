@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Features.OfferRequests.Commands;
+using FlashOffer.API.Application.Features.OfferRequests.Queries;
 using FlashOffer.API.Application.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -29,5 +30,13 @@ public class OfferRequestsController : ApiControllerBase
 		var command = _mapper.Map<CreateOfferRequestCommand>(request);
 		var response = await _mediator.Send(command);
 		return Ok(response, _localizer["CreateOfferRequestSuccess"]);
+	}
+
+	[HttpGet("offer-requests")]
+	public async Task<IActionResult> GetList([FromQuery] OfferRequestQueryDto query)
+	{
+		var request = _mapper.Map<GetOfferRequestsQuery>(query);
+		var result = await _mediator.Send(request);
+		return OkPaged(result, _localizer["OfferRequestListRetrievedSuccess"]);
 	}
 }
