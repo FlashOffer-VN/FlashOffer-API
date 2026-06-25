@@ -8,6 +8,7 @@ public class PagedResponse<T>
 	public string Message { get; set; } = string.Empty;
 	public List<T> Data { get; set; } = new();
 	public int PageNumber { get; set; }
+	public int PageSize { get; set; }
 	public int TotalPages { get; set; }
 	public int TotalCount { get; set; }
 	public bool HasPreviousPage { get; set; }
@@ -27,6 +28,7 @@ public class PagedResponse<T>
 			Message = message,
 			Data = pagedData.Items,
 			PageNumber = pagedData.PageNumber,
+			PageSize = pagedData.PageSize,
 			TotalPages = pagedData.TotalPages,
 			TotalCount = pagedData.TotalCount,
 			HasPreviousPage = pagedData.HasPreviousPage,

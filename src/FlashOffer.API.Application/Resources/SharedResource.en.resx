@@ -117,4 +117,13 @@
 	<data name="PurchaseRequestNotFound" xml:space="preserve">
   <value>Purchase request not found</value>
 </data>
+<data name="PageMin" xml:space="preserve">
+  <value>Page number must be at least 1</value>
+</data>
+	<data name="PageSizeRange" xml:space="preserve">
+  <value>Page size must be between 1 and 100</value>
+</data>
+	<data name="CtvRegistrationListRetrievedSuccess" xml:space="preserve">
+  <value>CTV registration list retrieved successfully</value>
+</data>
 </root>

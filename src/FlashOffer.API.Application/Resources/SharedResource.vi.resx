@@ -117,4 +117,13 @@
 	<data name="PurchaseRequestNotFound" xml:space="preserve">
   <value>Không tìm thấy yêu cầu tìm hàng</value>
 </data>
+<data name="PageMin" xml:space="preserve">
+  <value>Số trang phải lớn hơn hoặc bằng 1</value>
+</data>
+	<data name="PageSizeRange" xml:space="preserve">
+  <value>Kích thước trang phải từ 1 đến 100</value>
+</data>
+	<data name="CtvRegistrationListRetrievedSuccess" xml:space="preserve">
+  <value>Lấy danh sách đăng ký CTV thành công</value>
+</data>
 </root>

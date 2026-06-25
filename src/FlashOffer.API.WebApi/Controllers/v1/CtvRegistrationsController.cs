@@ -27,4 +27,11 @@ public class CtvRegistrationsController : ApiControllerBase
 
 		return Ok(result, _localizer["CreateCtvRegistrationSuccess"]);
 	}
+
+	[HttpGet("ctv-registrations")]
+	public async Task<IActionResult> GetList([FromQuery] CtvRegistrationQueryDto query)
+	{
+		var result = await _ctvRegistrationService.GetPagedAsync(query);
+		return OkPaged(result, _localizer["CtvRegistrationListRetrievedSuccess"]);
+	}
 }

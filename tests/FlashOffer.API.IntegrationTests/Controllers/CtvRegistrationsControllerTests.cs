@@ -1,10 +1,12 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using FlashOffer.API.Application.DTOs.requests;
+﻿using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.WebApi.Responses;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace FlashOffer.API.IntegrationTests.Controllers;
 
@@ -52,6 +54,64 @@ public class CtvRegistrationsControllerTests : BaseIntegrationTest
 
 		// Act
 		var response = await Client.PostAsJsonAsync("/api/leads/ctv-registrations", request);
+
+		// Assert
+		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+	}
+
+	[Fact]
+	public async Task Get_CtvRegistrations_WithDefaultPaging_ReturnsPagedList()
+	{
+		// Arrange
+		var registrations = new[]
+		{
+			new CtvRegistration { FullName = "A", Phone = "0912345678", IsApproved = false, CreatedAt = DateTime.UtcNow.AddHours(7) },
+			new CtvRegistration { FullName = "B", Phone = "0912345679", IsApproved = true, CreatedAt = DateTime.UtcNow.AddHours(7).AddMinutes(-1) },
+			new CtvRegistration { FullName = "C", Phone = "0912345680", IsApproved = false, CreatedAt = DateTime.UtcNow.AddHours(7).AddMinutes(-2) }
+		};
+		await DbContext.CtvRegistrations.AddRangeAsync(registrations);
+		await DbContext.SaveChangesAsync();
+
+		// Act
+		var response = await Client.GetAsync("/api/leads/ctv-registrations");
+		var result = await response.Content.ReadFromJsonAsync<PagedResponse<CtvRegistrationResponseDto>>();
+
+		// Assert
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		result.Should().NotBeNull();
+		result!.Success.Should().BeTrue();
+		result.Data.Should().HaveCount(3);
+		result.TotalCount.Should().Be(3);
+		result.PageNumber.Should().Be(1);
+		result.HasNextPage.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task Get_CtvRegistrations_FilterByIsApproved_ReturnsFiltered()
+	{
+		// Arrange
+		await DbContext.CtvRegistrations.AddRangeAsync(
+			new CtvRegistration { FullName = "A", Phone = "0912345678", IsApproved = true, CreatedAt = DateTime.UtcNow.AddHours(7) },
+			new CtvRegistration { FullName = "B", Phone = "0912345679", IsApproved = false, CreatedAt = DateTime.UtcNow.AddHours(7) }
+		);
+		await DbContext.SaveChangesAsync();
+
+		// Act
+		var response = await Client.GetAsync("/api/leads/ctv-registrations?isApproved=true");
+		var result = await response.Content.ReadFromJsonAsync<PagedResponse<CtvRegistrationResponseDto>>();
+
+		// Assert
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		result.Should().NotBeNull();
+		result!.Data.Should().AllSatisfy(x => x.IsApproved.Should().BeTrue());
+		result.TotalCount.Should().Be(1);
+	}
+
+	[Fact]
+	public async Task Get_CtvRegistrations_WithInvalidPage_ReturnsBadRequest()
+	{
+		// Act
+		var response = await Client.GetAsync("/api/leads/ctv-registrations?page=0");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
