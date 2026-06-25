@@ -135,4 +135,7 @@
 	<data name="CtvRegistrationAlreadyApproved" xml:space="preserve">
   <value>Đăng ký CTV đã được duyệt trước đó</value>
 </data>
+<data name="OfferRequestListRetrievedSuccess" xml:space="preserve">
+  <value>Lấy danh sách yêu cầu nhận offer thành công</value>
+</data>
 </root>

@@ -135,4 +135,7 @@
 	<data name="CtvRegistrationAlreadyApproved" xml:space="preserve">
   <value>CTV registration has already been approved</value>
 </data>
+<data name="OfferRequestListRetrievedSuccess" xml:space="preserve">
+  <value>Offer request list retrieved successfully</value>
+</data>
 </root>

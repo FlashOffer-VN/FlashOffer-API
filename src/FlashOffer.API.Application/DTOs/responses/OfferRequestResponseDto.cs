@@ -8,6 +8,10 @@ public class OfferRequestResponseDto : IMapFrom<OfferRequest>
 {
 	public Guid Id { get; set; }
 	public string SelectedOffer { get; set; } = string.Empty;
+	public string FullName { get; set; } = string.Empty;
+	public string Phone { get; set; } = string.Empty;
+	public string Zalo { get; set; } = string.Empty;
+	public string? Email { get; set; }
 	public bool IsOfferSent { get; set; }
 	public DateTime CreatedAt { get; set; }
 
