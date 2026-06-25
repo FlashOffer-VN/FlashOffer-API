@@ -8,4 +8,5 @@ public interface ICtvRegistrationService
 {
 	Task<CtvRegistrationResponseDto> CreateAsync(CreateCtvRegistrationDto dto);
 	Task<PagedList<CtvRegistrationResponseDto>> GetPagedAsync(CtvRegistrationQueryDto query);
+	Task<CtvRegistrationResponseDto> ApproveAsync(Guid id);
 }

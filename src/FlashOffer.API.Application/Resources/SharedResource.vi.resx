@@ -126,4 +126,13 @@
 	<data name="CtvRegistrationListRetrievedSuccess" xml:space="preserve">
   <value>Lấy danh sách đăng ký CTV thành công</value>
 </data>
+<data name="CtvRegistrationApprovedSuccess" xml:space="preserve">
+  <value>Duyệt đăng ký CTV thành công</value>
+</data>
+	<data name="CtvRegistrationNotFound" xml:space="preserve">
+  <value>Không tìm thấy đăng ký CTV</value>
+</data>
+	<data name="CtvRegistrationAlreadyApproved" xml:space="preserve">
+  <value>Đăng ký CTV đã được duyệt trước đó</value>
+</data>
 </root>

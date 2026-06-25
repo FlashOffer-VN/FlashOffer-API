@@ -164,4 +164,79 @@ public class CtvRegistrationServiceTests
 		Assert.Equal(2, result.TotalCount);
 		_repositoryMock.Verify(r => r.GetPagedWithOrderAsync(1, 5, null, It.IsAny<Expression<Func<CtvRegistration, object>>>(), true, It.IsAny<CancellationToken>()), Times.Once);
 	}
+
+	[Fact]
+	public async Task ApproveAsync_WithValidId_ShouldApproveSuccessfully()
+	{
+		// Arrange
+		var id = Guid.NewGuid();
+		var entity = new CtvRegistration
+		{
+			Id = id,
+			FullName = "Nguyen Van A",
+			Phone = "0912345678",
+			IsApproved = false,
+			ApprovedAt = null
+		};
+		var response = new CtvRegistrationResponseDto
+		{
+			Id = id,
+			FullName = entity.FullName,
+			IsApproved = true,
+			ApprovedAt = DateTime.UtcNow.AddHours(7)
+		};
+
+		_repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(entity);
+		_repositoryMock.Setup(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()))
+			.ReturnsAsync(1);
+		_mapperMock.Setup(m => m.Map<CtvRegistrationResponseDto>(entity))
+			.Returns(response);
+
+		// Act
+		var result = await _service.ApproveAsync(id);
+
+		// Assert
+		Assert.True(entity.IsApproved);
+		Assert.NotNull(entity.ApprovedAt);
+		_repositoryMock.Verify(r => r.Update(entity), Times.Once);
+		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+		Assert.Equal(response.FullName, result.FullName);
+	}
+
+	[Fact]
+	public async Task ApproveAsync_WithNotFoundId_ShouldThrowKeyNotFoundException()
+	{
+		// Arrange
+		var id = Guid.NewGuid();
+		_repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync((CtvRegistration?)null);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.ApproveAsync(id));
+		_repositoryMock.Verify(r => r.Update(It.IsAny<CtvRegistration>()), Times.Never);
+		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+	}
+
+	[Fact]
+	public async Task ApproveAsync_WithAlreadyApproved_ShouldThrowInvalidOperationException()
+	{
+		// Arrange
+		var id = Guid.NewGuid();
+		var entity = new CtvRegistration
+		{
+			Id = id,
+			FullName = "Nguyen Van A",
+			IsApproved = true,
+			ApprovedAt = DateTime.UtcNow.AddHours(-1)
+		};
+
+		_repositoryMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(entity);
+
+		// Act & Assert
+		await Assert.ThrowsAsync<InvalidOperationException>(() => _service.ApproveAsync(id));
+		_repositoryMock.Verify(r => r.Update(It.IsAny<CtvRegistration>()), Times.Never);
+		_repositoryMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+	}
 }
