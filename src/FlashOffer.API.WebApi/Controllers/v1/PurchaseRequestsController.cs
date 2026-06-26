@@ -61,4 +61,13 @@ public class PurchaseRequestsController : ApiControllerBase
 		var result = await _service.UpdateStatusAsync(id, dto);
 		return Ok(result, _localizer["UpdateStatusSuccess"]);
 	}
+
+	[HttpGet("purchase-requests/export")]
+	//[Authorize(Roles = "Admin")]
+	public async Task<IActionResult> ExportAsync([FromQuery] ExportPurchaseRequestsQuery query)
+	{
+		var bytes = await _mediator.Send(query);
+		var fileName = $"purchase_requests_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+		return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+	}
 }

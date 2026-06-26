@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Domain.Interfaces;
+﻿using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Infrastructure.Data;
 using FlashOffer.API.Infrastructure.Repositories;
 using FlashOffer.API.Infrastructure.Services;
@@ -32,6 +33,8 @@ public static class DependencyInjection
 
 		// HttpContextAccessor
 		services.AddHttpContextAccessor();
+
+		services.AddScoped<IExcelService, ExcelService>();
 
 		return services;
 	}

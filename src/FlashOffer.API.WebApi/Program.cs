@@ -1,11 +1,11 @@
-﻿using Serilog;
+﻿using DotNetEnv;
 using FlashOffer.API.WebApi;
+using FlashOffer.API.WebApi.Configurations;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
+using OfficeOpenXml;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using FlashOffer.API.WebApi.Configurations;
-using DotNetEnv;
-using Microsoft.AspNetCore.Localization;
 
 // Load .env file
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
@@ -22,6 +22,8 @@ else
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 // Configuration - Env ưu tiên cao nhất
 var envConfig = new Dictionary<string, string?>
@@ -131,4 +133,6 @@ app.MapHealthChecks("/health");
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+}
