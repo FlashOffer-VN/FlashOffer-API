@@ -138,4 +138,48 @@
 <data name="OfferRequestListRetrievedSuccess" xml:space="preserve">
   <value>Lấy danh sách yêu cầu nhận offer thành công</value>
 </data>
+<data name="FromDateMustBeBeforeToDate" xml:space="preserve">
+    <value>Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc</value>
+</data>
+	<!-- Export Purchase Requests -->
+<data name="ExportPurchaseRequestsTitle" xml:space="preserve">
+    <value>Danh sách yêu cầu tìm hàng</value>
+</data>
+	<data name="ExportPurchaseRequests_STT" xml:space="preserve">
+    <value>#</value>
+</data>
+	<data name="ExportPurchaseRequests_ProductName" xml:space="preserve">
+    <value>Tên sản phẩm</value>
+</data>
+	<data name="ExportPurchaseRequests_Quantity" xml:space="preserve">
+    <value>Số lượng</value>
+</data>
+	<data name="ExportPurchaseRequests_ExpectedPrice" xml:space="preserve">
+    <value>Giá kỳ vọng</value>
+</data>
+	<data name="ExportPurchaseRequests_FullName" xml:space="preserve">
+    <value>Họ và tên</value>
+</data>
+	<data name="ExportPurchaseRequests_Phone" xml:space="preserve">
+    <value>Số điện thoại</value>
+</data>
+	<data name="ExportPurchaseRequests_Email" xml:space="preserve">
+    <value>Email</value>
+</data>
+	<data name="ExportPurchaseRequests_Status" xml:space="preserve">
+    <value>Trạng thái</value>
+</data>
+	<data name="ExportPurchaseRequests_CreatedAt" xml:space="preserve">
+    <value>Ngày tạo</value>
+</data>
+	<!-- Status values -->
+<data name="PurchaseRequestStatus_Pending" xml:space="preserve">
+    <value>Pending</value>
+</data>
+	<data name="PurchaseRequestStatus_Contacted" xml:space="preserve">
+    <value>Contacted</value>
+</data>
+	<data name="PurchaseRequestStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+</data>
 </root>
