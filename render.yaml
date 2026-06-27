@@ -1,0 +1,35 @@
+databases:
+  - name: flashoffer-db
+    plan: free
+    region: singapore
+    databaseName: flashoffer_db
+    user: flashoffer_db_user
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: flashoffer-api
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: production
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DB_CONNECTION_STRING
+        fromDatabase:
+          name: flashoffer-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ISSUER
+        value: FlashOffer.API
+      - key: JWT_AUDIENCE
+        value: FlashOffer.APIClient
+      - key: JWT_EXPIRY_MINUTES
+        value: "60"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
