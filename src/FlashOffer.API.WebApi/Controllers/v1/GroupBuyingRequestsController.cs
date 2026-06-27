@@ -2,13 +2,13 @@
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Route("api/leads")]
-//[Authorize]
 public class GroupBuyingRequestsController : ApiControllerBase
 {
 	private readonly IGroupBuyingRequestService _service;
@@ -29,6 +29,7 @@ public class GroupBuyingRequestsController : ApiControllerBase
 		return Ok(response, _localizer["CreateGroupBuyingRequestSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("group-buying-requests")]
 	public async Task<IActionResult> GetList([FromQuery] GetGroupBuyingRequestsQueryDto query)
 	{
@@ -36,7 +37,8 @@ public class GroupBuyingRequestsController : ApiControllerBase
 		{
 			if (!Enum.TryParse<GroupBuyingStatus>(query.Status, true, out _))
 			{
-				return BadRequest(_localizer["InvalidStatus"]);
+				return BadRequest(_localizer["InvalidStatus"],
+					new List<string> { _localizer["InvalidStatusMessage"] });
 			}
 		}
 

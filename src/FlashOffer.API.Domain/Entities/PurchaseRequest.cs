@@ -1,10 +1,9 @@
-﻿// src/FlashOffer.API.Domain/Entities/PurchaseRequest.cs
+﻿using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
-
-namespace FlashOffer.API.Domain.Entities;
 
 public class PurchaseRequest : BaseEntity
 {
+	public Guid UserId { get; set; } // Thêm FK
 	public string ProductName { get; set; } = string.Empty;
 	public int Quantity { get; set; }
 	public decimal? ExpectedPrice { get; set; }
@@ -17,4 +16,6 @@ public class PurchaseRequest : BaseEntity
 	public Guid? AssignedTo { get; set; }
 	public DateTime? ResolvedAt { get; set; }
 	public string? Source { get; set; }
+
+	public virtual User User { get; set; } = null!;
 }

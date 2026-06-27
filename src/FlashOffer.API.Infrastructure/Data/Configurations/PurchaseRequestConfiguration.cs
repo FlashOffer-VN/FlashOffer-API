@@ -56,5 +56,12 @@ public class PurchaseRequestConfiguration : IEntityTypeConfiguration<PurchaseReq
 		builder.HasIndex(x => x.Status);
 		builder.HasIndex(x => x.CreatedAt);
 		builder.HasIndex(x => x.Phone);
+
+		builder.HasOne(x => x.User)
+		.WithMany()
+		.HasForeignKey(x => x.UserId)
+		.OnDelete(DeleteBehavior.Restrict);
+
+			builder.HasIndex(x => x.UserId);
 	}
 }
