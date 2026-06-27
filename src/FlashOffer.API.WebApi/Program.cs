@@ -23,6 +23,12 @@ else
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+	builder.WebHost.UseUrls($"http://*:{port}");
+}
+
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 builder.Services.AddLogging();
 
@@ -63,13 +69,23 @@ builder.Services.AddHealthChecks();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-	var allowedOrigins = Env.GetString("ALLOWED_ORIGINS")?.Split(',') ?? new[] { "http://localhost:4200" };
+	var allowedOriginsRaw = Env.GetString("ALLOWED_ORIGINS");
 	options.AddPolicy("AllowSpecific", policy =>
 	{
-		policy.WithOrigins(allowedOrigins)
-			  .AllowAnyMethod()
-			  .AllowAnyHeader()
-			  .AllowCredentials();
+		if (allowedOriginsRaw?.Trim() == "*")
+		{
+			policy.AllowAnyOrigin()
+				  .AllowAnyMethod()
+				  .AllowAnyHeader();
+		}
+		else
+		{
+			var allowedOrigins = allowedOriginsRaw?.Split(',') ?? new[] { "http://localhost:4200" };
+			policy.WithOrigins(allowedOrigins)
+				  .AllowAnyMethod()
+				  .AllowAnyHeader()
+				  .AllowCredentials();
+		}
 	});
 
 	options.AddPolicy("SwaggerPolicy", policy =>

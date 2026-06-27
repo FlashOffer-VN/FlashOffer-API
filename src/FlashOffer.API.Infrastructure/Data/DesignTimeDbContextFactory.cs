@@ -11,7 +11,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
 	public ApplicationDbContext CreateDbContext(string[] args)
 	{
 		var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-		optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FlashOfferDb;Trusted_Connection=True;");
+		optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=FlashOfferDb;Username=postgres;Password=postgres");
 
 		return new ApplicationDbContext(optionsBuilder.Options, new DesignTimeCurrentUserService());
 	}
