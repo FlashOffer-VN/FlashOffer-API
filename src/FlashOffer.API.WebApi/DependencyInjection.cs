@@ -5,12 +5,15 @@ using FlashOffer.API.Application.Validators;
 using FlashOffer.API.Infrastructure;
 using FlashOffer.API.WebApi.Configurations;
 using FlashOffer.API.WebApi.Filters;
+using FlashOffer.API.WebApi.Responses;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
 
 namespace FlashOffer.API.WebApi;
 
@@ -55,6 +58,49 @@ public static class DependencyInjection
 				ValidAudience = jwtSettings.Audience,
 				ValidateLifetime = true,
 				ClockSkew = TimeSpan.Zero
+			};
+
+			options.Events = new JwtBearerEvents
+			{
+				OnChallenge = async context =>
+				{
+					context.HandleResponse();
+					context.Response.StatusCode = 401;
+					context.Response.ContentType = "application/json";
+
+					var localizer = context.HttpContext.RequestServices.GetService<IStringLocalizer<SharedResource>>();
+					var message = localizer?["UnauthorizedMessage"] ?? "Unauthorized";
+					var error = localizer?["AuthenticationRequired"] ?? "Authentication required";
+
+					var response = new ApiResponse<object>
+					{
+						Success = false,
+						Message = message,
+						Errors = new List<string> { error },
+						Timestamp = DateTime.UtcNow
+					};
+
+					await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+				},
+				OnForbidden = async context =>
+				{
+					context.Response.StatusCode = 403;
+					context.Response.ContentType = "application/json";
+
+					var localizer = context.HttpContext.RequestServices.GetService<IStringLocalizer<SharedResource>>();
+					var message = localizer?["ForbiddenMessage"] ?? "Forbidden";
+					var error = localizer?["AccessDenied"] ?? "Access denied";
+
+					var response = new ApiResponse<object>
+					{
+						Success = false,
+						Message = message,
+						Errors = new List<string> { error },
+						Timestamp = DateTime.UtcNow
+					};
+
+					await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+				}
 			};
 		});
 

@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Infrastructure.Data;
 using FlashOffer.API.Shared.Common.Helpers;
 using FlashOffer.API.WebApi.Responses;
@@ -19,16 +20,21 @@ public class AuthControllerTests : BaseIntegrationTest
 		// Seed an admin user into the in-memory database used by the test factory
 		using var scope = Factory.Server.Services.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-		var admin = new Admin
+		var admin = new User
 		{
+			Id = Guid.NewGuid(),
 			Username = "admin",
 			PasswordHash = PasswordHasher.Hash("password123"),
-			IsActive = true
+			FullName = "Administrator",
+			Email = "admin@test.com",
+			Phone = "0987654321",
+			IsActive = true,
+			Role = UserRole.Admin,
+			CreatedAt = DateTime.UtcNow,
+			IsDeleted = false
 		};
-		db.Admins.Add(admin);
+		db.Users.Add(admin);
 		db.SaveChanges();
-
-		// Seed verification done during test runs; no console output here
 	}
 
 	[Fact]
@@ -51,14 +57,14 @@ public class AuthControllerTests : BaseIntegrationTest
 		}
 		catch { /* ignore parse errors for debugging */ }
 
-		// (No debug output)
-
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		result.Should().NotBeNull();
 		result!.Success.Should().BeTrue();
 		result.Data.Should().NotBeNull();
 		result.Data!.Token.Should().NotBeNullOrEmpty();
+		result.Data!.Username.Should().Be("admin");
+		result.Data!.Role.Should().Be("Admin");
 	}
 
 	[Fact]
@@ -93,5 +99,22 @@ public class AuthControllerTests : BaseIntegrationTest
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+	}
+
+	[Fact]
+	public async Task Login_NonExistentUser_ReturnsUnauthorized()
+	{
+		// Arrange
+		var request = new LoginRequest
+		{
+			Username = "nonexistent",
+			Password = "password123"
+		};
+
+		// Act
+		var response = await Client.PostAsJsonAsync("/api/v1/auth/login", request);
+
+		// Assert
+		response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 	}
 }

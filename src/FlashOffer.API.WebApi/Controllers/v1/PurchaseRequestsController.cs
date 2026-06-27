@@ -12,7 +12,6 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Route("api/leads")]
-//[Authorize]
 public class PurchaseRequestsController : ApiControllerBase
 {
 	private readonly IMediator _mediator;
@@ -28,6 +27,7 @@ public class PurchaseRequestsController : ApiControllerBase
 		_service = service;
 	}
 
+	[AllowAnonymous]
 	[HttpPost("purchase-requests")]
 	public async Task<IActionResult> CreateAsync([FromBody] CreatePurchaseRequestDto request)
 	{
@@ -36,15 +36,18 @@ public class PurchaseRequestsController : ApiControllerBase
 		return Ok(response, _localizer["CreateSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("purchase-requests/{id}")]
 	public async Task<IActionResult> GetByIdAsync(Guid id)
 	{
 		var response = await _mediator.Send(new GetPurchaseRequestByIdQuery { Id = id });
 		if (response == null)
-			return NotFound(_localizer["NotFound"]);
+			return NotFound(_localizer["NotFound"],
+				new List<string> { string.Format(_localizer["EntityNotFound"], "PurchaseRequest", id) });
 		return Ok(response);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("purchase-requests")]
 	public async Task<IActionResult> GetListAsync([FromQuery] PurchaseRequestQueryDto query)
 	{
@@ -52,18 +55,16 @@ public class PurchaseRequestsController : ApiControllerBase
 		return OkPaged(result, _localizer["PurchaseRequestsRetrievedSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpPatch("purchase-requests/{id}/status")]
-	//[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> UpdateStatus(
-	Guid id,
-	[FromBody] UpdatePurchaseRequestStatusDto dto)
+	public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdatePurchaseRequestStatusDto dto)
 	{
 		var result = await _service.UpdateStatusAsync(id, dto);
 		return Ok(result, _localizer["UpdateStatusSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("purchase-requests/export")]
-	//[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> ExportAsync([FromQuery] ExportPurchaseRequestsQuery query)
 	{
 		var bytes = await _mediator.Send(query);

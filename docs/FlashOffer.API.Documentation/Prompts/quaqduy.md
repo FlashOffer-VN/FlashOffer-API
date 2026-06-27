@@ -108,6 +108,7 @@
 | `IJwtService` | `FlashOffer.API.Shared.Common.Interfaces` |
 | `IMapFrom<T>` | `FlashOffer.API.Application.Common.Mappings` |
 | `IAuthService` | `FlashOffer.API.Application.Common.Interfaces` |
+| `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
 | `ApiControllerBase` | `FlashOffer.API.WebApi` |
 | `SharedResource` | `FlashOffer.API.Application.Resources` |
 
@@ -339,16 +340,38 @@ public class ApiResponse<T>
 | 6 | **Thực hiện các bước còn lại** | Chỉ code các phần chưa có |
 
 ## 10. Quy tắc Migration
+
+**Vị trí migrations:** `src/FlashOffer.API.Infrastructure/Data/Migrations/`
+
+**Luôn sử dụng `--output-dir Data/Migrations` cho mọi lệnh migration:**
+
 ```bash
 # Tạo migration
-dotnet ef migrations add [MigrationName] --startup-project ../FlashOffer.API.WebApi
-# Hoặc từ thư mục gốc
 dotnet ef migrations add [MigrationName] --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi --output-dir Data/Migrations
+
 # Cập nhật database
 dotnet ef database update --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi
-# Xóa migration
+
+# Xóa migration cuối
 dotnet ef migrations remove --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi
+
+# Rollback về migration cụ thể
+dotnet ef database update [MigrationName] --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi
 ```
+
+**Xóa Database - BẮT BUỘC HỎI:**
+```bash
+# Chỉ khi được xác nhận mới chạy
+dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi
+```
+
+**Migration Checklist:**
+| Bước | Hành động | Lệnh |
+|------|-----------|------|
+| 1 | Tạo migration | `dotnet ef migrations add [Name] --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi --output-dir Data/Migrations` |
+| 2 | Áp dụng migration | `dotnet ef database update --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
+| 3 | Xóa migration | `dotnet ef migrations remove --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
+| 4 | Xóa database | **HỎI TRƯỚC**, sau đó `dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
 
 ## 11. Quy tắc Testing
 ### Unit Test
@@ -385,7 +408,103 @@ services.AddScoped<IApplicationDbContext>(sp =>
 | Unit Test | Mỗi Validator, Handler, Service | `tests/FlashOffer.API.UnitTests/` | ❌ Không |
 | Integration Test | Mỗi Controller (1 file chính) | `tests/FlashOffer.API.IntegrationTests/` | ✅ Cần `BaseIntegrationTest` |
 
-## 12. Lưu ý quan trọng
+## 12. Quy tắc xử lý User trong các API
+
+### 12.1. Nguyên tắc chung:
+- Mọi API tạo dữ liệu (Create) đều cần gán `UserId` từ token hiện tại hoặc tạo User ngầm
+- API lấy danh sách (GetList) cho User chỉ lấy dữ liệu của user đó
+- API lấy danh sách (GetList) cho Admin lấy tất cả dữ liệu
+
+### 12.2. Quy tắc cụ thể:
+
+| Loại API | UserId lấy từ | Hành động |
+|----------|---------------|-----------|
+| Create (Public - chưa login) | Tự động tạo User | Tạo User ngầm (nếu chưa có) dựa trên Phone/Email |
+| Create (Auth - đã login) | `ICurrentUserService.UserId` | Gán trực tiếp |
+| GetList (User thường) | `ICurrentUserService.UserId` | Filter theo UserId |
+| GetList (Admin) | Không filter | Lấy tất cả |
+
+### 12.3. Code mẫu cho Create API (Service/Handler):
+
+```csharp
+// 1. Lấy UserId từ token (nếu có)
+var userId = _currentUserService.UserId;
+
+// 2. Nếu là Public API (chưa đăng nhập), tạo User ngầm
+if (string.IsNullOrEmpty(userId))
+{
+    userId = await _userService.GetOrCreateUserAsync(
+        request.FullName, 
+        request.Phone, 
+        request.Email
+    );
+}
+
+// 3. Gán vào entity
+var entity = _mapper.Map<TEntity>(request);
+entity.UserId = userId;
+```
+
+### 12.4. Code mẫu cho GetList API:
+
+```csharp
+// Admin - lấy tất cả
+if (_currentUserService.IsInRole("Admin"))
+{
+    var result = await _repository.GetPagedAsync(query);
+}
+// User - chỉ lấy của mình
+else
+{
+    var userId = _currentUserService.UserId;
+    var result = await _repository.GetPagedAsync(query, 
+        x => x.UserId == userId);
+}
+```
+
+### 12.5. Interface ICurrentUserService:
+
+```csharp
+public interface ICurrentUserService
+{
+    string? UserId { get; }
+    string? UserName { get; }
+    bool IsAuthenticated { get; }
+    bool IsInRole(string role);
+}
+```
+
+### 12.6. Service lấy/tạo User:
+
+```csharp
+public interface IUserService
+{
+    Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null);
+    Task<User?> GetCurrentUserAsync();
+}
+```
+
+### 12.7. Trong Controller:
+
+```csharp
+// Sử dụng ICurrentUserService
+[Authorize]
+[HttpPost("my-data")]
+public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
+{
+    var userId = _currentUserService.UserId;
+    // ... logic
+}
+```
+
+### 12.8. Namespace mapping (BỔ SUNG):
+
+| Class/Interface | Namespace |
+|----------------|-----------|
+| `ICurrentUserService` | `FlashOffer.API.Shared.Common.Interfaces` |
+| `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
+
+## 13. Lưu ý quan trọng
 - `Repository.AddAsync` cần `SaveChangesAsync()` sau đó
 - Logic nghiệp vụ đặt trong Service/Handler, không trong Controller
 - **BẮT BUỘC** cấu hình `SuppressModelStateInvalidFilter = true`
@@ -394,3 +513,4 @@ services.AddScoped<IApplicationDbContext>(sp =>
 - **Enum:** ưu tiên dùng thay vì string, cấu hình `HasConversion<int>()`
 - **Phone validation:** rule 7.2
 - **Excel:** format date `yyyy-MM-dd HH:mm:ss`, số `#,##0`, căn trái tất cả
+- **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu

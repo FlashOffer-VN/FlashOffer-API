@@ -30,6 +30,14 @@ public class GroupBuyingRequestConfiguration : IEntityTypeConfiguration<GroupBuy
 			.HasConversion<int>()
 			.HasDefaultValue(GroupBuyingStatus.Pending);
 
+		// Thêm vào Configure method
+		builder.HasOne(x => x.User)
+			.WithMany()
+			.HasForeignKey(x => x.UserId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+		builder.HasIndex(x => x.UserId);
+		builder.HasIndex(x => x.Status);
 		builder.HasIndex(x => x.Phone);
 	}
 }

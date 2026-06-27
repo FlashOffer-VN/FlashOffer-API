@@ -1,13 +1,13 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Resources;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers.v1;
 
 [Route("api/leads")]
-//[Authorize]
 public class CtvRegistrationsController : ApiControllerBase
 {
 	private readonly ICtvRegistrationService _ctvRegistrationService;
@@ -28,6 +28,7 @@ public class CtvRegistrationsController : ApiControllerBase
 		return Ok(result, _localizer["CreateCtvRegistrationSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("ctv-registrations")]
 	public async Task<IActionResult> GetList([FromQuery] CtvRegistrationQueryDto query)
 	{
@@ -35,6 +36,7 @@ public class CtvRegistrationsController : ApiControllerBase
 		return OkPaged(result, _localizer["CtvRegistrationListRetrievedSuccess"]);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpPatch("ctv-registrations/{id}/approve")]
 	public async Task<IActionResult> Approve(Guid id)
 	{

@@ -5,8 +5,8 @@ using FlashOffer.API.WebApi;
 using FlashOffer.API.WebApi.Responses;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Xunit;
 
@@ -81,12 +81,14 @@ public class OfferRequestsControllerTests : BaseIntegrationTest
 	[Fact]
 	public async Task GetList_WithDefaultPaging_ReturnsOk()
 	{
-		// Arrange - seed data
+		// Arrange
+		await SetAdminAuthorization();
+
 		var requests = new[]
 		{
-		new OfferRequest { SelectedOffer = "Offer 1", FullName = "A", Phone = "0912345678", IsOfferSent = false, CreatedAt = DateTime.UtcNow.AddHours(7) },
-		new OfferRequest { SelectedOffer = "Offer 2", FullName = "B", Phone = "0912345679", IsOfferSent = true, CreatedAt = DateTime.UtcNow.AddHours(7).AddMinutes(-1) }
-	};
+			new OfferRequest { SelectedOffer = "Offer 1", FullName = "A", Phone = "0912345678", IsOfferSent = false, CreatedAt = DateTime.UtcNow.AddHours(7) },
+			new OfferRequest { SelectedOffer = "Offer 2", FullName = "B", Phone = "0912345679", IsOfferSent = true, CreatedAt = DateTime.UtcNow.AddHours(7).AddMinutes(-1) }
+		};
 		await DbContext.OfferRequests.AddRangeAsync(requests);
 		await DbContext.SaveChangesAsync();
 
@@ -107,6 +109,8 @@ public class OfferRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_FilterByIsOfferSent_ReturnsFiltered()
 	{
 		// Arrange
+		await SetAdminAuthorization();
+
 		await DbContext.OfferRequests.AddRangeAsync(
 			new OfferRequest { SelectedOffer = "Offer 1", FullName = "A", Phone = "0912345678", IsOfferSent = true, CreatedAt = DateTime.UtcNow.AddHours(7) },
 			new OfferRequest { SelectedOffer = "Offer 2", FullName = "B", Phone = "0912345679", IsOfferSent = false, CreatedAt = DateTime.UtcNow.AddHours(7) }
@@ -127,6 +131,9 @@ public class OfferRequestsControllerTests : BaseIntegrationTest
 	[Fact]
 	public async Task GetList_WithInvalidPage_ReturnsBadRequest()
 	{
+		// Arrange
+		await SetAdminAuthorization();
+
 		// Act
 		var response = await Client.GetAsync("/api/leads/offer-requests?page=0");
 

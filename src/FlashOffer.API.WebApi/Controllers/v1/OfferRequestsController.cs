@@ -4,13 +4,13 @@ using FlashOffer.API.Application.Features.OfferRequests.Commands;
 using FlashOffer.API.Application.Features.OfferRequests.Queries;
 using FlashOffer.API.Application.Resources;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
 [Route("api/leads")]
-//[Authorize]
 public class OfferRequestsController : ApiControllerBase
 {
 	private readonly IMediator _mediator;
@@ -33,6 +33,7 @@ public class OfferRequestsController : ApiControllerBase
 	}
 
 	[HttpGet("offer-requests")]
+	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> GetList([FromQuery] OfferRequestQueryDto query)
 	{
 		var request = _mapper.Map<GetOfferRequestsQuery>(query);

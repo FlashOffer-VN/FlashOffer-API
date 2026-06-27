@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace FlashOffer.API.IntegrationTests.Controllers;
@@ -63,6 +64,8 @@ public class CtvRegistrationsControllerTests : BaseIntegrationTest
 	public async Task Get_CtvRegistrations_WithDefaultPaging_ReturnsPagedList()
 	{
 		// Arrange
+		await SetAdminAuthorization();
+
 		var registrations = new[]
 		{
 			new CtvRegistration { FullName = "A", Phone = "0912345678", IsApproved = false, CreatedAt = DateTime.UtcNow.AddHours(7) },
@@ -90,6 +93,8 @@ public class CtvRegistrationsControllerTests : BaseIntegrationTest
 	public async Task Get_CtvRegistrations_FilterByIsApproved_ReturnsFiltered()
 	{
 		// Arrange
+		await SetAdminAuthorization();
+
 		await DbContext.CtvRegistrations.AddRangeAsync(
 			new CtvRegistration { FullName = "A", Phone = "0912345678", IsApproved = true, CreatedAt = DateTime.UtcNow.AddHours(7) },
 			new CtvRegistration { FullName = "B", Phone = "0912345679", IsApproved = false, CreatedAt = DateTime.UtcNow.AddHours(7) }
@@ -110,6 +115,9 @@ public class CtvRegistrationsControllerTests : BaseIntegrationTest
 	[Fact]
 	public async Task Get_CtvRegistrations_WithInvalidPage_ReturnsBadRequest()
 	{
+		// Arrange
+		await SetAdminAuthorization();
+
 		// Act
 		var response = await Client.GetAsync("/api/leads/ctv-registrations?page=0");
 

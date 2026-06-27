@@ -24,6 +24,7 @@ else
 var builder = WebApplication.CreateBuilder(args);
 
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+builder.Services.AddLogging();
 
 // Configuration - Env ưu tiên cao nhất
 var envConfig = new Dictionary<string, string?>
