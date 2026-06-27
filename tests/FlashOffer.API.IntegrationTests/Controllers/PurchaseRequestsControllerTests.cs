@@ -1,5 +1,4 @@
-﻿// tests/FlashOffer.API.IntegrationTests/Controllers/PurchaseRequestsControllerTests.cs
-using FlashOffer.API.Application.DTOs.requests;
+﻿using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
@@ -9,6 +8,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace FlashOffer.API.IntegrationTests.Controllers;
@@ -135,6 +135,7 @@ public class PurchaseRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_ShouldReturnPagedResult()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		await SeedPurchaseRequestsAsync();
 
 		// Act
@@ -153,6 +154,7 @@ public class PurchaseRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_FilterByStatus_ShouldReturnFiltered()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		await SeedPurchaseRequestsAsync();
 
 		// Act
@@ -173,6 +175,7 @@ public class PurchaseRequestsControllerTests : BaseIntegrationTest
 	public async Task UpdateStatus_ValidRequest_ReturnsOk()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var entity = await CreateTestPurchaseRequest();
 		var dto = new UpdatePurchaseRequestStatusDto { Status = PurchaseRequestStatus.Contacted };
 
@@ -191,6 +194,7 @@ public class PurchaseRequestsControllerTests : BaseIntegrationTest
 	public async Task UpdateStatus_InvalidStatus_ReturnsBadRequest()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var entity = await CreateTestPurchaseRequest();
 		var dto = new UpdatePurchaseRequestStatusDto { Status = (PurchaseRequestStatus)99 };
 
@@ -205,6 +209,7 @@ public class PurchaseRequestsControllerTests : BaseIntegrationTest
 	public async Task UpdateStatus_NotFound_ReturnsNotFound()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var id = Guid.NewGuid();
 		var dto = new UpdatePurchaseRequestStatusDto { Status = PurchaseRequestStatus.Contacted };
 

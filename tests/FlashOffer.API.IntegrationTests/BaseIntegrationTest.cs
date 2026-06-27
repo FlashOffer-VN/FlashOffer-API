@@ -1,12 +1,17 @@
-﻿// tests/FlashOffer.API.IntegrationTests/BaseIntegrationTest.cs
-using FlashOffer.API.Application.Common.Interfaces;
+﻿using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.DTOs.requests;
+using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Infrastructure.Data;
+using FlashOffer.API.WebApi.Responses;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace FlashOffer.API.IntegrationTests;
@@ -18,6 +23,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 	protected readonly ApplicationDbContext DbContext;
 	private readonly IServiceScope _scope;
 	private bool _disposed;
+	private string? _adminToken;
 
 	protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
 	{
@@ -54,7 +60,55 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 		_scope = application.Services.CreateScope();
 		DbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+		// Seed admin user
+		SeedDatabaseAsync().GetAwaiter().GetResult();
+
 		Console.WriteLine("✅ Test fixture ready");
+	}
+
+	private async Task SeedDatabaseAsync()
+	{
+		if (await DbContext.Users.AnyAsync(u => u.Username == "admin"))
+			return;
+
+		var adminUser = new User
+		{
+			Id = Guid.NewGuid(),
+			Username = "admin",
+			Email = "admin@flashoffer.com",
+			FullName = "Admin User",
+			PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+			Role = UserRole.Admin,
+			CreatedAt = DateTime.UtcNow
+		};
+
+		DbContext.Users.Add(adminUser);
+		await DbContext.SaveChangesAsync();
+	}
+
+	protected async Task<string> GetAdminTokenAsync()
+	{
+		if (!string.IsNullOrEmpty(_adminToken))
+			return _adminToken;
+
+		var loginRequest = new LoginRequest
+		{
+			Username = "admin",
+			Password = "password123"
+		};
+
+		var response = await Client.PostAsJsonAsync("/api/v1/auth/login", loginRequest);
+		response.EnsureSuccessStatusCode();
+
+		var result = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponse>>();
+		_adminToken = result!.Data!.Token;
+		return _adminToken;
+	}
+
+	protected async Task SetAdminAuthorization()
+	{
+		var token = await GetAdminTokenAsync();
+		Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 	}
 
 	public void Dispose()

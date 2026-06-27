@@ -1,10 +1,10 @@
-﻿// tests/FlashOffer.API.IntegrationTests/Controllers/GroupBuyingRequestsControllerTests.cs
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.WebApi;
 using FlashOffer.API.WebApi.Responses;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Xunit;
 
@@ -99,6 +99,7 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_WithValidParams_ReturnsOk()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var url = "/api/leads/group-buying-requests?page=1&pageSize=10";
 
 		// Act
@@ -116,6 +117,7 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_WithStatusFilter_ReturnsOk()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var url = "/api/leads/group-buying-requests?page=1&pageSize=10&status=Pending";
 
 		// Act
@@ -132,6 +134,7 @@ public class GroupBuyingRequestsControllerTests : BaseIntegrationTest
 	public async Task GetList_WithInvalidStatus_ReturnsBadRequest()
 	{
 		// Arrange
+		await SetAdminAuthorization();
 		var url = "/api/leads/group-buying-requests?page=1&pageSize=10&status=InvalidStatus";
 
 		// Act

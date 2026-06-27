@@ -57,9 +57,9 @@ public class AuthController : ApiControllerBase
 	/// </summary>
 	[HttpPost("logout")]
 	[Authorize]
-	public async Task<IActionResult> Logout()
+	public async Task<IActionResult> Logout([FromHeader(Name = "Authorization")] string authorization)
 	{
-		var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+		var token = authorization?.Replace("Bearer ", "") ?? string.Empty;
 		await _authService.LogoutAsync(token);
 		return Ok(_localizer["LogoutSuccess"]);
 	}
@@ -69,9 +69,9 @@ public class AuthController : ApiControllerBase
 	/// </summary>
 	[HttpPost("refresh")]
 	[Authorize]
-	public async Task<IActionResult> RefreshToken()
+	public async Task<IActionResult> RefreshToken([FromHeader(Name = "Authorization")] string authorization)
 	{
-		var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+		var token = authorization?.Replace("Bearer ", "") ?? string.Empty;
 		var result = await _authService.RefreshTokenAsync(token);
 		if (result == null)
 		{
