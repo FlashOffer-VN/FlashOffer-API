@@ -22,6 +22,11 @@ public abstract class ApiControllerBase : ControllerBase
 		return base.NotFound(ApiResponse<object>.Fail(message));
 	}
 
+	protected IActionResult NotFound(string message, List<string>? errors = null)
+	{
+		return base.NotFound(ApiResponse<object>.Fail(message, errors));
+	}
+
 	protected IActionResult Created<T>(string location, T data, string message = "Created successfully")
 	{
 		return base.Created(location, ApiResponse<T>.Ok(data, message));

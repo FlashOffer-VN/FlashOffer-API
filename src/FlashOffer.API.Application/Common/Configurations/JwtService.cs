@@ -1,4 +1,7 @@
-﻿using FlashOffer.API.Shared.Common.Interfaces;
+﻿using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Shared.Common.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,10 +13,18 @@ namespace FlashOffer.API.Application.Common.Configurations;
 public class JwtService : IJwtService
 {
 	private readonly JwtSettings _jwtSettings;
+	private readonly IRepository<User> _userRepository;
+	private readonly ILogger<JwtService> _logger;
+	private readonly HashSet<string> _blacklistedTokens = new();
 
-	public JwtService(IOptions<JwtSettings> jwtSettings)
+	public JwtService(
+		IOptions<JwtSettings> jwtSettings,
+		IRepository<User> userRepository,
+		ILogger<JwtService> logger)
 	{
 		_jwtSettings = jwtSettings.Value;
+		_userRepository = userRepository;
+		_logger = logger;
 	}
 
 	public string GenerateToken(string userId, string username, IEnumerable<string> roles)
@@ -39,11 +50,26 @@ public class JwtService : IJwtService
 			expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
 			signingCredentials: creds);
 
-		return new JwtSecurityTokenHandler().WriteToken(token);
+		var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+		_logger.LogInformation($"Token generated for user: {username}");
+
+		return tokenString;
 	}
 
 	public ClaimsPrincipal? ValidateToken(string token)
 	{
+		if (string.IsNullOrEmpty(token))
+		{
+			_logger.LogWarning("Empty token provided for validation");
+			return null;
+		}
+
+		if (IsTokenBlacklisted(token))
+		{
+			_logger.LogWarning("Token is blacklisted");
+			return null;
+		}
+
 		var tokenHandler = new JwtSecurityTokenHandler();
 		var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
 
@@ -63,9 +89,82 @@ public class JwtService : IJwtService
 
 			return principal;
 		}
-		catch
+		catch (SecurityTokenExpiredException ex)
 		{
+			_logger.LogWarning($"Token expired: {ex.Message}");
 			return null;
 		}
+		catch (SecurityTokenInvalidSignatureException ex)
+		{
+			_logger.LogWarning($"Invalid token signature: {ex.Message}");
+			return null;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError($"Token validation failed: {ex.Message}");
+			return null;
+		}
+	}
+
+	public async Task<ClaimsPrincipal?> ValidateTokenWithUserAsync(string token)
+	{
+		var principal = ValidateToken(token);
+		if (principal == null) return null;
+
+		var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+		if (userIdClaim == null) return null;
+
+		if (!Guid.TryParse(userIdClaim.Value, out var userId))
+		{
+			_logger.LogWarning($"Invalid user ID format: {userIdClaim.Value}");
+			return null;
+		}
+
+		var users = await _userRepository.FindAsync(u => u.Id == userId && !u.IsDeleted);
+		var user = users.FirstOrDefault();
+
+		if (user == null)
+		{
+			_logger.LogWarning($"User not found: {userId}");
+			return null;
+		}
+
+		if (!user.IsActive)
+		{
+			_logger.LogWarning($"User is inactive: {userId}");
+			return null;
+		}
+
+		return principal;
+	}
+
+	public void BlacklistToken(string token)
+	{
+		_blacklistedTokens.Add(token);
+		_logger.LogInformation($"Token blacklisted");
+	}
+
+	public bool IsTokenBlacklisted(string token)
+	{
+		return _blacklistedTokens.Contains(token);
+	}
+
+	public async Task<string?> RefreshTokenAsync(string token)
+	{
+		var principal = await ValidateTokenWithUserAsync(token);
+		if (principal == null) return null;
+
+		var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		var username = principal.FindFirst(ClaimTypes.Name)?.Value;
+		var roles = principal.FindAll(ClaimTypes.Role).Select(c => c.Value);
+
+		if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(username))
+			return null;
+
+		// Blacklist old token
+		BlacklistToken(token);
+
+		// Generate new token
+		return GenerateToken(userId, username, roles);
 	}
 }

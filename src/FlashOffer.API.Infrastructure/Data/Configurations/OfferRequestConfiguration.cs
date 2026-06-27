@@ -1,4 +1,5 @@
 ﻿using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -31,6 +32,19 @@ public class OfferRequestConfiguration : IEntityTypeConfiguration<OfferRequest>
 
 		builder.Property(x => x.IsOfferSent)
 			.HasDefaultValue(false);
+
+		// Thêm vào Configure method
+		builder.HasOne(x => x.User)
+			.WithMany()
+			.HasForeignKey(x => x.UserId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+		builder.Property(x => x.Status)
+			.HasConversion<int>()
+			.HasDefaultValue(OfferStatus.Pending);
+
+		builder.HasIndex(x => x.UserId);
+		builder.HasIndex(x => x.Status);
 
 		builder.HasIndex(x => x.Phone);
 		builder.HasIndex(x => x.Zalo);

@@ -33,10 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Data\Configurations\GroupBuyingRequestConfiguration.cs" />
   </ItemGroup>
 
