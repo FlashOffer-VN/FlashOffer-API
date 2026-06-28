@@ -1,6 +1,6 @@
 ﻿# Dockerfile for FlashOffer.API.WebApi
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -30,7 +30,7 @@ COPY tests/ tests/
 RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj -c Release -o /app/publish
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Install curl for health checks
@@ -39,6 +39,10 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Copy published files
 COPY --from=build /app/publish .
 
+# Copy entrypoint script for Render PORT binding
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+
 # Create logs directory
 RUN mkdir -p /app/logs
 
@@ -46,13 +50,12 @@ RUN mkdir -p /app/logs
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 
-# Expose ports
-EXPOSE 80
-EXPOSE 443
+# Expose port (Render injects PORT at runtime)
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost/health || exit 1
+  CMD sh -c 'curl -f http://localhost:${PORT:-8080}/health || exit 1'
 
 # Run the application
-ENTRYPOINT ["dotnet", "FlashOffer.API.WebApi.dll"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
