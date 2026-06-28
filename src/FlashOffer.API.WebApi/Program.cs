@@ -1,24 +1,44 @@
 ﻿using DotNetEnv;
+using FlashOffer.API.Infrastructure.Data;
 using FlashOffer.API.WebApi;
 using FlashOffer.API.WebApi.Configurations;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-// Load .env file
+// Load optional .env file for local development
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
 envPath = Path.GetFullPath(envPath);
 
 if (File.Exists(envPath))
 {
 	Env.Load(envPath);
-	Console.WriteLine("✓ .env loaded");
+	Console.WriteLine("Environment file loaded");
 }
 else
 {
-	Console.WriteLine("⚠ .env not found");
+	Console.WriteLine("Environment file not found; using OS environment variables");
+}
+
+static string? GetEnvironmentValue(string key)
+{
+	var value = Environment.GetEnvironmentVariable(key);
+	if (!string.IsNullOrWhiteSpace(value))
+	{
+		return value;
+	}
+
+	try
+	{
+		return Env.GetString(key);
+	}
+	catch
+	{
+		return null;
+	}
 }
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,17 +46,17 @@ var builder = WebApplication.CreateBuilder(args);
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 builder.Services.AddLogging();
 
-// Configuration - Env ưu tiên cao nhất
+// Configuration: OS environment variables take precedence over .env file
 var envConfig = new Dictionary<string, string?>
 {
-	["ConnectionStrings:DefaultConnection"] = Env.GetString("DB_CONNECTION_STRING") ?? Env.GetString("DATABASE_URL"),
-	["JwtSettings:Secret"] = Env.GetString("JWT_SECRET"),
-	["JwtSettings:Issuer"] = Env.GetString("JWT_ISSUER"),
-	["JwtSettings:Audience"] = Env.GetString("JWT_AUDIENCE"),
-	["JwtSettings:ExpiryMinutes"] = Env.GetString("JWT_EXPIRY_MINUTES"),
-	["Logging:LogLevel:Default"] = Env.GetString("LOG_LEVEL"),
-	["CorsSettings:Policy"] = Env.GetString("CORS_POLICY"),
-	["CorsSettings:AllowedOrigins"] = Env.GetString("ALLOWED_ORIGINS")
+	["ConnectionStrings:DefaultConnection"] = GetEnvironmentValue("DB_CONNECTION_STRING") ?? GetEnvironmentValue("DATABASE_URL"),
+	["JwtSettings:Secret"] = GetEnvironmentValue("JWT_SECRET"),
+	["JwtSettings:Issuer"] = GetEnvironmentValue("JWT_ISSUER"),
+	["JwtSettings:Audience"] = GetEnvironmentValue("JWT_AUDIENCE"),
+	["JwtSettings:ExpiryMinutes"] = GetEnvironmentValue("JWT_EXPIRY_MINUTES"),
+	["Logging:LogLevel:Default"] = GetEnvironmentValue("LOG_LEVEL"),
+	["CorsSettings:Policy"] = GetEnvironmentValue("CORS_POLICY"),
+	["CorsSettings:AllowedOrigins"] = GetEnvironmentValue("ALLOWED_ORIGINS")
 };
 
 builder.Configuration
@@ -60,17 +80,35 @@ builder.Host.UseSerilog();
 builder.Services.AddWebApiServices(builder.Configuration);
 builder.Services.AddHealthChecks();
 
+var allowedOriginsRaw = GetEnvironmentValue("ALLOWED_ORIGINS");
+var useAllowAllOrigins = string.IsNullOrWhiteSpace(allowedOriginsRaw)
+	|| allowedOriginsRaw.Trim() == "*";
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
-	var allowedOrigins = Env.GetString("ALLOWED_ORIGINS")?.Split(',') ?? new[] { "http://localhost:4200" };
-	options.AddPolicy("AllowSpecific", policy =>
+	if (useAllowAllOrigins)
 	{
-		policy.WithOrigins(allowedOrigins)
-			  .AllowAnyMethod()
-			  .AllowAnyHeader()
-			  .AllowCredentials();
-	});
+		options.AddPolicy("AllowAllOrigins", policy =>
+		{
+			policy.AllowAnyOrigin()
+				  .AllowAnyMethod()
+				  .AllowAnyHeader();
+		});
+	}
+	else
+	{
+		var allowedOrigins = allowedOriginsRaw!
+			.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+		options.AddPolicy("AllowSpecific", policy =>
+		{
+			policy.WithOrigins(allowedOrigins)
+				  .AllowAnyMethod()
+				  .AllowAnyHeader()
+				  .AllowCredentials();
+		});
+	}
 
 	options.AddPolicy("SwaggerPolicy", policy =>
 	{
@@ -85,6 +123,14 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+	using var scope = app.Services.CreateScope();
+	var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+	db.Database.Migrate();
+	await DatabaseSeeder.SeedAsync(db);
+}
+
 // Configure localization
 var supportedCultures = new[] { "en", "vi" };
 var localizationOptions = new RequestLocalizationOptions()
@@ -94,8 +140,13 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseRequestLocalization(localizationOptions);
 
+var enableSwagger = string.Equals(
+	GetEnvironmentValue("ENABLE_SWAGGER"),
+	"true",
+	StringComparison.OrdinalIgnoreCase);
+
 // Configure pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || enableSwagger)
 {
 	var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 	app.UseSwagger();
@@ -118,7 +169,9 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-	var corsPolicy = Env.GetString("CORS_POLICY") ?? "AllowSpecific";
+	var corsPolicy = useAllowAllOrigins
+		? "AllowAllOrigins"
+		: GetEnvironmentValue("CORS_POLICY") ?? "AllowSpecific";
 	app.UseCors(corsPolicy);
 }
 
