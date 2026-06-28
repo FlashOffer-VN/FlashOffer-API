@@ -29,7 +29,7 @@ builder.Services.AddLogging();
 // Configuration - Env ưu tiên cao nhất
 var envConfig = new Dictionary<string, string?>
 {
-	["ConnectionStrings:DefaultConnection"] = Env.GetString("DB_CONNECTION_STRING"),
+	["ConnectionStrings:DefaultConnection"] = Env.GetString("DB_CONNECTION_STRING") ?? Env.GetString("DATABASE_URL"),
 	["JwtSettings:Secret"] = Env.GetString("JWT_SECRET"),
 	["JwtSettings:Issuer"] = Env.GetString("JWT_ISSUER"),
 	["JwtSettings:Audience"] = Env.GetString("JWT_AUDIENCE"),

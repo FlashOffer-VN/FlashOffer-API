@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   api:
-    container_name: dotnet-api-base
+    container_name: flashoffer-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,7 +12,8 @@ services:
       - "5000:80"
       - "5001:443"
     depends_on:
-      - sql-server
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
       interval: 30s
@@ -20,25 +21,26 @@ services:
       retries: 3
       start_period: 5s
 
-  sql-server:
-    container_name: dotnet-sql-server
-    image: mcr.microsoft.com/mssql/server:2022-latest
+  postgres:
+    container_name: flashoffer-postgres
+    image: postgres:16
     env_file:
       - .env.docker
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - mssql-data:/var/opt/mssql
+      - postgres-data:/var/lib/postgresql/data
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong!Passw0rd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YourStrong!Passw0rd
+      POSTGRES_DB: FlashOfferDb
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d FlashOfferDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
-  mssql-data:
+  postgres-data:
     driver: local
