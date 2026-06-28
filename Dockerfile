@@ -1,6 +1,6 @@
 ﻿# Dockerfile for FlashOffer.API.WebApi
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -30,7 +30,7 @@ COPY tests/ tests/
 RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj -c Release -o /app/publish
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Install curl for health checks

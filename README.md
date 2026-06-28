@@ -1,6 +1,6 @@
 ﻿# FlashOffer.API
 
-FlashOffer.API is a .NET 9 Web API project structured with a Clean Architecture approach. Developer documentation and contribution guidelines are kept under docs/FlashOffer.API.Documentation/.
+FlashOffer.API is a .NET 10 Web API project structured with a Clean Architecture approach. Developer documentation and contribution guidelines are kept under docs/FlashOffer.API.Documentation/.
 
 Table of contents
 - Features
@@ -13,9 +13,9 @@ Key technologies
 
 | Technology | Version |
 |---|---:|
-| .NET SDK | 9.0 |
-| Entity Framework Core | 9.0 |
-| ASP.NET Core Web API | 9.0 |
+| .NET SDK | 10.0 |
+| Entity Framework Core | 10.0 |
+| ASP.NET Core Web API | 10.0 |
 | AutoMapper | 12.x |
 | FluentValidation | 11.x |
 | Microsoft.IdentityModel.Tokens / JwtBearer | 8.x |
@@ -25,7 +25,7 @@ Key technologies
 
 Before you start
 
-- Install .NET 9 SDK: https://dotnet.microsoft.com/download/dotnet/9.0
+- Install .NET 10 SDK: https://dotnet.microsoft.com/download/dotnet/10.0
 - Install Git and clone the repository
 
 Quick start
