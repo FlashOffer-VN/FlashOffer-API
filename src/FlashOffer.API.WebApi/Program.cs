@@ -161,7 +161,6 @@ if (app.Environment.IsDevelopment() || enableSwagger)
 }
 
 app.UseSerilogRequestLogging();
-app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -174,6 +173,8 @@ else
 		: GetEnvironmentValue("CORS_POLICY") ?? "AllowSpecific";
 	app.UseCors(corsPolicy);
 }
+
+app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
 
 if (!app.Environment.IsDevelopment())
 {
