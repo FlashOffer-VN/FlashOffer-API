@@ -11,8 +11,8 @@ COPY ["src/FlashOffer.API.Shared/FlashOffer.API.Shared.csproj", "src/FlashOffer.
 COPY ["src/FlashOffer.API.Infrastructure/FlashOffer.API.Infrastructure.csproj", "src/FlashOffer.API.Infrastructure/"]
 COPY ["src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj", "src/FlashOffer.API.WebApi/"]
 COPY ["docs/FlashOffer.API.Documentation/FlashOffer.API.Documentation.csproj", "docs/FlashOffer.API.Documentation/"]
-COPY ["tests/FlashOffer.API.UnitTests/FlashOffer.API.UnitTests.csproj", "tests/FlashOffer.API.UnitTests/"]
-COPY ["tests/FlashOffer.API.IntegrationTests/FlashOffer.API.IntegrationTests.csproj", "tests/FlashOffer.API.IntegrationTests/"]
+# COPY ["tests/FlashOffer.API.UnitTests/FlashOffer.API.UnitTests.csproj", "tests/FlashOffer.API.UnitTests/"]
+# COPY ["tests/FlashOffer.API.IntegrationTests/FlashOffer.API.IntegrationTests.csproj", "tests/FlashOffer.API.IntegrationTests/"]
 
 # Copy package management files
 COPY ["Directory.Packages.props", "."]
@@ -24,7 +24,7 @@ RUN dotnet restore FlashOffer.API.slnx
 # Copy all source code
 COPY src/ src/
 COPY docs/ docs/
-COPY tests/ tests/
+# COPY tests/ tests/
 
 # Publish the WebApi project
 RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj -c Release -o /app/publish

@@ -11,7 +11,9 @@ using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
-[Route("api/leads")]
+[ApiVersion("1.0")]
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class PurchaseRequestsController : ApiControllerBase
 {
 	private readonly IMediator _mediator;
