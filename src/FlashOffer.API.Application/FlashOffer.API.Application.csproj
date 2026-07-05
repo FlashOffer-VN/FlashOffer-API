@@ -1,6 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Remove="Common\NewFolder\**" />
+    <EmbeddedResource Remove="Common\NewFolder\**" />
+    <None Remove="Common\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="FlashOffer.API.Application.csproj.Backup.tmp" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FlashOffer.API.Domain\FlashOffer.API.Domain.csproj" />
     <ProjectReference Include="..\FlashOffer.API.Shared\FlashOffer.API.Shared.csproj" />
   </ItemGroup>

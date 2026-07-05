@@ -1,9 +1,10 @@
+using AutoMapper;
 using FlashOffer.API.Application.Common.Configurations;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Services;
+using FlashOffer.API.Infrastructure.Services;
 using FlashOffer.API.Shared.Common.Interfaces;
 using FluentValidation;
-using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -30,7 +31,9 @@ public static class DependencyInjection
 		services.AddScoped<IGroupBuyingRequestService, GroupBuyingRequestService>();
 		services.AddScoped<ICtvRegistrationService, CtvRegistrationService>();
 		services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPartnerService, PartnerService>();
 
-		return services;
+        return services;
 	}
 }

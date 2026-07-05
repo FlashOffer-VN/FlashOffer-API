@@ -129,6 +129,44 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Partners",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PartnerCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    FullName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Position = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CompanyName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CompanyTax = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    CompanyAddress = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    BusinessType = table.Column<int>(type: "integer", nullable: false),
+                    CompanySize = table.Column<int>(type: "integer", nullable: false),
+                    CompanyWebsite = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    ReferralCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Note = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    ApprovedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Partners", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Partners_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PurchaseRequests",
                 columns: table => new
                 {
@@ -161,6 +199,63 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PartnerCommissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PartnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Rate = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    MinOrderValue = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    MaxCommission = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    SpecialConditions = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PartnerCommissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PartnerCommissions_Partners_PartnerId",
+                        column: x => x.PartnerId,
+                        principalTable: "Partners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PartnerProducts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PartnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Category = table.Column<int>(type: "integer", nullable: false),
+                    RetailPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    WholesalePrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    MinOrderQuantity = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PartnerProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PartnerProducts_Partners_PartnerId",
+                        column: x => x.PartnerId,
+                        principalTable: "Partners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -207,6 +302,38 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 name: "IX_OfferRequests_Zalo",
                 table: "OfferRequests",
                 column: "Zalo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartnerCommissions_PartnerId",
+                table: "PartnerCommissions",
+                column: "PartnerId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PartnerProducts_PartnerId",
+                table: "PartnerProducts",
+                column: "PartnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Partners_Email",
+                table: "Partners",
+                column: "Email");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Partners_PartnerCode",
+                table: "Partners",
+                column: "PartnerCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Partners_Phone",
+                table: "Partners",
+                column: "Phone");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Partners_UserId",
+                table: "Partners",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PurchaseRequests_CreatedAt",
@@ -260,7 +387,16 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 name: "OfferRequests");
 
             migrationBuilder.DropTable(
+                name: "PartnerCommissions");
+
+            migrationBuilder.DropTable(
+                name: "PartnerProducts");
+
+            migrationBuilder.DropTable(
                 name: "PurchaseRequests");
+
+            migrationBuilder.DropTable(
+                name: "Partners");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -1,12 +1,12 @@
-﻿# 📋 SYSTEM INSTRUCTION - FLASHOFFER (FULL UPDATE)
+﻿## 📋 SYSTEM INSTRUCTION - FLASHOFFER (FULL UPDATE)
 
-## 1. Quy tắc chung
+### 1. Quy tắc chung
 - Luôn trả lời bằng tiếng Việt, trừ code và thuật ngữ chuyên môn.
 - Mỗi câu trả lời tối đa 30 dòng (không tính code block).
 - Không lặp lại nội dung đã nói ở câu trước.
 - Thứ tự ưu tiên: Kết quả/Phân tích > Hành động tiếp theo > Giải thích chi tiết.
 
-## 2. Khi hướng dẫn code / làm dự án / xây dựng tính năng
+### 2. Khi hướng dẫn code / làm dự án / xây dựng tính năng
 | Bước | Hành động |
 |------|-----------|
 | 1 | Nêu tổng quan 2-3 câu |
@@ -17,7 +17,7 @@
 
 **KHÔNG:** gộp code các bước, tự động chuyển bước, thêm bước thừa.
 
-## 3. Khi gặp lỗi cần debug nhiều bước
+### 3. Khi gặp lỗi cần debug nhiều bước
 | Bước | Hành động |
 |------|-----------|
 | 1 | Đưa giả thuyết + 1 câu lệnh kiểm tra đầu tiên |
@@ -35,7 +35,7 @@
 | 500 khi valid request | Thiếu AutoMapper mapping | Thêm mapping trong MappingProfile hoặc IMapFrom |
 | 500 khi invalid request | Xung đột database provider | Xóa hết DbContext registrations trước khi add InMemory |
 
-## 4. Code mẫu
+### 4. Code mẫu
 - Backend: C# với syntax highlighting ` ```csharp `
 - Frontend: TypeScript (Angular)
 - Database: SQL có bảng Markdown kết quả
@@ -43,7 +43,7 @@
 // Code phải chạy được, có comment giải thích
 ```
 
-## 5. Khi viết Issue cho API
+### 5. Khi viết Issue cho API
 **Format trả lời:** CHỈ nội dung issue, KHÔNG lời dẫn hay giải thích.
 ```markdown
 ## ✨ Implement API [METHOD] /[đường dẫn] - [mô tả ngắn]
@@ -75,7 +75,7 @@
 - [ ] ...
 ```
 
-## 6. Thông tin dự án FlashOffer
+### 6. Thông tin dự án FlashOffer
 | Mục | Nội dung |
 |-----|----------|
 | Tên dự án | FlashOffer |
@@ -112,9 +112,9 @@
 | `ApiControllerBase` | `FlashOffer.API.WebApi` |
 | `SharedResource` | `FlashOffer.API.Application.Resources` |
 
-## 7. Quy tắc phát triển
+### 7. Quy tắc phát triển
 
-### 7.1 DTOs & Mapping (AutoMapper) - BẮT BUỘC
+#### 7.1 DTOs & Mapping (AutoMapper) - BẮT BUỘC
 - Request/Response DTOs implement `IMapFrom<TEntity>`
 - Commands trong MediatR cũng phải implement `IMapFrom<T>`
 ```csharp
@@ -138,7 +138,7 @@ public class CreateXxxCommand : IRequest<XxxResponseDto>, IMapFrom<CreateXxxDto>
 }
 ```
 
-### 7.2 Validation (FluentValidation)
+#### 7.2 Validation (FluentValidation)
 - Inject `IStringLocalizer<SharedResource>` cho message đa ngôn ngữ
 - Dùng resource key, không hardcode message
 
@@ -158,7 +158,7 @@ RuleFor(x => x.Phone)
     .When(x => !string.IsNullOrEmpty(x.Phone));
 ```
 
-### 7.3 Resource Keys
+#### 7.3 Resource Keys
 - **Chỉ thêm key mới** khi chưa tồn tại trong hệ thống
 - Key đã có (ProductNameRequired, PhoneInvalid...) tái sử dụng
 
@@ -170,7 +170,7 @@ RuleFor(x => x.Phone)
 | Export Title | `Export{Feature}Title` | `ExportPurchaseRequestsTitle` |
 | Export Header | `Export{Feature}_{FieldName}` | `ExportPurchaseRequests_ProductName` |
 
-### 7.4 Enum
+#### 7.4 Enum
 - Đặt trong `Domain/Enums/`
 - Entity dùng enum thay vì string
 - EF Configuration dùng `HasConversion<int>()`
@@ -185,7 +185,7 @@ builder.Property(x => x.Status)
     .HasDefaultValue(OrderStatus.Pending);
 ```
 
-### 7.5 Service Layer - 2 cách tiếp cận
+#### 7.5 Service Layer - 2 cách tiếp cận
 | Cách | Đường dẫn | Phù hợp |
 |------|-----------|---------|
 | Service trực tiếp | `I{Feature}Service` / `{Feature}Service` | CRUD đơn giản |
@@ -199,28 +199,40 @@ builder.Property(x => x.Status)
 | Số lượng method | 1-3 | >5 |
 | Độ phức tạp | Thấp | Cao |
 
-### 7.6 Repository Methods
+#### 7.6 Repository Methods
 | Method | Mô tả |
 |--------|-------|
-| `GetByIdAsync(Guid id)` | Lấy theo Id (auto filter IsDeleted) |
-| `GetAllAsync()` | Lấy tất cả |
-| `FindAsync(predicate)` | Lấy thỏa điều kiện |
+| `GetByIdAsync(Guid id)` | Lấy entity theo Id (tự động filter IsDeleted) |
+| `GetFirstAsync(predicate)` | Lấy entity đầu tiên thỏa điều kiện |
+| `GetAllAsync()` | Lấy tất cả entity (chưa xóa) |
+| `FindAsync(predicate)` | Lấy danh sách thỏa điều kiện |
 | `GetPagedAsync(page, size, predicate)` | Phân trang cơ bản |
 | `GetPagedWithOrderAsync(page, size, predicate, orderBy, isDescending)` | Phân trang + sắp xếp |
 | `GetPagedWithIncludesAsync(page, size, includes, predicate, orderBy, isDescending)` | Phân trang + Include navigation |
-| `AddAsync(entity)` | Thêm mới |
-| `Update(entity)` | Cập nhật |
-| `Delete(entity)` | Xóa mềm |
-| `SaveChangesAsync()` | Lưu thay đổi |
+| `GetFirstWithIncludesAsync(predicate, includes)` | Lấy 1 entity kèm Include |
+| `GetListWithIncludesAsync(includes, predicate, orderBy, isDescending)` | Lấy danh sách kèm Include (không phân trang) |
+| `CountAsync(predicate)` | Đếm số lượng bản ghi |
+| `AnyAsync(predicate)` | Kiểm tra tồn tại |
+| `FromSqlRawAsync(sql, parameters)` | Thực thi SQL raw (báo cáo phức tạp) |
+| `GetDeletedAsync()` | Lấy danh sách đã xóa mềm |
+| `AddAsync(entity)` | Thêm mới 1 entity |
+| `AddRangeAsync(entities)` | Thêm mới nhiều entity |
+| `Update(entity)` | Cập nhật 1 entity |
+| `UpdateRange(entities)` | Cập nhật nhiều entity |
+| `Delete(entity)` | Xóa mềm (set IsDeleted = true) |
+| `DeleteRange(entities)` | Xóa mềm nhiều entity |
+| `Restore(entity)` | Khôi phục soft delete |
+| `RestoreRange(entities)` | Khôi phục nhiều entity |
+| `SaveChangesAsync()` | Lưu thay đổi vào database |
 
-### 7.7 Controller Return Type
+#### 7.7 Controller Return Type
 | Loại API | Kiểu trả về | Method dùng |
 |----------|-------------|--------------|
 | CRUD (Create/Update/Delete) | `IActionResult` | `Ok(data, message)` |
 | GET single by id | `IActionResult` | `Ok(data, message)` |
 | GET paged list | `IActionResult` | `OkPaged(pagedData, message)` |
 
-### 7.8 Response Classes & Paging
+#### 7.8 Response Classes & Paging
 **ApiResponse<T>** - Cho single object:
 ```csharp
 public class ApiResponse<T>
@@ -235,7 +247,7 @@ public class ApiResponse<T>
 **PagedList<T>** - Application Layer: `FlashOffer.API.Domain.Models`
 **PagedResponse<T>** - WebApi Layer: `FlashOffer.API.WebApi.Responses`
 
-### 7.9 Export Excel (EPPlus) - QUAN TRỌNG
+#### 7.9 Export Excel (EPPlus) - QUAN TRỌNG
 
 **Vị trí:**
 - Interface: `Application/Common/Interfaces/IExcelService.cs`
@@ -243,71 +255,11 @@ public class ApiResponse<T>
 - License: EPPlus 7.x dùng `ExcelPackage.LicenseContext = LicenseContext.NonCommercial` trong Program.cs
 
 **Quy tắc viết Export Handler:**
-
-1. **Inject dependencies:**
-   ```csharp
-   private readonly IRepository<T> _repository;
-   private readonly IExcelService _excelService;
-   private readonly IStringLocalizer<SharedResource> _localizer;
-   ```
-
-2. **Column config dùng resource key:**
-   ```csharp
-   var columns = new Dictionary<string, Func<T, object>>
-   {
-       ["Export{Feature}_{FieldName}"] = x => x.Property,
-       ["Export{Feature}_CreatedAt"] = x => x.CreatedAt // Giữ nguyên DateTime
-   };
-   ```
-
-3. **Gọi ExportToExcel với title key:**
-   ```csharp
-   return _excelService.ExportToExcel(
-       data.OrderByDescending(x => x.CreatedAt).ToList(),
-       columns,
-       "{FeatureName}",
-       "Export{Feature}Title",
-       _localizer);
-   ```
-
-4. **Resource keys cần thêm:**
-   - `Export{Feature}Title`: Title của file
-   - `Export{Feature}_{FieldName}`: Header cho từng cột
-
-5. **Predicate - dùng `ExpressionExtensions.AndAlso`:**
-   ```csharp
-   private static Expression<Func<T, bool>> BuildPredicate(Query request)
-   {
-       var predicate = x => !x.IsDeleted;
-       if (request.Status.HasValue)
-           predicate = predicate.AndAlso(x => x.Status == request.Status.Value);
-       if (request.FromDate.HasValue)
-           predicate = predicate.AndAlso(x => x.CreatedAt >= request.FromDate.Value.Date);
-       if (request.ToDate.HasValue)
-           predicate = predicate.AndAlso(x => x.CreatedAt < request.ToDate.Value.Date.AddDays(1));
-       return predicate;
-   }
-   ```
-
-6. **Controller:**
-   ```csharp
-   [HttpGet("export")]
-   [Authorize(Roles = "Admin")]
-   public async Task<IActionResult> ExportAsync([FromQuery] ExportQuery query)
-   {
-       var bytes = await _mediator.Send(query);
-       var fileName = $"feature_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-       return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-   }
-   ```
-
-7. **Validator:**
-   ```csharp
-   RuleFor(x => x.FromDate)
-       .LessThanOrEqualTo(x => x.ToDate)
-       .When(x => x.FromDate.HasValue && x.ToDate.HasValue)
-       .WithMessage(localizer["FromDateMustBeBeforeToDate"]);
-   ```
+1. Inject dependencies: `IRepository<T>`, `IExcelService`, `IStringLocalizer<SharedResource>`
+2. Column config dùng resource key: `["Export{Feature}_{FieldName}"] = x => x.Property`
+3. Gọi `_excelService.ExportToExcel(data, columns, "FeatureName", "Export{Feature}Title", _localizer)`
+4. Predicate dùng `ExpressionExtensions.AndAlso`
+5. Controller trả về `File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName)`
 
 **ExcelService format tự động:**
 - DateTime → `yyyy-MM-dd HH:mm:ss`
@@ -315,7 +267,38 @@ public class ApiResponse<T>
 - Header: căn trái, bold, background gray
 - Data: căn trái, có border
 
-## 8. Thêm API mới - Quy trình 10 bước
+#### 7.10 Soft Delete & Global Query Filter
+
+**Quy tắc Soft Delete:**
+- Tất cả Entity kế thừa `BaseEntity` đều có `IsDeleted` flag.
+- Method `Delete()` và `DeleteRange()` chỉ set `IsDeleted = true`, **không xóa vật lý**.
+- Method `Restore()` và `RestoreRange()` để khôi phục dữ liệu đã xóa mềm.
+
+**Global Query Filter:**
+- Trong `ApplicationDbContext.OnModelCreating()`, tự động thêm filter `IsDeleted = false` cho tất cả entity kế thừa `BaseEntity`.
+- Đảm bảo mọi query đều chỉ lấy dữ liệu chưa xóa.
+
+```csharp
+// ApplicationDbContext.cs
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    base.OnModelCreating(modelBuilder);
+    
+    foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+    {
+        if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+        {
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var property = Expression.Property(parameter, "IsDeleted");
+            var condition = Expression.Equal(property, Expression.Constant(false));
+            var lambda = Expression.Lambda(condition, parameter);
+            entityType.SetQueryFilter(lambda);
+        }
+    }
+}
+```
+
+### 8. Thêm API mới - Quy trình 10 bước
 | Bước | Hành động | Thư mục | Resource keys |
 |------|-----------|---------|---------------|
 | 1 | Tạo Entity (dùng Enum nếu cần) | `Domain/Entities/` | - |
@@ -329,7 +312,7 @@ public class ApiResponse<T>
 | 9 | Tạo Controller (dùng ApiControllerBase) | `WebApi/Controllers/` | - |
 | 10 | Chạy migration | Terminal | - |
 
-## 9. Quy tắc xử lý Issue API
+### 9. Quy tắc xử lý Issue API
 | Bước | Hành động | Ví dụ |
 |------|-----------|-------|
 | 1 | **Hỏi Entity đã có chưa?** | "Entity PurchaseRequest đã có chưa? Nếu có, gửi tôi code hiện tại." |
@@ -339,7 +322,7 @@ public class ApiResponse<T>
 | 5 | **Confirm trước khi code** | Hỏi: "Tôi đề xuất thêm X, Y. Bạn đồng ý không?" |
 | 6 | **Thực hiện các bước còn lại** | Chỉ code các phần chưa có |
 
-## 10. Quy tắc Migration
+### 10. Quy tắc Migration
 
 **Vị trí migrations:** `src/FlashOffer.API.Infrastructure/Data/Migrations/`
 
@@ -373,8 +356,8 @@ dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-pr
 | 3 | Xóa migration | `dotnet ef migrations remove --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
 | 4 | Xóa database | **HỎI TRƯỚC**, sau đó `dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
 
-## 11. Quy tắc Testing
-### Unit Test
+### 11. Quy tắc Testing
+#### Unit Test
 - Test một đơn vị code nhỏ trong isolation
 - Mock tất cả dependencies
 - Tốc độ nhanh (ms)
@@ -382,12 +365,12 @@ dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-pr
 
 **Lưu ý với Moq:** Methods có optional parameters (CancellationToken) phải truyền đủ số lượng tham số với `It.IsAny<T>()`
 
-### Validator Test
+#### Validator Test
 - Khởi tạo validator trực tiếp, không dùng Service/Mock
 - Mock `IStringLocalizer<SharedResource>` khi validator inject localizer
 - Setup **tất cả resource keys** mà validator dùng
 
-### Integration Test
+#### Integration Test
 - Dùng database thật (InMemory/TestContainer)
 - Gọi API endpoint thật
 - **BaseIntegrationTest Pattern (BẮT BUỘC):**
@@ -402,21 +385,20 @@ services.AddScoped<IApplicationDbContext>(sp =>
     sp.GetRequiredService<ApplicationDbContext>());
 ```
 
-### Quy tắc cho dự án FlashOffer
+#### Quy tắc cho dự án FlashOffer
 | Loại test | Khi nào viết | Thư mục | Cần Base class? |
 |-----------|--------------|---------|-----------------|
 | Unit Test | Mỗi Validator, Handler, Service | `tests/FlashOffer.API.UnitTests/` | ❌ Không |
 | Integration Test | Mỗi Controller (1 file chính) | `tests/FlashOffer.API.IntegrationTests/` | ✅ Cần `BaseIntegrationTest` |
 
-## 12. Quy tắc xử lý User trong các API
+### 12. Quy tắc xử lý User trong các API
 
-### 12.1. Nguyên tắc chung:
+#### 12.1. Nguyên tắc chung:
 - Mọi API tạo dữ liệu (Create) đều cần gán `UserId` từ token hiện tại hoặc tạo User ngầm
 - API lấy danh sách (GetList) cho User chỉ lấy dữ liệu của user đó
 - API lấy danh sách (GetList) cho Admin lấy tất cả dữ liệu
 
-### 12.2. Quy tắc cụ thể:
-
+#### 12.2. Quy tắc cụ thể:
 | Loại API | UserId lấy từ | Hành động |
 |----------|---------------|-----------|
 | Create (Public - chưa login) | Tự động tạo User | Tạo User ngầm (nếu chưa có) dựa trên Phone/Email |
@@ -424,8 +406,7 @@ services.AddScoped<IApplicationDbContext>(sp =>
 | GetList (User thường) | `ICurrentUserService.UserId` | Filter theo UserId |
 | GetList (Admin) | Không filter | Lấy tất cả |
 
-### 12.3. Code mẫu cho Create API (Service/Handler):
-
+#### 12.3. Code mẫu cho Create API (Service/Handler):
 ```csharp
 // 1. Lấy UserId từ token (nếu có)
 var userId = _currentUserService.UserId;
@@ -445,8 +426,7 @@ var entity = _mapper.Map<TEntity>(request);
 entity.UserId = userId;
 ```
 
-### 12.4. Code mẫu cho GetList API:
-
+#### 12.4. Code mẫu cho GetList API:
 ```csharp
 // Admin - lấy tất cả
 if (_currentUserService.IsInRole("Admin"))
@@ -462,8 +442,7 @@ else
 }
 ```
 
-### 12.5. Interface ICurrentUserService:
-
+#### 12.5. Interface ICurrentUserService:
 ```csharp
 public interface ICurrentUserService
 {
@@ -474,8 +453,7 @@ public interface ICurrentUserService
 }
 ```
 
-### 12.6. Service lấy/tạo User:
-
+#### 12.6. Service lấy/tạo User:
 ```csharp
 public interface IUserService
 {
@@ -484,8 +462,7 @@ public interface IUserService
 }
 ```
 
-### 12.7. Trong Controller:
-
+#### 12.7. Trong Controller:
 ```csharp
 // Sử dụng ICurrentUserService
 [Authorize]
@@ -497,14 +474,13 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 }
 ```
 
-### 12.8. Namespace mapping (BỔ SUNG):
-
+#### 12.8. Namespace mapping (BỔ SUNG):
 | Class/Interface | Namespace |
 |----------------|-----------|
 | `ICurrentUserService` | `FlashOffer.API.Shared.Common.Interfaces` |
 | `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
 
-## 13. Lưu ý quan trọng
+### 13. Lưu ý quan trọng
 - `Repository.AddAsync` cần `SaveChangesAsync()` sau đó
 - Logic nghiệp vụ đặt trong Service/Handler, không trong Controller
 - **BẮT BUỘC** cấu hình `SuppressModelStateInvalidFilter = true`
@@ -514,3 +490,5 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 - **Phone validation:** rule 7.2
 - **Excel:** format date `yyyy-MM-dd HH:mm:ss`, số `#,##0`, căn trái tất cả
 - **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu
+- **Soft Delete:** Luôn dùng xóa mềm, không xóa cứng dữ liệu. Sử dụng `Restore()` khi cần khôi phục.
+- **Global Query Filter:** Đã tự động filter `IsDeleted = false`, không cần thêm điều kiện trong repository methods.
