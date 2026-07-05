@@ -270,4 +270,47 @@
 	<data name="FromDateMustBeBeforeToDate" xml:space="preserve">
     <value>FromDate must be less than or equal to ToDate</value>
   </data>
+  <!-- Validation - Personal Info -->
+  <data name="PartnerFullNameRequired" xml:space="preserve"><value>Full name is required</value></data>
+  <data name="PartnerFullNameMinLength" xml:space="preserve"><value>Full name must be at least 2 characters</value></data>
+  <data name="PartnerFullNameMaxLength" xml:space="preserve"><value>Full name cannot exceed 100 characters</value></data>
+  <data name="PartnerEmailRequired" xml:space="preserve"><value>Email is required</value></data>
+  <data name="PartnerEmailInvalid" xml:space="preserve"><value>Invalid email format</value></data>
+  <data name="PartnerPhoneRequired" xml:space="preserve"><value>Phone number is required</value></data>
+  <data name="PartnerPhoneInvalid" xml:space="preserve"><value>Invalid phone number (e.g., 0912345678)</value></data>
+  <data name="PartnerPositionRequired" xml:space="preserve"><value>Position is required</value></data>
+  <data name="PartnerPositionMinLength" xml:space="preserve"><value>Position must be at least 2 characters</value></data>
+
+  <!-- Validation - Business Info -->
+  <data name="PartnerCompanyNameRequired" xml:space="preserve"><value>Company name is required</value></data>
+  <data name="PartnerCompanyNameMinLength" xml:space="preserve"><value>Company name must be at least 2 characters</value></data>
+  <data name="PartnerCompanyTaxRequired" xml:space="preserve"><value>Tax code is required</value></data>
+  <data name="PartnerCompanyTaxInvalid" xml:space="preserve"><value>Invalid tax code (10-14 digits)</value></data>
+  <data name="PartnerCompanyAddressRequired" xml:space="preserve"><value>Company address is required</value></data>
+  <data name="PartnerCompanyAddressMinLength" xml:space="preserve"><value>Address must be at least 5 characters</value></data>
+  <data name="PartnerBusinessTypeInvalid" xml:space="preserve"><value>Invalid business type</value></data>
+  <data name="PartnerCompanySizeInvalid" xml:space="preserve"><value>Invalid company size</value></data>
+  <data name="PartnerCompanyWebsiteInvalid" xml:space="preserve"><value>Invalid website (e.g., https://example.com)</value></data>
+
+  <!-- Validation - Products -->
+  <data name="PartnerProductsRequired" xml:space="preserve"><value>At least 1 product is required</value></data>
+  <data name="PartnerProductNameRequired" xml:space="preserve"><value>Product name is required</value></data>
+  <data name="PartnerProductNameMinLength" xml:space="preserve"><value>Product name must be at least 2 characters</value></data>
+  <data name="PartnerProductCategoryInvalid" xml:space="preserve"><value>Invalid product category</value></data>
+  <data name="PartnerRetailPriceNonNegative" xml:space="preserve"><value>Retail price must be >= 0</value></data>
+  <data name="PartnerWholesalePriceNonNegative" xml:space="preserve"><value>Wholesale price must be >= 0</value></data>
+  <data name="PartnerMinOrderQuantityPositive" xml:space="preserve"><value>Minimum order quantity must be >= 1</value></data>
+
+  <!-- Validation - Commission -->
+  <data name="PartnerCommissionTypeInvalid" xml:space="preserve"><value>Invalid commission type</value></data>
+  <data name="PartnerCommissionRateRequired" xml:space="preserve"><value>Commission rate is required</value></data>
+  <data name="PartnerCommissionRateRange" xml:space="preserve"><value>Commission rate must be between 0 and 100%</value></data>
+
+  <!-- Validation - Confirmation -->
+  <data name="PartnerAgreeTermsRequired" xml:space="preserve"><value>You must agree to the terms</value></data>
+
+  <!-- Success & Error -->
+  <data name="PartnerRegisterSuccess" xml:space="preserve"><value>Partner registration successful!</value></data>
+  <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Invalid referral code</value></data>
+  <data name="PartnerValidationFailed" xml:space="preserve"><value>Invalid data</value></data>
 </root>

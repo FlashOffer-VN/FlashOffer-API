@@ -264,4 +264,47 @@
 	<data name="FromDateMustBeBeforeToDate" xml:space="preserve">
     <value>Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc</value>
   </data>
+  <!-- Validation - Personal Info -->
+  <data name="PartnerFullNameRequired" xml:space="preserve"><value>Họ và tên là bắt buộc</value></data>
+  <data name="PartnerFullNameMinLength" xml:space="preserve"><value>Họ và tên phải có ít nhất 2 ký tự</value></data>
+  <data name="PartnerFullNameMaxLength" xml:space="preserve"><value>Họ và tên không được vượt quá 100 ký tự</value></data>
+  <data name="PartnerEmailRequired" xml:space="preserve"><value>Email là bắt buộc</value></data>
+  <data name="PartnerEmailInvalid" xml:space="preserve"><value>Email không hợp lệ</value></data>
+  <data name="PartnerPhoneRequired" xml:space="preserve"><value>Số điện thoại là bắt buộc</value></data>
+  <data name="PartnerPhoneInvalid" xml:space="preserve"><value>Số điện thoại không hợp lệ (VD: 0912345678)</value></data>
+  <data name="PartnerPositionRequired" xml:space="preserve"><value>Chức vụ là bắt buộc</value></data>
+  <data name="PartnerPositionMinLength" xml:space="preserve"><value>Chức vụ phải có ít nhất 2 ký tự</value></data>
+
+  <!-- Validation - Business Info -->
+  <data name="PartnerCompanyNameRequired" xml:space="preserve"><value>Tên công ty là bắt buộc</value></data>
+  <data name="PartnerCompanyNameMinLength" xml:space="preserve"><value>Tên công ty phải có ít nhất 2 ký tự</value></data>
+  <data name="PartnerCompanyTaxRequired" xml:space="preserve"><value>Mã số thuế là bắt buộc</value></data>
+  <data name="PartnerCompanyTaxInvalid" xml:space="preserve"><value>Mã số thuế không hợp lệ (10-14 số)</value></data>
+  <data name="PartnerCompanyAddressRequired" xml:space="preserve"><value>Địa chỉ công ty là bắt buộc</value></data>
+  <data name="PartnerCompanyAddressMinLength" xml:space="preserve"><value>Địa chỉ phải có ít nhất 5 ký tự</value></data>
+  <data name="PartnerBusinessTypeInvalid" xml:space="preserve"><value>Loại hình doanh nghiệp không hợp lệ</value></data>
+  <data name="PartnerCompanySizeInvalid" xml:space="preserve"><value>Quy mô công ty không hợp lệ</value></data>
+  <data name="PartnerCompanyWebsiteInvalid" xml:space="preserve"><value>Website không hợp lệ (VD: https://example.com)</value></data>
+
+  <!-- Validation - Products -->
+  <data name="PartnerProductsRequired" xml:space="preserve"><value>Cần có ít nhất 1 sản phẩm</value></data>
+  <data name="PartnerProductNameRequired" xml:space="preserve"><value>Tên sản phẩm là bắt buộc</value></data>
+  <data name="PartnerProductNameMinLength" xml:space="preserve"><value>Tên sản phẩm phải có ít nhất 2 ký tự</value></data>
+  <data name="PartnerProductCategoryInvalid" xml:space="preserve"><value>Danh mục sản phẩm không hợp lệ</value></data>
+  <data name="PartnerRetailPriceNonNegative" xml:space="preserve"><value>Giá bán lẻ phải >= 0</value></data>
+  <data name="PartnerWholesalePriceNonNegative" xml:space="preserve"><value>Giá bán sỉ phải >= 0</value></data>
+  <data name="PartnerMinOrderQuantityPositive" xml:space="preserve"><value>Số lượng đặt hàng tối thiểu phải >= 1</value></data>
+
+  <!-- Validation - Commission -->
+  <data name="PartnerCommissionTypeInvalid" xml:space="preserve"><value>Loại hoa hồng không hợp lệ</value></data>
+  <data name="PartnerCommissionRateRequired" xml:space="preserve"><value>Tỷ lệ hoa hồng là bắt buộc</value></data>
+  <data name="PartnerCommissionRateRange" xml:space="preserve"><value>Tỷ lệ hoa hồng phải từ 0 đến 100%</value></data>
+
+  <!-- Validation - Confirmation -->
+  <data name="PartnerAgreeTermsRequired" xml:space="preserve"><value>Bạn phải đồng ý với điều khoản</value></data>
+
+  <!-- Success & Error -->
+  <data name="PartnerRegisterSuccess" xml:space="preserve"><value>Đăng ký đối tác thành công!</value></data>
+  <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Mã giới thiệu không hợp lệ</value></data>
+  <data name="PartnerValidationFailed" xml:space="preserve"><value>Dữ liệu không hợp lệ</value></data>
 </root>
