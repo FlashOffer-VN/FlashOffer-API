@@ -7,7 +7,9 @@ using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers.v1;
 
-[Route("api/leads")]
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class CtvRegistrationsController : ApiControllerBase
 {
 	private readonly ICtvRegistrationService _ctvRegistrationService;
