@@ -59,13 +59,15 @@ public class PartnerService : IPartnerService
         var partner = _mapper.Map<Partner>(request);
         partner.UserId = Guid.Parse(userId);
 
+        partner.PartnerCode = GeneratePartnerCode();
+
         // 4. Map products và gán PartnerId
         var products = _mapper.Map<List<PartnerProduct>>(request.Products);
         foreach (var product in products)
         {
             product.PartnerId = partner.Id;
         }
-        partner.Products = products; // Dùng AddRange
+        partner.Products = products;
 
         // 5. Map commission và gán PartnerId
         partner.Commission = _mapper.Map<PartnerCommission>(request);
@@ -84,5 +86,13 @@ public class PartnerService : IPartnerService
         // Giả lập - kiểm tra trong DB hoặc cache
         var validCodes = new[] { "KINDI-ABC123", "KINDI-DEF456" };
         return await Task.FromResult(validCodes.Contains(code.ToUpper()));
+    }
+
+    private string GeneratePartnerCode()
+    {
+        // Format: PART-{DateTime:yyMMdd}-{Random4Digits}
+        var datePart = DateTime.Now.ToString("yyMMdd");
+        var randomPart = new Random().Next(1000, 9999).ToString();
+        return $"PART-{datePart}-{randomPart}";
     }
 }
