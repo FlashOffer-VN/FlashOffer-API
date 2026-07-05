@@ -24,7 +24,7 @@ RUN dotnet restore FlashOffer.API.slnx
 # Copy all source code
 COPY src/ src/
 COPY docs/ docs/
-COPY tests/ tests/
+# COPY tests/ tests/
 
 # Publish the WebApi project
 RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj -c Release -o /app/publish
