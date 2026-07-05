@@ -9,6 +9,8 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers.Admin;
 
 [Route("api/admin")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/admin")]
 [Authorize(Roles = "Admin")]
 [ApiController]
 public class DashboardController : ApiControllerBase

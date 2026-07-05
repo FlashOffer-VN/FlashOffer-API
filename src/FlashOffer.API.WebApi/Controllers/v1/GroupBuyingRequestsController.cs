@@ -8,7 +8,9 @@ using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
-[Route("api/leads")]
+[ApiVersion("1.0")]
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class GroupBuyingRequestsController : ApiControllerBase
 {
 	private readonly IGroupBuyingRequestService _service;
@@ -33,13 +35,10 @@ public class GroupBuyingRequestsController : ApiControllerBase
 	[HttpGet("group-buying-requests")]
 	public async Task<IActionResult> GetList([FromQuery] GetGroupBuyingRequestsQueryDto query)
 	{
-		if (!string.IsNullOrEmpty(query.Status))
+		if (!string.IsNullOrEmpty(query.Status) && !Enum.TryParse<GroupBuyingStatus>(query.Status, true, out _))
 		{
-			if (!Enum.TryParse<GroupBuyingStatus>(query.Status, true, out _))
-			{
-				return BadRequest(_localizer["InvalidStatus"],
-					new List<string> { _localizer["InvalidStatusMessage"] });
-			}
+			return BadRequest(_localizer["InvalidStatus"],
+				new List<string> { _localizer["InvalidStatusMessage"] });
 		}
 
 		var result = await _service.GetPagedAsync(query);

@@ -12,8 +12,9 @@ using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
+[ApiVersion("1.0")]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class PartnerController : ApiControllerBase
 {
     private readonly IPartnerService _partnerService;
