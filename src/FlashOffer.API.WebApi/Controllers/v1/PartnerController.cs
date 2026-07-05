@@ -47,6 +47,6 @@ public class PartnerController : ApiControllerBase
         }
 
         var result = await _partnerService.RegisterAsync(request);
-        return Ok(result, _localizer["CreatePartnerSuccess"]);
+        return Ok(result, _localizer["PartnerRegisterSuccess"]);
     }
 }
