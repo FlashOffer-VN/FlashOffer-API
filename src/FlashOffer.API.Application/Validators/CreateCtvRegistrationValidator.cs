@@ -29,11 +29,11 @@ public class CreateCtvRegistrationValidator : AbstractValidator<CreateCtvRegistr
 			.MaximumLength(100).WithMessage(localizer["EmailMaxLength"])
 			.When(x => !string.IsNullOrEmpty(x.Email));
 
-		RuleFor(x => x.SalesChannel)
-			.MaximumLength(100).WithMessage(localizer["SalesChannelMaxLength"])
-			.When(x => !string.IsNullOrEmpty(x.SalesChannel));
+        RuleFor(x => x.SalesChannel)
+    .IsInEnum()
+    .WithMessage(localizer["SalesChannelInvalid"]);
 
-		RuleFor(x => x.Experience)
+        RuleFor(x => x.Experience)
 			.MaximumLength(1000).WithMessage(localizer["ExperienceMaxLength"])
 			.When(x => !string.IsNullOrEmpty(x.Experience));
 	}

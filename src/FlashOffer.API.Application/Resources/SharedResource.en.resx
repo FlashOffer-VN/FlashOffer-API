@@ -313,4 +313,5 @@
   <data name="PartnerRegisterSuccess" xml:space="preserve"><value>Partner registration successful!</value></data>
   <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Invalid referral code</value></data>
   <data name="PartnerValidationFailed" xml:space="preserve"><value>Invalid data</value></data>
+  <data name="SalesChannelInvalid" xml:space="preserve"><value>Invalid sales channel</value></data>
 </root>
