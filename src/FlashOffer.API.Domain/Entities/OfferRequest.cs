@@ -2,7 +2,6 @@
 using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Domain.Entities;
-
 public class OfferRequest : BaseEntity
 {
 	public Guid UserId { get; set; } // Thêm FK

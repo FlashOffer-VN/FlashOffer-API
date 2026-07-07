@@ -30,8 +30,8 @@ public class CreateCtvRegistrationValidator : AbstractValidator<CreateCtvRegistr
 			.When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x.SalesChannel)
-    .IsInEnum()
-    .WithMessage(localizer["SalesChannelInvalid"]);
+			.IsInEnum()
+			.WithMessage(localizer["SalesChannelInvalid"]);
 
         RuleFor(x => x.Experience)
 			.MaximumLength(1000).WithMessage(localizer["ExperienceMaxLength"])
