@@ -307,4 +307,5 @@
   <data name="PartnerRegisterSuccess" xml:space="preserve"><value>Đăng ký đối tác thành công!</value></data>
   <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Mã giới thiệu không hợp lệ</value></data>
   <data name="PartnerValidationFailed" xml:space="preserve"><value>Dữ liệu không hợp lệ</value></data>
+  <data name="SalesChannelInvalid" xml:space="preserve"><value>Kênh bán hàng không hợp lệ</value></data>
 </root>

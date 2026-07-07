@@ -26,9 +26,10 @@ public class CtvRegistrationConfiguration : IEntityTypeConfiguration<CtvRegistra
 			.HasMaxLength(100);
 
 		builder.Property(x => x.SalesChannel)
-			.HasMaxLength(100);
+			.HasConversion<int>()
+			.HasDefaultValue(SalesChannel.Other);
 
-		builder.Property(x => x.Experience)
+        builder.Property(x => x.Experience)
 			.HasMaxLength(1000);
 
 		builder.Property(x => x.IsApproved)

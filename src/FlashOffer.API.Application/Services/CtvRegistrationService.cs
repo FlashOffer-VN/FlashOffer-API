@@ -5,6 +5,7 @@ using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Domain.Models;
+using FlashOffer.API.Infrastructure.Services;
 using System.Linq.Expressions;
 
 namespace FlashOffer.API.Application.Services;
@@ -12,27 +13,38 @@ namespace FlashOffer.API.Application.Services;
 public class CtvRegistrationService : ICtvRegistrationService
 {
 	private readonly IRepository<CtvRegistration> _repository;
-	private readonly IMapper _mapper;
+    private readonly IUserService _userService;
+    private readonly IMapper _mapper;
 
-	public CtvRegistrationService(IRepository<CtvRegistration> repository, IMapper mapper)
+	public CtvRegistrationService(IRepository<CtvRegistration> repository, IMapper mapper, IUserService userService)
 	{
 		_repository = repository;
 		_mapper = mapper;
+		_userService = userService;
 	}
 
-	public async Task<CtvRegistrationResponseDto> CreateAsync(CreateCtvRegistrationDto dto)
-	{
-		var entity = _mapper.Map<CtvRegistration>(dto);
-		entity.IsApproved = false;
-		entity.CreatedAt = DateTime.UtcNow.AddHours(7); // UTC+7
+    public async Task<CtvRegistrationResponseDto> CreateAsync(CreateCtvRegistrationDto dto)
+    {
+        // 1. Lấy hoặc tạo User từ Phone
+        var userId = await _userService.GetOrCreateUserAsync(
+            dto.FullName,
+            dto.Phone,
+            dto.Email
+        );
 
-		await _repository.AddAsync(entity);
-		await _repository.SaveChangesAsync();
+        // 2. Map và gán UserId
+        var entity = _mapper.Map<CtvRegistration>(dto);
+        entity.UserId = userId;
+        entity.IsApproved = false;
+        entity.CreatedAt = DateTime.UtcNow.AddHours(7);
 
-		return _mapper.Map<CtvRegistrationResponseDto>(entity);
-	}
+        await _repository.AddAsync(entity);
+        await _repository.SaveChangesAsync();
 
-	public async Task<PagedList<CtvRegistrationResponseDto>> GetPagedAsync(CtvRegistrationQueryDto query)
+        return _mapper.Map<CtvRegistrationResponseDto>(entity);
+    }
+
+    public async Task<PagedList<CtvRegistrationResponseDto>> GetPagedAsync(CtvRegistrationQueryDto query)
 	{
 		var predicate = BuildPredicate(query.IsApproved);
 
