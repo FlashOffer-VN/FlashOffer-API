@@ -127,7 +127,8 @@ if (!app.Environment.IsDevelopment())
 {
 	using var scope = app.Services.CreateScope();
 	var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-	db.Database.Migrate();
+	var migrationLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
+	await DatabaseMigrationRunner.ApplyMigrationsAsync(db, migrationLogger);
 	await DatabaseSeeder.SeedAsync(db);
 }
 
