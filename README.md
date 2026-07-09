@@ -73,7 +73,7 @@ Deploy to Render
 | `JWT_AUDIENCE` | `FlashOffer.APIClient` |
 | `JWT_EXPIRY_MINUTES` | `60` |
 | `LOG_LEVEL` | `Information` |
-| `ALLOWED_ORIGINS` | `*` (open CORS until a frontend URL is available) |
+| `ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:4200,https://flash-offer-ui.vercel.app,https://www.kindi.vn,https://kindi.vn` |
 
 5. Deploy and verify `https://<your-service>.onrender.com/health` returns `Healthy`.
 6. Log in with the seeded admin account: username `admin`, password `Admin@123`.
