@@ -362,4 +362,52 @@
   <data name="PurchaseRequest_CreatePurchaseRequestSuccess">
     <value>Purchase request created successfully</value>
   </data>
+  <!-- Validation - GroupBuyingRequest -->
+  <data name="GroupBuyingRequest_ProductNameRequired">
+    <value>Product name is required</value>
+  </data>
+  <data name="GroupBuyingRequest_ProductNameMinLength">
+    <value>Product name must be at least 3 characters</value>
+  </data>
+  <data name="GroupBuyingRequest_ProductLinkInvalid">
+    <value>Invalid product link</value>
+  </data>
+  <data name="GroupBuyingRequest_TargetPriceRequired">
+    <value>Target price is required</value>
+  </data>
+  <data name="GroupBuyingRequest_TargetPriceMin">
+    <value>Target price must be at least 1,000 VND</value>
+  </data>
+  <data name="GroupBuyingRequest_TargetPeopleCountRequired">
+    <value>Number of people is required</value>
+  </data>
+  <data name="GroupBuyingRequest_TargetPeopleCountMin">
+    <value>Number of people must be at least 2</value>
+  </data>
+  <data name="GroupBuyingRequest_FullNameRequired">
+    <value>Full name is required</value>
+  </data>
+  <data name="GroupBuyingRequest_FullNameMinLength">
+    <value>Full name must be at least 2 characters</value>
+  </data>
+  <data name="GroupBuyingRequest_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="GroupBuyingRequest_PhoneInvalid">
+    <value>Invalid phone number (must start with 0 and have 10-11 digits)</value>
+  </data>
+  <data name="GroupBuyingRequest_ZaloInvalid">
+    <value>Invalid Zalo number (must be 10 digits)</value>
+  </data>
+  <data name="GroupBuyingRequest_EmailRequired">
+    <value>Email is required</value>
+  </data>
+  <data name="GroupBuyingRequest_EmailInvalid">
+    <value>Invalid email</value>
+  </data>
+
+  <!-- Success -->
+  <data name="GroupBuyingRequest_CreateSuccess">
+    <value>Group buying request created successfully</value>
+  </data>
 </root>

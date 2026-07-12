@@ -23,7 +23,7 @@ public class DashboardController : ApiControllerBase
 		_localizer = localizer;
 	}
 
-	[HttpGet("dashboard")]
+	[HttpGet]
 	public async Task<IActionResult> GetDashboard()
 	{
 		var stats = await _mediator.Send(new GetDashboardQuery());

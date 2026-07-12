@@ -52,4 +52,5 @@ public class DesignTimeCurrentUserService : ICurrentUserService
 	public string? UserId => "DevLocal_Migration";
 	public string? UserName => "DevLocal_Migration";
 	public bool IsAuthenticated => false;
+    public bool IsInRole(string role) => false;
 }
