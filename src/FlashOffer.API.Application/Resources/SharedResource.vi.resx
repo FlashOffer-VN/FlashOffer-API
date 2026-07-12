@@ -404,4 +404,58 @@
   <data name="GroupBuyingRequest_CreateSuccess">
     <value>Tạo yêu cầu mua chung thành công</value>
   </data>
+  <!-- src/FlashOffer.API.Application/Resources/vi/SharedResource.vi.resx -->
+  <!-- Product Validation -->
+  <data name="OfferRequest_ProductNameRequired">
+    <value>Tên sản phẩm là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_ProductNameMinLength">
+    <value>Tên sản phẩm phải có ít nhất 3 ký tự</value>
+  </data>
+  <data name="OfferRequest_ProductLinkInvalid">
+    <value>Đường dẫn sản phẩm không hợp lệ</value>
+  </data>
+  <data name="OfferRequest_CurrentPriceRequired">
+    <value>Giá hiện tại là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_CurrentPriceInvalid">
+    <value>Giá hiện tại phải lớn hơn 0</value>
+  </data>
+  <data name="OfferRequest_ExpectedPriceInvalid">
+    <value>Giá kỳ vọng phải lớn hơn 0</value>
+  </data>
+  <data name="OfferRequest_QuantityRequired">
+    <value>Số lượng là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_QuantityMin">
+    <value>Số lượng phải từ 1 trở lên</value>
+  </data>
+  <data name="OfferRequest_UnitRequired">
+    <value>Đơn vị tính là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_UnitMinLength">
+    <value>Đơn vị tính phải có ít nhất 1 ký tự</value>
+  </data>
+
+  <!-- User Validation -->
+  <data name="OfferRequest_FullNameRequired">
+    <value>Họ và tên là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_FullNameMinLength">
+    <value>Họ và tên phải có ít nhất 2 ký tự</value>
+  </data>
+  <data name="OfferRequest_PhoneRequired">
+    <value>Số điện thoại là bắt buộc</value>
+  </data>
+  <data name="OfferRequest_PhoneInvalid">
+    <value>Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có 10-11 số)</value>
+  </data>
+  <data name="OfferRequest_EmailInvalid">
+    <value>Email không hợp lệ</value>
+  </data>
+
+  <!-- Success Messages -->
+  <data name="OfferRequest_CreateSuccess">
+    <value>Yêu cầu nhận offer đã được gửi thành công</value>
+  </data>
 </root>

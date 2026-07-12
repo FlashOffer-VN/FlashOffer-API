@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿// src/FlashOffer.API.WebApi/Controllers/OfferRequestsController.cs
+using AutoMapper;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Features.OfferRequests.Commands;
 using FlashOffer.API.Application.Features.OfferRequests.Queries;
@@ -15,31 +16,41 @@ namespace FlashOffer.API.WebApi.Controllers;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class OfferRequestsController : ApiControllerBase
 {
-	private readonly IMediator _mediator;
-	private readonly IMapper _mapper;
-	private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-	public OfferRequestsController(IMediator mediator, IMapper mapper, IStringLocalizer<SharedResource> localizer)
-	{
-		_mediator = mediator;
-		_mapper = mapper;
-		_localizer = localizer;
-	}
+    public OfferRequestsController(
+        IMediator mediator,
+        IMapper mapper,
+        IStringLocalizer<SharedResource> localizer)
+    {
+        _mediator = mediator;
+        _mapper = mapper;
+        _localizer = localizer;
+    }
 
-	[HttpPost("offer-requests")]
-	public async Task<IActionResult> CreateAsync([FromBody] CreateOfferRequestDto request)
-	{
-		var command = _mapper.Map<CreateOfferRequestCommand>(request);
-		var response = await _mediator.Send(command);
-		return Ok(response, _localizer["CreateOfferRequestSuccess"]);
-	}
+    /// <summary>
+    /// Tạo yêu cầu nhận offer (Public - không cần đăng nhập)
+    /// </summary>
+    [HttpPost]
+    [AllowAnonymous] 
+    public async Task<IActionResult> CreateAsync([FromBody] CreateOfferRequestDto request)
+    {
+        var command = _mapper.Map<CreateOfferRequestCommand>(request);
+        var response = await _mediator.Send(command);
+        return Ok(response, _localizer["OfferRequest_CreateSuccess"]);
+    }
 
-	[HttpGet("offer-requests")]
-	[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> GetList([FromQuery] OfferRequestQueryDto query)
-	{
-		var request = _mapper.Map<GetOfferRequestsQuery>(query);
-		var result = await _mediator.Send(request);
-		return OkPaged(result, _localizer["OfferRequestListRetrievedSuccess"]);
-	}
+    /// <summary>
+    /// Lấy danh sách yêu cầu nhận offer (Chỉ Admin)
+    /// </summary>
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetList([FromQuery] OfferRequestQueryDto query)
+    {
+        var request = _mapper.Map<GetOfferRequestsQuery>(query);
+        var result = await _mediator.Send(request);
+        return OkPaged(result, _localizer["OfferRequestListRetrievedSuccess"]);
+    }
 }

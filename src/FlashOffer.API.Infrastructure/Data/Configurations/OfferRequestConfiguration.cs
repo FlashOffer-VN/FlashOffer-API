@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Domain.Entities;
+﻿// src/FlashOffer.API.Infrastructure/Data/Configurations/OfferRequestConfiguration.cs
+using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -7,46 +8,61 @@ namespace FlashOffer.API.Infrastructure.Data.Configurations;
 
 public class OfferRequestConfiguration : IEntityTypeConfiguration<OfferRequest>
 {
-	public void Configure(EntityTypeBuilder<OfferRequest> builder)
-	{
-		builder.ToTable("OfferRequests");
+    public void Configure(EntityTypeBuilder<OfferRequest> builder)
+    {
+        builder.ToTable("OfferRequests");
 
-		builder.Property(x => x.SelectedOffer)
-			.IsRequired()
-			.HasMaxLength(500);
+        builder.HasKey(x => x.Id);
 
-		builder.Property(x => x.FullName)
-			.IsRequired()
-			.HasMaxLength(200);
+        builder.Property(x => x.ProductName)
+            .IsRequired()
+            .HasMaxLength(255);
 
-		builder.Property(x => x.Phone)
-			.IsRequired()
-			.HasMaxLength(11);
+        builder.Property(x => x.ProductLink)
+            .HasMaxLength(500);
 
-		builder.Property(x => x.Zalo)
-			.IsRequired()
-			.HasMaxLength(50);
+        builder.Property(x => x.CurrentPrice)
+            .IsRequired()
+            .HasPrecision(18, 2);
 
-		builder.Property(x => x.Email)
-			.HasMaxLength(100);
+        builder.Property(x => x.ExpectedPrice)
+            .HasPrecision(18, 2);
 
-		builder.Property(x => x.IsOfferSent)
-			.HasDefaultValue(false);
+        builder.Property(x => x.Quantity)
+            .IsRequired();
 
-		// Thêm vào Configure method
-		builder.HasOne(x => x.User)
-			.WithMany()
-			.HasForeignKey(x => x.UserId)
-			.OnDelete(DeleteBehavior.Restrict);
+        builder.Property(x => x.Unit)
+            .IsRequired()
+            .HasMaxLength(50);
 
-		builder.Property(x => x.Status)
-			.HasConversion<int>()
-			.HasDefaultValue(OfferStatus.Pending);
+        builder.Property(x => x.FullName)
+            .IsRequired()
+            .HasMaxLength(100);
 
-		builder.HasIndex(x => x.UserId);
-		builder.HasIndex(x => x.Status);
+        builder.Property(x => x.Phone)
+            .IsRequired()
+            .HasMaxLength(15);
 
-		builder.HasIndex(x => x.Phone);
-		builder.HasIndex(x => x.Zalo);
-	}
+        builder.Property(x => x.Zalo)
+            .HasMaxLength(15);
+
+        builder.Property(x => x.Email)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.Note)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.Status)
+            .HasConversion<int>()
+            .HasDefaultValue(OfferStatus.Pending);
+
+        builder.Property(x => x.IsOfferSent)
+            .HasDefaultValue(false);
+
+        // Relationships
+        builder.HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
 }
