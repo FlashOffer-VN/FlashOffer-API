@@ -410,4 +410,58 @@
   <data name="GroupBuyingRequest_CreateSuccess">
     <value>Group buying request created successfully</value>
   </data>
+  <!-- src/FlashOffer.API.Application/Resources/en/SharedResource.en.resx -->
+  <!-- Product Validation -->
+  <data name="OfferRequest_ProductNameRequired">
+    <value>Product name is required</value>
+  </data>
+  <data name="OfferRequest_ProductNameMinLength">
+    <value>Product name must be at least 3 characters</value>
+  </data>
+  <data name="OfferRequest_ProductLinkInvalid">
+    <value>Product link is invalid</value>
+  </data>
+  <data name="OfferRequest_CurrentPriceRequired">
+    <value>Current price is required</value>
+  </data>
+  <data name="OfferRequest_CurrentPriceInvalid">
+    <value>Current price must be greater than 0</value>
+  </data>
+  <data name="OfferRequest_ExpectedPriceInvalid">
+    <value>Expected price must be greater than 0</value>
+  </data>
+  <data name="OfferRequest_QuantityRequired">
+    <value>Quantity is required</value>
+  </data>
+  <data name="OfferRequest_QuantityMin">
+    <value>Quantity must be at least 1</value>
+  </data>
+  <data name="OfferRequest_UnitRequired">
+    <value>Unit is required</value>
+  </data>
+  <data name="OfferRequest_UnitMinLength">
+    <value>Unit must be at least 1 character</value>
+  </data>
+
+  <!-- User Validation -->
+  <data name="OfferRequest_FullNameRequired">
+    <value>Full name is required</value>
+  </data>
+  <data name="OfferRequest_FullNameMinLength">
+    <value>Full name must be at least 2 characters</value>
+  </data>
+  <data name="OfferRequest_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="OfferRequest_PhoneInvalid">
+    <value>Invalid phone number (must start with 0 and have 10-11 digits)</value>
+  </data>
+  <data name="OfferRequest_EmailInvalid">
+    <value>Invalid email address</value>
+  </data>
+
+  <!-- Success Messages -->
+  <data name="OfferRequest_CreateSuccess">
+    <value>Offer request submitted successfully</value>
+  </data>
 </root>
