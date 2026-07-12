@@ -20,6 +20,8 @@ try
 
     var app = builder.Build();
     await ConfigurePipeline(app);
+    //var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    //Log.Information("🔗 Connection String: {ConnectionString}", connStr);
     await app.RunAsync();
 }
 catch (Exception ex)
@@ -84,30 +86,48 @@ static void ConfigureServices(WebApplicationBuilder builder)
     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     builder.Services.AddLogging();
 
-    // Configuration
-    Log.Information("📋 Loading configuration...");
-    var envConfig = new Dictionary<string, string?>
-    {
-        ["ConnectionStrings:DefaultConnection"] = GetEnvironmentValue("DB_CONNECTION_STRING") ?? GetEnvironmentValue("DATABASE_URL"),
-        ["JwtSettings:Secret"] = GetEnvironmentValue("JWT_SECRET"),
-        ["JwtSettings:Issuer"] = GetEnvironmentValue("JWT_ISSUER"),
-        ["JwtSettings:Audience"] = GetEnvironmentValue("JWT_AUDIENCE"),
-        ["JwtSettings:ExpiryMinutes"] = GetEnvironmentValue("JWT_EXPIRY_MINUTES"),
-        ["Logging:LogLevel:Default"] = GetEnvironmentValue("LOG_LEVEL"),
-        ["CorsSettings:Policy"] = GetEnvironmentValue("CORS_POLICY"),
-        ["CorsSettings:AllowedOrigins"] = GetEnvironmentValue("ALLOWED_ORIGINS")
-    };
-
-    // Log config keys (hide sensitive data)
-    Log.Information("📋 Configuration keys loaded: {Keys}", string.Join(", ", envConfig.Keys));
-    Log.Information("🌍 Environment: {Environment}", builder.Environment.EnvironmentName);
-
+    // Load appsettings mặc định
     builder.Configuration
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-        .AddInMemoryCollection(envConfig.Where(x => x.Value != null)
-            .ToDictionary(x => x.Key, x => x.Value))
-        .AddEnvironmentVariables();
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+    // Chỉ Production mới dùng Environment Variables
+    if (builder.Environment.IsProduction())
+    {
+        Log.Information("📋 Loading Production environment variables...");
+
+        var envConfig = new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:DefaultConnection"] = GetEnvironmentValue("DB_CONNECTION_STRING") ?? GetEnvironmentValue("DATABASE_URL"),
+            ["JwtSettings:Secret"] = GetEnvironmentValue("JWT_SECRET"),
+            ["JwtSettings:Issuer"] = GetEnvironmentValue("JWT_ISSUER"),
+            ["JwtSettings:Audience"] = GetEnvironmentValue("JWT_AUDIENCE"),
+            ["JwtSettings:ExpiryMinutes"] = GetEnvironmentValue("JWT_EXPIRY_MINUTES"),
+            ["Logging:LogLevel:Default"] = GetEnvironmentValue("LOG_LEVEL"),
+            ["CorsSettings:Policy"] = GetEnvironmentValue("CORS_POLICY"),
+            ["CorsSettings:AllowedOrigins"] = GetEnvironmentValue("ALLOWED_ORIGINS")
+        };
+
+        builder.Configuration
+            .AddInMemoryCollection(envConfig.Where(x => x.Value != null)
+                .ToDictionary(x => x.Key, x => x.Value))
+            .AddEnvironmentVariables();
+    }
+    else
+    {
+        Log.Information("📋 Using appsettings.{Environment}.json for {Environment}",
+            builder.Environment.EnvironmentName, builder.Environment.EnvironmentName);
+    }
+
+    // Log connection string để debug (ẩn password)
+    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (!string.IsNullOrEmpty(connStr))
+    {
+        var masked = connStr.Contains("Password=")
+            ? connStr.Replace(connStr.Split("Password=")[1].Split(';')[0], "*****")
+            : connStr;
+        Log.Information("🔗 Connection String: {ConnectionString}", masked);
+    }
 
     // Serilog
     Log.Information("📝 Configuring Serilog...");
@@ -342,5 +362,6 @@ public partial class Program
     public static async Task Main(string[] args)
     {
         // Entry point - code in top-level will execute
+
     }
 }
