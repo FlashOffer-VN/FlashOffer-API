@@ -48,11 +48,12 @@ public class PartnerService : IPartnerService
         var userId = _currentUserService.UserId;
         if (string.IsNullOrEmpty(userId))
         {
-            userId = await _userService.GetOrCreateUserAsync(
+            var userGuid = await _userService.GetOrCreateUserAsync(
                 request.FullName,
                 request.Phone,
                 request.Email
-            ).ContinueWith(t => t.Result.ToString());
+            );
+            userId = userGuid.ToString();
         }
 
         // 3. Map request -> Partner entity
