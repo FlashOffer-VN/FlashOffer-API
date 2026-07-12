@@ -1,4 +1,5 @@
-﻿## 📋 SYSTEM INSTRUCTION - FLASHOFFER (FULL UPDATE)
+﻿```markdown
+## 📋 SYSTEM INSTRUCTION - FLASHOFFER
 
 ### 1. Quy tắc chung
 - Luôn trả lời bằng tiếng Việt, trừ code và thuật ngữ chuyên môn.
@@ -158,17 +159,43 @@ RuleFor(x => x.Phone)
     .When(x => !string.IsNullOrEmpty(x.Phone));
 ```
 
-#### 7.3 Resource Keys
-- **Chỉ thêm key mới** khi chưa tồn tại trong hệ thống
-- Key đã có (ProductNameRequired, PhoneInvalid...) tái sử dụng
+#### 7.3 Resource Keys - QUY TẮC PREFIX (BẮT BUỘC)
+
+**Nguyên tắc đặt tên key:**
+- **Tất cả resource keys đều phải có prefix theo tên Feature/Entity**
+- Format: `{FeatureName}_{KeyName}`
+- Ví dụ: `PurchaseRequest_ProductNameRequired`, `Order_StatusPending`
+
+**Lý do:** 
+- Tránh xung đột key giữa các feature
+- Dễ dàng quản lý và tìm kiếm
+- Phân biệt rõ key thuộc feature nào
 
 | Loại | Format | Ví dụ |
 |------|--------|-------|
-| Success | `{Action}{Feature}Success` | `CreateOrderSuccess` |
-| Not Found | `{Feature}NotFound` | `OrderNotFound` |
-| Validation | `{FieldName}Rule` | `PricePositive` |
+| Success | `{Feature}_{Action}Success` | `PurchaseRequest_CreateSuccess` |
+| Not Found | `{Feature}_NotFound` | `PurchaseRequest_NotFound` |
+| Validation | `{Feature}_{FieldName}Required` | `PurchaseRequest_ProductNameRequired` |
+| Validation | `{Feature}_{FieldName}Invalid` | `PurchaseRequest_PhoneInvalid` |
+| Validation | `{Feature}_{FieldName}MinLength` | `PurchaseRequest_ProductNameMinLength` |
 | Export Title | `Export{Feature}Title` | `ExportPurchaseRequestsTitle` |
 | Export Header | `Export{Feature}_{FieldName}` | `ExportPurchaseRequests_ProductName` |
+
+**Ví dụ cụ thể cho PurchaseRequest:**
+```xml
+<!-- Validation Keys -->
+<data name="PurchaseRequest_ProductNameRequired"><value>Tên sản phẩm là bắt buộc</value></data>
+<data name="PurchaseRequest_PhoneInvalid"><value>Số điện thoại không hợp lệ</value></data>
+
+<!-- Success Keys -->
+<data name="PurchaseRequest_CreateSuccess"><value>Tạo yêu cầu thành công</value></data>
+```
+
+**Quy tắc bổ sung:**
+- Chỉ thêm key mới khi chưa tồn tại trong hệ thống
+- Key cũ (không prefix) vẫn giữ nguyên để không break các feature đã có
+- Khi tạo key mới cho feature, **bắt buộc** phải dùng prefix
+- Prefix phải trùng tên Feature/Entity (ví dụ: `PurchaseRequest_`, `Order_`, `User_`)
 
 #### 7.4 Enum
 - Đặt trong `Domain/Enums/`
@@ -485,10 +512,11 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 - Logic nghiệp vụ đặt trong Service/Handler, không trong Controller
 - **BẮT BUỘC** cấu hình `SuppressModelStateInvalidFilter = true`
 - **Mọi message client** đều qua `IStringLocalizer`
-- **Resource keys:** chỉ thêm key mới, KHÔNG liệt kê key đã tồn tại
+- **Resource keys:** Tuân theo quy tắc prefix tại mục 7.3
 - **Enum:** ưu tiên dùng thay vì string, cấu hình `HasConversion<int>()`
 - **Phone validation:** rule 7.2
 - **Excel:** format date `yyyy-MM-dd HH:mm:ss`, số `#,##0`, căn trái tất cả
 - **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu
 - **Soft Delete:** Luôn dùng xóa mềm, không xóa cứng dữ liệu. Sử dụng `Restore()` khi cần khôi phục.
 - **Global Query Filter:** Đã tự động filter `IsDeleted = false`, không cần thêm điều kiện trong repository methods.
+```

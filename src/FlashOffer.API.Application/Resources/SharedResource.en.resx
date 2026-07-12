@@ -314,4 +314,52 @@
   <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Invalid referral code</value></data>
   <data name="PartnerValidationFailed" xml:space="preserve"><value>Invalid data</value></data>
   <data name="SalesChannelInvalid" xml:space="preserve"><value>Invalid sales channel</value></data>
+  <!-- Validation Keys -->
+  <data name="PurchaseRequest_ProductNameRequired">
+    <value>Product name is required</value>
+  </data>
+  <data name="PurchaseRequest_ProductNameMinLength">
+    <value>Product name must be at least 3 characters</value>
+  </data>
+  <data name="PurchaseRequest_ProductCategoryLength">
+    <value>Product category must be at most 100 characters</value>
+  </data>
+  <data name="PurchaseRequest_QuantityRequired">
+    <value>Quantity is required</value>
+  </data>
+  <data name="PurchaseRequest_QuantityPositive">
+    <value>Quantity must be greater than 0</value>
+  </data>
+  <data name="PurchaseRequest_UnitRequired">
+    <value>Unit is required</value>
+  </data>
+  <data name="PurchaseRequest_UnitLength">
+    <value>Unit must be at most 50 characters</value>
+  </data>
+  <data name="PurchaseRequest_FullNameRequired">
+    <value>Full name is required</value>
+  </data>
+  <data name="PurchaseRequest_FullNameMinLength">
+    <value>Full name must be at least 2 characters</value>
+  </data>
+  <data name="PurchaseRequest_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="PurchaseRequest_PhoneInvalid">
+    <value>Invalid phone number (must start with 0 and have 10-11 digits)</value>
+  </data>
+  <data name="PurchaseRequest_ZaloInvalid">
+    <value>Invalid Zalo number (must start with 0 and have 10-11 digits)</value>
+  </data>
+  <data name="PurchaseRequest_EmailRequired">
+    <value>Email is required</value>
+  </data>
+  <data name="PurchaseRequest_EmailInvalid">
+    <value>Invalid email address</value>
+  </data>
+
+  <!-- Success Key -->
+  <data name="PurchaseRequest_CreatePurchaseRequestSuccess">
+    <value>Purchase request created successfully</value>
+  </data>
 </root>

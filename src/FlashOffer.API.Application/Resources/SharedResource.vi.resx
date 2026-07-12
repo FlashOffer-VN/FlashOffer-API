@@ -308,4 +308,52 @@
   <data name="PartnerReferralCodeInvalid" xml:space="preserve"><value>Mã giới thiệu không hợp lệ</value></data>
   <data name="PartnerValidationFailed" xml:space="preserve"><value>Dữ liệu không hợp lệ</value></data>
   <data name="SalesChannelInvalid" xml:space="preserve"><value>Kênh bán hàng không hợp lệ</value></data>
+  <!-- Validation Keys -->
+  <data name="PurchaseRequest_ProductNameRequired">
+    <value>Tên sản phẩm là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_ProductNameMinLength">
+    <value>Tên sản phẩm phải có ít nhất 3 ký tự</value>
+  </data>
+  <data name="PurchaseRequest_ProductCategoryLength">
+    <value>Danh mục sản phẩm tối đa 100 ký tự</value>
+  </data>
+  <data name="PurchaseRequest_QuantityRequired">
+    <value>Số lượng là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_QuantityPositive">
+    <value>Số lượng phải lớn hơn 0</value>
+  </data>
+  <data name="PurchaseRequest_UnitRequired">
+    <value>Đơn vị tính là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_UnitLength">
+    <value>Đơn vị tính tối đa 50 ký tự</value>
+  </data>
+  <data name="PurchaseRequest_FullNameRequired">
+    <value>Họ và tên là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_FullNameMinLength">
+    <value>Họ và tên phải có ít nhất 2 ký tự</value>
+  </data>
+  <data name="PurchaseRequest_PhoneRequired">
+    <value>Số điện thoại là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_PhoneInvalid">
+    <value>Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có 10-11 chữ số)</value>
+  </data>
+  <data name="PurchaseRequest_ZaloInvalid">
+    <value>Số Zalo không hợp lệ (phải bắt đầu bằng 0 và có 10-11 chữ số)</value>
+  </data>
+  <data name="PurchaseRequest_EmailRequired">
+    <value>Email là bắt buộc</value>
+  </data>
+  <data name="PurchaseRequest_EmailInvalid">
+    <value>Email không hợp lệ</value>
+  </data>
+
+  <!-- Success Key -->
+  <data name="PurchaseRequest_CreatePurchaseRequestSuccess">
+    <value>Gửi yêu cầu tìm nhà cung cấp thành công</value>
+  </data>
 </root>
