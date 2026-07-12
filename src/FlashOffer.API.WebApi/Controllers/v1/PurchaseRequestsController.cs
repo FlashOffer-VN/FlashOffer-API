@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
+using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
 using FlashOffer.API.Application.Features.PurchaseRequests.Queries;
 using FlashOffer.API.Application.Resources;
+using FlashOffer.API.WebApi.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,16 +31,18 @@ public class PurchaseRequestsController : ApiControllerBase
 		_service = service;
 	}
 
-	[AllowAnonymous]
-	[HttpPost("purchase-requests")]
-	public async Task<IActionResult> CreateAsync([FromBody] CreatePurchaseRequestDto request)
-	{
-		var command = _mapper.Map<CreatePurchaseRequestCommand>(request);
-		var response = await _mediator.Send(command);
-		return Ok(response, _localizer["CreateSuccess"]);
-	}
+    [AllowAnonymous]
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<PurchaseRequestResponseDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    public async Task<IActionResult> CreateAsync([FromBody] CreatePurchaseRequestDto request)
+    {
+        var command = _mapper.Map<CreatePurchaseRequestCommand>(request);
+        var response = await _mediator.Send(command);
+        return Ok(response, _localizer["PurchaseRequest_CreatePurchaseRequestSuccess"]);
+    }
 
-	[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
 	[HttpGet("purchase-requests/{id}")]
 	public async Task<IActionResult> GetByIdAsync(Guid id)
 	{
