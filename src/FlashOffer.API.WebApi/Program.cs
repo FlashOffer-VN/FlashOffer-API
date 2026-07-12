@@ -3,192 +3,344 @@ using FlashOffer.API.Infrastructure.Data;
 using FlashOffer.API.WebApi;
 using FlashOffer.API.WebApi.Configurations;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-// Load optional .env file for local development
-var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
-envPath = Path.GetFullPath(envPath);
+try
+{
+    Log.Information("🚀 Starting FlashOffer API...");
 
-if (File.Exists(envPath))
-{
-	Env.Load(envPath);
-	Console.WriteLine("Environment file loaded");
+    // Load .env
+    LoadEnvironmentFile();
+
+    var builder = WebApplication.CreateBuilder(args);
+    ConfigureServices(builder);
+
+    var app = builder.Build();
+    await ConfigurePipeline(app);
+    await app.RunAsync();
 }
-else
+catch (Exception ex)
 {
-	Console.WriteLine("Environment file not found; using OS environment variables");
+    Log.Fatal(ex, "🔥 Application terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+// ===== Methods =====
+
+static void LoadEnvironmentFile()
+{
+    var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+    envPath = Path.GetFullPath(envPath);
+
+    if (File.Exists(envPath))
+    {
+        Env.Load(envPath);
+        Console.WriteLine("✅ Environment file loaded");
+        Log.Information("Environment file loaded from: {Path}", envPath);
+    }
+    else
+    {
+        Console.WriteLine("⚠️ Environment file not found; using OS environment variables");
+        Log.Warning("Environment file not found at: {Path}", envPath);
+    }
 }
 
 static string? GetEnvironmentValue(string key)
 {
-	var value = Environment.GetEnvironmentVariable(key);
-	if (!string.IsNullOrWhiteSpace(value))
-	{
-		return value;
-	}
+    var value = Environment.GetEnvironmentVariable(key);
+    if (!string.IsNullOrWhiteSpace(value))
+    {
+        Log.Debug("🔑 Found {Key} from environment variable", key);
+        return value;
+    }
 
-	try
-	{
-		return Env.GetString(key);
-	}
-	catch
-	{
-		return null;
-	}
+    try
+    {
+        value = Env.GetString(key);
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            Log.Debug("🔑 Found {Key} from .env file", key);
+        }
+        return value;
+    }
+    catch
+    {
+        Log.Debug("❌ {Key} not found in .env file", key);
+        return null;
+    }
 }
 
-var builder = WebApplication.CreateBuilder(args);
-
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-builder.Services.AddLogging();
-
-// Configuration: OS environment variables take precedence over .env file
-var envConfig = new Dictionary<string, string?>
+static void ConfigureServices(WebApplicationBuilder builder)
 {
-	["ConnectionStrings:DefaultConnection"] = GetEnvironmentValue("DB_CONNECTION_STRING") ?? GetEnvironmentValue("DATABASE_URL"),
-	["JwtSettings:Secret"] = GetEnvironmentValue("JWT_SECRET"),
-	["JwtSettings:Issuer"] = GetEnvironmentValue("JWT_ISSUER"),
-	["JwtSettings:Audience"] = GetEnvironmentValue("JWT_AUDIENCE"),
-	["JwtSettings:ExpiryMinutes"] = GetEnvironmentValue("JWT_EXPIRY_MINUTES"),
-	["Logging:LogLevel:Default"] = GetEnvironmentValue("LOG_LEVEL"),
-	["CorsSettings:Policy"] = GetEnvironmentValue("CORS_POLICY"),
-	["CorsSettings:AllowedOrigins"] = GetEnvironmentValue("ALLOWED_ORIGINS")
-};
+    Log.Information("⚙️ Configuring services...");
 
-builder.Configuration
-	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-	.AddInMemoryCollection(envConfig.Where(x => x.Value != null)
-		.ToDictionary(x => x.Key, x => x.Value))
-	.AddEnvironmentVariables();
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+    builder.Services.AddLogging();
 
-// Configure Serilog
-Log.Logger = new LoggerConfiguration()
-	.ReadFrom.Configuration(builder.Configuration)
-	.Enrich.FromLogContext()
-	.WriteTo.Console()
-	.WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
-	.CreateLogger();
+    // Configuration
+    Log.Information("📋 Loading configuration...");
+    var envConfig = new Dictionary<string, string?>
+    {
+        ["ConnectionStrings:DefaultConnection"] = GetEnvironmentValue("DB_CONNECTION_STRING") ?? GetEnvironmentValue("DATABASE_URL"),
+        ["JwtSettings:Secret"] = GetEnvironmentValue("JWT_SECRET"),
+        ["JwtSettings:Issuer"] = GetEnvironmentValue("JWT_ISSUER"),
+        ["JwtSettings:Audience"] = GetEnvironmentValue("JWT_AUDIENCE"),
+        ["JwtSettings:ExpiryMinutes"] = GetEnvironmentValue("JWT_EXPIRY_MINUTES"),
+        ["Logging:LogLevel:Default"] = GetEnvironmentValue("LOG_LEVEL"),
+        ["CorsSettings:Policy"] = GetEnvironmentValue("CORS_POLICY"),
+        ["CorsSettings:AllowedOrigins"] = GetEnvironmentValue("ALLOWED_ORIGINS")
+    };
 
-builder.Host.UseSerilog();
+    // Log config keys (hide sensitive data)
+    Log.Information("📋 Configuration keys loaded: {Keys}", string.Join(", ", envConfig.Keys));
+    Log.Information("🌍 Environment: {Environment}", builder.Environment.EnvironmentName);
 
-// Add services
-builder.Services.AddWebApiServices(builder.Configuration);
-builder.Services.AddHealthChecks();
+    builder.Configuration
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddInMemoryCollection(envConfig.Where(x => x.Value != null)
+            .ToDictionary(x => x.Key, x => x.Value))
+        .AddEnvironmentVariables();
 
-var allowedOriginsRaw = GetEnvironmentValue("ALLOWED_ORIGINS");
-var useAllowAllOrigins = string.IsNullOrWhiteSpace(allowedOriginsRaw)
-	|| allowedOriginsRaw.Trim() == "*";
+    // Serilog
+    Log.Information("📝 Configuring Serilog...");
+    Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
+        .CreateLogger();
 
-// Add CORS
-builder.Services.AddCors(options =>
-{
-	if (useAllowAllOrigins)
-	{
-		options.AddPolicy("AllowAllOrigins", policy =>
-		{
-			policy.AllowAnyOrigin()
-				  .AllowAnyMethod()
-				  .AllowAnyHeader();
-		});
-	}
-	else
-	{
-		var allowedOrigins = allowedOriginsRaw!
-			.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    builder.Host.UseSerilog();
 
-		options.AddPolicy("AllowSpecific", policy =>
-		{
-			policy.WithOrigins(allowedOrigins)
-				  .AllowAnyMethod()
-				  .AllowAnyHeader()
-				  .AllowCredentials();
-		});
-	}
+    // Services
+    Log.Information("🔧 Adding WebApi services...");
+    builder.Services.AddWebApiServices(builder.Configuration);
+    builder.Services.AddHealthChecks();
 
-	options.AddPolicy("SwaggerPolicy", policy =>
-	{
-		policy.AllowAnyOrigin()
-			  .AllowAnyMethod()
-			  .AllowAnyHeader();
-	});
-});
+    ConfigureCors(builder);
+    builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
-// Add Swagger configuration
-builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-
-var app = builder.Build();
-
-if (!app.Environment.IsDevelopment())
-{
-	using var scope = app.Services.CreateScope();
-	var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-	var migrationLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
-	await DatabaseMigrationRunner.ApplyMigrationsAsync(db, migrationLogger);
-	await DatabaseSeeder.SeedAsync(db);
+    Log.Information("✅ Services configured successfully");
 }
 
-// Configure localization
-var supportedCultures = new[] { "en", "vi" };
-var localizationOptions = new RequestLocalizationOptions()
-	.SetDefaultCulture("vi")
-	.AddSupportedCultures(supportedCultures)
-	.AddSupportedUICultures(supportedCultures);
-
-app.UseRequestLocalization(localizationOptions);
-
-var enableSwagger = string.Equals(
-	GetEnvironmentValue("ENABLE_SWAGGER"),
-	"true",
-	StringComparison.OrdinalIgnoreCase);
-
-// Configure pipeline
-if (app.Environment.IsDevelopment() || enableSwagger)
+static void ConfigureCors(WebApplicationBuilder builder)
 {
-	var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-	app.UseSwagger();
-	app.UseSwaggerUI(options =>
-	{
-		foreach (var description in provider.ApiVersionDescriptions)
-		{
-			options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-				description.GroupName.ToUpperInvariant());
-		}
-	});
+    var allowedOriginsRaw = GetEnvironmentValue("ALLOWED_ORIGINS");
+    var useAllowAllOrigins = string.IsNullOrWhiteSpace(allowedOriginsRaw) || allowedOriginsRaw.Trim() == "*";
+
+    Log.Information("🔒 Configuring CORS...");
+    Log.Information("🔒 UseAllowAllOrigins: {UseAllowAllOrigins}", useAllowAllOrigins);
+    if (!useAllowAllOrigins)
+    {
+        Log.Information("🔒 AllowedOrigins: {AllowedOrigins}", allowedOriginsRaw);
+    }
+
+    builder.Services.AddCors(options =>
+    {
+        if (useAllowAllOrigins)
+        {
+            options.AddPolicy("AllowAllOrigins", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+            Log.Information("🔒 CORS policy 'AllowAllOrigins' configured");
+        }
+        else
+        {
+            var allowedOrigins = allowedOriginsRaw!
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            options.AddPolicy("AllowSpecific", policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+            });
+            Log.Information("🔒 CORS policy 'AllowSpecific' configured with {Count} origins", allowedOrigins.Length);
+        }
+
+        options.AddPolicy("SwaggerPolicy", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+        Log.Information("🔒 CORS policy 'SwaggerPolicy' configured");
+    });
 }
 
-app.UseSerilogRequestLogging();
-
-if (app.Environment.IsDevelopment())
+static async Task ConfigurePipeline(WebApplication app)
 {
-	app.UseCors("SwaggerPolicy");
-}
-else
-{
-	var corsPolicy = useAllowAllOrigins
-		? "AllowAllOrigins"
-		: GetEnvironmentValue("CORS_POLICY") ?? "AllowSpecific";
-	app.UseCors(corsPolicy);
-}
+    Log.Information("🚀 Configuring pipeline...");
+    Log.Information("🌍 Application running in: {Environment}", app.Environment.EnvironmentName);
 
-app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
+    await RunDatabaseMigration(app);
+    ConfigureLocalization(app);
+    ConfigureSwagger(app);
+    ConfigureMiddleware(app);
+    ConfigureEndpoints(app);
 
-if (!app.Environment.IsDevelopment())
-{
-	app.UseHttpsRedirection();
+    Log.Information("✅ Pipeline configured successfully");
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-app.MapHealthChecks("/health");
+static async Task RunDatabaseMigration(WebApplication app)
+{
+    var environment = app.Environment.EnvironmentName;
+    Log.Information("📦 Checking database migration for environment: {Environment}", environment);
 
-app.Run();
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var migrationLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
+
+    if (app.Environment.IsStaging() || app.Environment.IsProduction())
+    {
+        Log.Information("🔄 Running migrations for {Environment}...", environment);
+        try
+        {
+            await DatabaseMigrationRunner.ApplyMigrationsAsync(db, migrationLogger);
+            Log.Information("✅ Migrations applied successfully for {Environment}", environment);
+
+            await DatabaseSeeder.SeedAsync(db);
+            Log.Information("✅ Seed data applied successfully for {Environment}", environment);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "❌ Failed to apply migrations/seed for {Environment}", environment);
+            throw;
+        }
+    }
+    else
+    {
+        Log.Information("⏭️ Skipping migrations for {Environment} (not staging/production)", environment);
+    }
+}
+
+static void ConfigureLocalization(WebApplication app)
+{
+    Log.Information("🌐 Configuring localization...");
+
+    var supportedCultures = new[] { "en", "vi" };
+    var localizationOptions = new RequestLocalizationOptions()
+        .SetDefaultCulture("vi")
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+
+    app.UseRequestLocalization(localizationOptions);
+
+    Log.Information("🌐 Localization configured with cultures: {Cultures}", string.Join(", ", supportedCultures));
+}
+
+static void ConfigureSwagger(WebApplication app)
+{
+    // Đọc từ appsettings (có thể override bằng environment variable)
+    var enableSwagger = app.Configuration.GetValue<bool>("EnableSwagger", false);
+    var isDevelopment = app.Environment.IsDevelopment();
+
+    Log.Information("📝 Swagger configuration - IsDevelopment: {IsDevelopment}, EnableSwagger: {EnableSwagger}",
+        isDevelopment, enableSwagger);
+
+    if (isDevelopment || enableSwagger)
+    {
+        Log.Information("📝 Enabling Swagger...");
+        try
+        {
+            var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                        description.GroupName.ToUpperInvariant());
+                }
+            });
+            Log.Information("✅ Swagger enabled successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "❌ Failed to configure Swagger");
+            throw;
+        }
+    }
+    else
+    {
+        Log.Information("⏭️ Skipping Swagger (not development and EnableSwagger not true)");
+    }
+}
+
+static void ConfigureMiddleware(WebApplication app)
+{
+    Log.Information("🔧 Configuring middleware...");
+
+    app.UseSerilogRequestLogging();
+    Log.Information("✅ Serilog request logging configured");
+
+    ConfigureCorsMiddleware(app);
+
+    app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();
+    Log.Information("✅ GlobalExceptionMiddleware configured");
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+        Log.Information("✅ HTTPS redirection configured");
+    }
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+    Log.Information("✅ Authentication & Authorization configured");
+}
+
+static void ConfigureCorsMiddleware(WebApplication app)
+{
+    var allowedOriginsRaw = GetEnvironmentValue("ALLOWED_ORIGINS");
+    var useAllowAllOrigins = string.IsNullOrWhiteSpace(allowedOriginsRaw) || allowedOriginsRaw.Trim() == "*";
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseCors("SwaggerPolicy");
+        Log.Information("🔒 Using SwaggerPolicy CORS for Development");
+    }
+    else
+    {
+        var corsPolicy = useAllowAllOrigins
+            ? "AllowAllOrigins"
+            : GetEnvironmentValue("CORS_POLICY") ?? "AllowSpecific";
+        app.UseCors(corsPolicy);
+        Log.Information("🔒 Using CORS policy: {CorsPolicy} for {Environment}", corsPolicy, app.Environment.EnvironmentName);
+    }
+}
+
+static void ConfigureEndpoints(WebApplication app)
+{
+    Log.Information("📍 Configuring endpoints...");
+
+    app.MapControllers();
+    app.MapHealthChecks("/health");
+
+    Log.Information("✅ Endpoints configured: Controllers, HealthCheck at /health");
+}
+
+// ===== Entry point =====
 
 public partial class Program
 {
+    // Empty constructor is required for startup
+    protected Program() { }
+
+    public static async Task Main(string[] args)
+    {
+        // Entry point - code in top-level will execute
+    }
 }
