@@ -18,6 +18,7 @@ public class PartnerService : IPartnerService
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IRepository<User> _userRepository;
 
     public PartnerService(
         IRepository<Partner> partnerRepo,
@@ -25,13 +26,15 @@ public class PartnerService : IPartnerService
         IUserService userService,
         ICurrentUserService currentUserService,
         IMapper mapper,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IRepository<User> userRepository)
     {
         _partnerRepo = partnerRepo;
         _userService = userService;
         _currentUserService = currentUserService;
         _mapper = mapper;
         _localizer = localizer;
+        _userRepository = userRepository;
     }
 
     public async Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request)
@@ -39,7 +42,7 @@ public class PartnerService : IPartnerService
         // 1. Kiểm tra referral code (nếu có)
         if (!string.IsNullOrEmpty(request.ReferralCode))
         {
-            var isValid = await ValidateReferralCodeAsync(request.ReferralCode);
+            var isValid = await IsReferralCodeValidAsync(request.ReferralCode);
             if (!isValid)
                 throw new BusinessException(_localizer["PartnerReferralCodeInvalid"]);
         }
@@ -82,18 +85,17 @@ public class PartnerService : IPartnerService
         return _mapper.Map<PartnerRegisterResponse>(partner);
     }
 
-    public async Task<bool> ValidateReferralCodeAsync(string code)
-    {
-        // Giả lập - kiểm tra trong DB hoặc cache
-        var validCodes = new[] { "KINDI-ABC123", "KINDI-DEF456" };
-        return await Task.FromResult(validCodes.Contains(code.ToUpper()));
-    }
-
     private string GeneratePartnerCode()
     {
         // Format: PART-{DateTime:yyMMdd}-{Random4Digits}
         var datePart = DateTime.Now.ToString("yyMMdd");
         var randomPart = new Random().Next(1000, 9999).ToString();
         return $"PART-{datePart}-{randomPart}";
+    }
+
+    public async Task<bool> IsReferralCodeValidAsync(string code)
+    {
+        var user = await _userRepository.GetFirstAsync(u => u.Phone == code);
+        return user != null;
     }
 }

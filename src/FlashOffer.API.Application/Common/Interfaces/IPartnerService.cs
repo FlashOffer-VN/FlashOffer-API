@@ -6,5 +6,5 @@ namespace FlashOffer.API.Application.Common.Interfaces;
 public interface IPartnerService
 {
     Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request);
-    Task<bool> ValidateReferralCodeAsync(string code);
+    Task<bool> IsReferralCodeValidAsync(string code);
 }

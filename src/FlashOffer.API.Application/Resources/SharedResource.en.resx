@@ -464,4 +464,11 @@
   <data name="OfferRequest_CreateSuccess">
     <value>Offer request submitted successfully</value>
   </data>
+  <!-- Partner - Referral Code -->
+  <data name="Partner_ReferralCodeNotFound">
+    <value>Referral code not found</value>
+  </data>
+  <data name="Partner_ReferralCodeValid">
+    <value>Referral code is valid</value>
+  </data>
 </root>

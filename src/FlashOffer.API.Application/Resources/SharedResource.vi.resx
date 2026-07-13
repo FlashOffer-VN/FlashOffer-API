@@ -458,4 +458,11 @@
   <data name="OfferRequest_CreateSuccess">
     <value>Yêu cầu nhận offer đã được gửi thành công</value>
   </data>
+  <!-- Partner - Referral Code -->
+  <data name="Partner_ReferralCodeNotFound">
+    <value>Mã giới thiệu không tồn tại</value>
+  </data>
+  <data name="Partner_ReferralCodeValid">
+    <value>Mã giới thiệu hợp lệ</value>
+  </data>
 </root>
