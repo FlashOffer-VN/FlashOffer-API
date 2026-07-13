@@ -49,4 +49,17 @@ public class PartnerController : ApiControllerBase
         var result = await _partnerService.RegisterAsync(request);
         return Ok(result, _localizer["PartnerRegisterSuccess"]);
     }
+
+    [HttpGet("check-referral/{code}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CheckReferralCode([FromRoute] string code)
+    {
+        var isValid = await _partnerService.IsReferralCodeValidAsync(code);
+        if (!isValid)
+        {
+            return NotFound(_localizer["Partner_ReferralCodeNotFound"]);
+        }
+
+        return Ok(isValid,_localizer["Partner_ReferralCodeValid"]);
+    }
 }
