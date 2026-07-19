@@ -15,13 +15,13 @@ namespace FlashOffer.API.WebApi.Controllers;
 [ApiVersion("1.0")]
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class PartnerController : ApiControllerBase
+public class PartnersController : ApiControllerBase
 {
     private readonly IPartnerService _partnerService;
     private readonly IValidator<PartnerRegisterRequest> _validator;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public PartnerController(
+    public PartnersController(
         IPartnerService partnerService,
         IValidator<PartnerRegisterRequest> validator,
         IStringLocalizer<SharedResource> localizer)
@@ -61,5 +61,48 @@ public class PartnerController : ApiControllerBase
         }
 
         return Ok(isValid,_localizer["Partner_ReferralCodeValid"]);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetList([FromQuery] PartnerFilterRequest filter)
+    {
+        var result = await _partnerService.GetPagedAsync(filter);
+        return OkPaged(result, _localizer["Success"]);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDetail(Guid id)
+    {
+        var result = await _partnerService.GetDetailAsync(id);
+        if (result == null)
+            return NotFound(_localizer["Partner_NotFound"]);
+
+        return Ok(result, _localizer["Success"]);
+    }
+
+    [HttpPost("{id}/approve")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Approve(Guid id)
+    {
+        var result = await _partnerService.ApproveAsync(id);
+        return Ok(result, _localizer["Partner_ApproveSuccess"]);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/reject")]
+    public async Task<IActionResult> Reject(Guid id)
+    {
+        var result = await _partnerService.RejectAsync(id);
+        return Ok(result, _localizer["Partner_RejectSuccess"]);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/activate")]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        var result = await _partnerService.ActivateAsync(id);
+        return Ok(result, _localizer["Partner_ActivateSuccess"]);
     }
 }
