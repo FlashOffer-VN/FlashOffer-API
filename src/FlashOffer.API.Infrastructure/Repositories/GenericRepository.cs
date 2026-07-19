@@ -205,4 +205,13 @@ public class GenericRepository<T> : IRepository<T> where T : class
     {
         return await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public IQueryable<T> GetQueryable()
+    {
+        return _context.Set<T>().AsQueryable();
+    }
+    public async Task<IQueryable<T>> GetQueryableAsync()
+    {
+        return await Task.FromResult(_context.Set<T>().AsQueryable());
+    }
 }

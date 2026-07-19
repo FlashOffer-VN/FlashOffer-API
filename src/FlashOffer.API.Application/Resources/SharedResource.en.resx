@@ -471,4 +471,19 @@
   <data name="Partner_ReferralCodeValid">
     <value>Referral code is valid</value>
   </data>
+  <data name="CTV_NotFound">
+    <value>CTV not found</value>
+  </data>
+  <data name="CTV_ApproveSuccess">
+    <value>CTV approved successfully</value>
+  </data>
+  <data name="CTV_RejectSuccess">
+    <value>CTV rejected successfully</value>
+  </data>
+  <data name="CTV_InvalidStatusTransition">
+    <value>Cannot perform action on CTV with status {0}</value>
+  </data>
+  <data name="CTV_InvalidId">
+    <value>Invalid CTV ID</value>
+  </data>
 </root>

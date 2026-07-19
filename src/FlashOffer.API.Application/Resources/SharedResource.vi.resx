@@ -465,4 +465,19 @@
   <data name="Partner_ReferralCodeValid">
     <value>Mã giới thiệu hợp lệ</value>
   </data>
+  <data name="CTV_NotFound">
+    <value>Không tìm thấy CTV</value>
+  </data>
+  <data name="CTV_ApproveSuccess">
+    <value>Duyệt CTV thành công</value>
+  </data>
+  <data name="CTV_RejectSuccess">
+    <value>Từ chối CTV thành công</value>
+  </data>
+  <data name="CTV_InvalidStatusTransition">
+    <value>Không thể thực hiện với CTV có trạng thái {0}</value>
+  </data>
+  <data name="CTV_InvalidId">
+    <value>ID CTV không hợp lệ</value>
+  </data>
 </root>
