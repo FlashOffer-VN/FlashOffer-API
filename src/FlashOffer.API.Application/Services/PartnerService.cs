@@ -5,20 +5,26 @@ using FlashOffer.API.Application.DTOs.Requests;
 using FlashOffer.API.Application.DTOs.Responses;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Domain.Models;
 using FlashOffer.API.Shared.Common.Interfaces;
+using FlashOffer.API.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Linq.Expressions;
+using FlashOffer.API.Shared.Extensions;
 
-namespace FlashOffer.API.Infrastructure.Services;
+namespace FlashOffer.API.Application.Services;
 
 public class PartnerService : IPartnerService
 {
-    private readonly IRepository<Partner> _partnerRepo;
+    private readonly IRepository<Partner> _partnerRepo; 
     private readonly IUserService _userService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<SharedResource> _localizer;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<User> _userRepo;
 
     public PartnerService(
         IRepository<Partner> partnerRepo,
@@ -26,15 +32,14 @@ public class PartnerService : IPartnerService
         IUserService userService,
         ICurrentUserService currentUserService,
         IMapper mapper,
-        IStringLocalizer<SharedResource> localizer,
-        IRepository<User> userRepository)
+        IStringLocalizer<SharedResource> localizer)
     {
         _partnerRepo = partnerRepo;
+        _userRepo = userRepo;
         _userService = userService;
         _currentUserService = currentUserService;
         _mapper = mapper;
         _localizer = localizer;
-        _userRepository = userRepository;
     }
 
     public async Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request)
@@ -95,7 +100,110 @@ public class PartnerService : IPartnerService
 
     public async Task<bool> IsReferralCodeValidAsync(string code)
     {
-        var user = await _userRepository.GetFirstAsync(u => u.Phone == code);
+        var user = await _userRepo.GetFirstAsync(u => u.Phone == code);
         return user != null;
+    }
+
+    public async Task<PagedList<PartnerResponseDto>> GetPagedAsync(PartnerFilterRequest filter)
+    {
+        Expression<Func<Partner, bool>> predicate = x => true;
+
+        // Search filter
+        if (!string.IsNullOrEmpty(filter.Search))
+        {
+            predicate = predicate.And(x =>
+                x.FullName.Contains(filter.Search) ||
+                x.Email.Contains(filter.Search) ||
+                x.Phone.Contains(filter.Search) ||
+                x.CompanyName.Contains(filter.Search) ||
+                x.CompanyTax.Contains(filter.Search));
+        }
+
+        // Status filter
+        if (filter.Status.HasValue)
+        {
+            predicate = predicate.And(x => x.Status == filter.Status.Value);
+        }
+
+        var result = await _partnerRepo.GetPagedWithOrderAsync(
+            filter.PageNumber,
+            filter.PageSize,
+            predicate,
+            x => x.CreatedAt,
+            true);
+
+        var items = _mapper.Map<List<PartnerResponseDto>>(result.Items);
+        return new PagedList<PartnerResponseDto>(
+            items,
+            result.TotalCount,
+            result.PageNumber,
+            result.PageSize);
+    }
+
+    public async Task<PartnerDetailResponseDto?> GetDetailAsync(Guid id)
+    {
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query
+                .Include(x => x.User)
+                .Include(x => x.Commission)
+                .Include(x => x.Products));
+
+        if (entity == null)
+            return null;
+
+        return _mapper.Map<PartnerDetailResponseDto>(entity);
+    }
+
+    public async Task<PartnerResponseDto> ApproveAsync(Guid id)
+    {
+        var entity = await _partnerRepo.GetByIdAsync(id);
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        if (entity.Status != PartnerStatus.Pending)
+            throw new InvalidOperationException(_localizer["Partner_InvalidStatusTransition"]);
+
+        entity.Status = PartnerStatus.Approved;
+        entity.ApprovedAt = DateTime.UtcNow;
+
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task<PartnerResponseDto> RejectAsync(Guid id)
+    {
+        var entity = await _partnerRepo.GetByIdAsync(id);
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        if (entity.Status != PartnerStatus.Pending)
+            throw new InvalidOperationException(_localizer["Partner_InvalidStatusTransition"]);
+
+        entity.Status = PartnerStatus.Rejected;
+
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task<PartnerResponseDto> ActivateAsync(Guid id)
+    {
+        var entity = await _partnerRepo.GetByIdAsync(id);
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        if (entity.Status != PartnerStatus.Approved)
+            throw new InvalidOperationException(_localizer["Partner_InvalidStatusTransition"]);
+
+        entity.Status = PartnerStatus.Active;
+
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
     }
 }

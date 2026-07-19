@@ -486,4 +486,20 @@
   <data name="CTV_InvalidId">
     <value>Invalid CTV ID</value>
   </data>
+  <!-- Partner Admin Keys -->
+  <data name="Partner_NotFound">
+    <value>Partner not found</value>
+  </data>
+  <data name="Partner_InvalidStatusTransition">
+    <value>Invalid status transition</value>
+  </data>
+  <data name="Partner_ApproveSuccess">
+    <value>Partner approved successfully</value>
+  </data>
+  <data name="Partner_RejectSuccess">
+    <value>Partner rejected successfully</value>
+  </data>
+  <data name="Partner_ActivateSuccess">
+    <value>Partner activated successfully</value>
+  </data>
 </root>

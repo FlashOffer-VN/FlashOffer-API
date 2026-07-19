@@ -480,4 +480,20 @@
   <data name="CTV_InvalidId">
     <value>ID CTV không hợp lệ</value>
   </data>
+  <!-- Partner Admin Keys -->
+  <data name="Partner_NotFound">
+    <value>Không tìm thấy đối tác</value>
+  </data>
+  <data name="Partner_InvalidStatusTransition">
+    <value>Trạng thái không hợp lệ</value>
+  </data>
+  <data name="Partner_ApproveSuccess">
+    <value>Duyệt đối tác thành công</value>
+  </data>
+  <data name="Partner_RejectSuccess">
+    <value>Từ chối đối tác thành công</value>
+  </data>
+  <data name="Partner_ActivateSuccess">
+    <value>Kích hoạt đối tác thành công</value>
+  </data>
 </root>
