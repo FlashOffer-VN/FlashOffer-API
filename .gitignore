@@ -10,6 +10,7 @@ logs/
 # EF migrations under src/FlashOffer.API.Infrastructure/Data/Migrations are tracked in git
 appsettings.Development.json
 appsettings.Production.json
+appsettings.Staging.json
 *.secrets.json
 secrets.json
 
