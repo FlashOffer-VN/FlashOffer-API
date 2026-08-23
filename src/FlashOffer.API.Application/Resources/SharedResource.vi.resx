@@ -496,4 +496,26 @@
   <data name="Partner_ActivateSuccess">
     <value>Kích hoạt đối tác thành công</value>
   </data>
+  <!-- Social Post Keys -->
+  <data name="Social_GetPostsSuccess"><value>Lấy danh sách bài viết thành công</value></data>
+  <data name="Social_CreateSuccess"><value>Tạo bài viết thành công</value></data>
+  <data name="Social_UpdateSuccess"><value>Cập nhật bài viết thành công</value></data>
+  <data name="Social_DeleteSuccess"><value>Xóa bài viết thành công</value></data>
+  <data name="Social_NotFound"><value>Không tìm thấy bài viết</value></data>
+  <data name="Social_ContentRequired"><value>Nội dung bài viết là bắt buộc</value></data>
+  <data name="Social_ContentMaxLength"><value>Nội dung không được vượt quá 5000 ký tự</value></data>
+  <data name="Social_TitleMaxLength"><value>Tiêu đề không được vượt quá 200 ký tự</value></data>
+  <data name="Social_TypeInvalid"><value>Loại bài viết không hợp lệ</value></data>
+  <data name="Social_PrivacyInvalid"><value>Quyền riêng tư không hợp lệ</value></data>
+  <data name="Social_TagsMaxCount"><value>Chỉ được thêm tối đa 5 thẻ</value></data>
+  <data name="Social_TagMaxLength"><value>Thẻ không được vượt quá 20 ký tự</value></data>
+  <data name="Social_ImagesMaxCount"><value>Chỉ được tải lên tối đa 5 ảnh</value></data>
+  <data name="Social_EventDateRequired"><value>Ngày sự kiện là bắt buộc</value></data>
+  <data name="Social_EventDateFuture"><value>Ngày sự kiện phải là ngày trong tương lai</value></data>
+  <data name="Social_PriorityRequired"><value>Mức độ ưu tiên là bắt buộc</value></data>
+  <data name="Social_PriorityInvalid"><value>Mức độ ưu tiên không hợp lệ</value></data>
+  <data name="Social_PinnedUntilFuture"><value>Ngày ghim phải là ngày trong tương lai</value></data>
+  <data name="Social_PageNumberInvalid"><value>Số trang phải lớn hơn hoặc bằng 1</value></data>
+  <data name="Social_PageSizeInvalid"><value>Số lượng item/trang phải từ 1 đến 50</value></data>
+  <data name="Social_NotAuthorized"><value>Bạn không có quyền thực hiện hành động này</value></data>
 </root>

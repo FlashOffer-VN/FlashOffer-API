@@ -1,5 +1,4 @@
-﻿```markdown
-## 📋 SYSTEM INSTRUCTION - FLASHOFFER
+﻿## 📋 SYSTEM INSTRUCTION - FLASHOFFER (FULL)
 
 ### 1. Quy tắc chung
 - Luôn trả lời bằng tiếng Việt, trừ code và thuật ngữ chuyên môn.
@@ -325,6 +324,147 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 ```
 
+#### 7.11 Expression Extensions - Gộp predicate (BẮT BUỘC)
+
+**Vị trí:** `src/FlashOffer.API.Shared/Extensions/ExpressionExtensions.cs`
+
+**Các method:**
+| Method | Công dụng |
+|--------|-----------|
+| `.And()` | Gộp 2 điều kiện với `&&` |
+| `.Or()` | Gộp 2 điều kiện với `\|\|` |
+| `.AndAlso()` | Tương tự `.And()` |
+
+**Sử dụng trong Service:**
+```csharp
+using FlashOffer.API.Shared.Extensions;
+
+Expression<Func<Entity, bool>>? predicate = null;
+
+// Gộp điều kiện dần
+predicate = predicate.And(p => p.Status == Status.Active);
+predicate = predicate.And(p => p.CreatedAt >= startDate);
+predicate = predicate.Or(p => p.Priority == Priority.High);
+
+// Kết quả: (Status == Active && CreatedAt >= startDate) || Priority == High
+```
+
+**Quy tắc:**
+- **BẮT BUỘC** dùng `ExpressionExtensions.And()` thay vì tự viết `CombinePredicates` trong Service
+- Xóa method `CombinePredicates` và `ReplaceExpressionVisitor` khỏi Service khi đã có extension này
+- `predicate` khởi tạo = `null`, sau đó gọi `.And()` hoặc `.Or()` để gộp dần
+
+**Code mẫu trong Service:**
+```csharp
+public async Task<PagedList<PostResponse>> GetPostsAsync(GetPostsQuery query)
+{
+    Expression<Func<SocialPost, bool>>? predicate = null;
+
+    if (query.Type.HasValue)
+        predicate = predicate.And(p => p.Type == query.Type.Value);
+    
+    if (!string.IsNullOrEmpty(query.Tag))
+        predicate = predicate.And(p => p.PostTags.Any(pt => pt.Tag.Name == query.Tag));
+    
+    if (!isAdmin)
+        predicate = predicate.And(p => p.Privacy == PrivacyType.Public);
+
+    predicate ??= p => true;  // Nếu không có filter, lấy tất cả
+
+    var posts = await _repository.GetPagedWithIncludesAsync(...);
+    // ...
+}
+```
+
+#### 7.12 Queryable Extensions - Include linh hoạt (BẮT BUỘC)
+
+**Vị trí:** `src/FlashOffer.API.Shared/Extensions/QueryableExtensions.cs`
+
+**Các method:**
+
+| Method | Công dụng |
+|--------|-----------|
+| `IncludeMultiple<T>()` | Include nhiều navigation cùng lúc |
+| `IncludeThen<T, TProperty, TThen>()` | Include + ThenInclude |
+
+**Code:**
+```csharp
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+
+namespace FlashOffer.API.Shared.Extensions;
+
+public static class QueryableExtensions
+{
+    /// <summary>
+    /// Include nhiều navigation properties cùng lúc
+    /// </summary>
+    public static IQueryable<T> IncludeMultiple<T>(
+        this IQueryable<T> query,
+        params Expression<Func<T, object>>[] includes)
+        where T : class
+    {
+        if (includes == null || includes.Length == 0)
+            return query;
+
+        var result = query;
+        foreach (var include in includes)
+        {
+            result = result.Include(include);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Include + ThenInclude với cú pháp ngắn
+    /// </summary>
+    public static IQueryable<T> IncludeThen<T, TProperty, TThen>(
+        this IQueryable<T> query,
+        Expression<Func<T, TProperty>> include,
+        Expression<Func<TProperty, TThen>> thenInclude)
+        where T : class
+    {
+        return query.Include(include).ThenInclude(thenInclude);
+    }
+}
+```
+
+**Sử dụng trong Service:**
+```csharp
+// Cách 1 - Include nhiều
+var posts = await _repository.GetPagedWithIncludesAsync(
+    includes: q => q.IncludeMultiple(
+        p => p.Author,
+        p => p.PostTags
+    ),
+    // ...
+);
+
+// Cách 2 - Include + ThenInclude
+var posts = await _repository.GetPagedWithIncludesAsync(
+    includes: q => q.IncludeThen(
+        p => p.PostTags,
+        pt => pt.Tag
+    ),
+    // ...
+);
+
+// Cách 3 - Kết hợp native (khi cần nhiều ThenInclude)
+var posts = await _repository.GetPagedWithIncludesAsync(
+    includes: q => q
+        .Include(p => p.Author)
+        .Include(p => p.PostTags)
+            .ThenInclude(pt => pt.Tag),
+    // ...
+);
+```
+
+**Quy tắc:**
+- **Ưu tiên dùng `IncludeMultiple()`** cho các include đơn giản, không có ThenInclude
+- **Dùng native Include + ThenInclude** khi cần nhiều cấp ThenInclude
+- **Không tạo method IncludeSocialDetails** cứng cho từng Entity - dùng generic để tái sử dụng
+- Thêm `using Microsoft.EntityFrameworkCore;` cho file extension
+
 ### 8. Thêm API mới - Quy trình 10 bước
 | Bước | Hành động | Thư mục | Resource keys |
 |------|-----------|---------|---------------|
@@ -519,4 +659,5 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 - **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu
 - **Soft Delete:** Luôn dùng xóa mềm, không xóa cứng dữ liệu. Sử dụng `Restore()` khi cần khôi phục.
 - **Global Query Filter:** Đã tự động filter `IsDeleted = false`, không cần thêm điều kiện trong repository methods.
-```
+- **Expression Extensions:** Dùng `ExpressionExtensions.And()` để gộp predicate, không tự viết `CombinePredicates` trong Service.
+- **Queryable Extensions:** Dùng `IncludeMultiple()` hoặc `IncludeThen()` thay vì tạo method cứng cho từng Entity.
