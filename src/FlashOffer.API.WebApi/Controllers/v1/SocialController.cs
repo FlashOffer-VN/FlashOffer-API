@@ -10,8 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
 [ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class SocialController : ApiControllerBase
 {
