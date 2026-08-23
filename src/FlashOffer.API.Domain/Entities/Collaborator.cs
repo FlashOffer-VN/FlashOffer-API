@@ -17,6 +17,7 @@ public class Collaborator : BaseEntity
     public string? Goals { get; set; }
     public SalesChannel? SalesChannel { get; set; }
     public string? Experience { get; set; }
+    public string? Address { get; set; }
     public bool AgreeTerms { get; set; }
 
     // Hỗ trợ đa cấp
@@ -24,7 +25,7 @@ public class Collaborator : BaseEntity
     public int Level { get; set; } = 1;
     public string? ReferralCode { get; set; }
 
-    public bool IsApproved { get; set; }
+    public bool IsApproved { get; set; } = false;
     private CollaboratorStatus _status = CollaboratorStatus.Pending;
     public CollaboratorStatus Status
     {
