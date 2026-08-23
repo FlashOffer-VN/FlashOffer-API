@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IPartnerService, PartnerService>();
         services.AddScoped<ICtvService, CtvService>();
         services.AddScoped<ISocialService, SocialService>();
+        services.AddScoped<ICollaboratorService, CollaboratorService>();
 
         return services;
 	}

@@ -15,13 +15,13 @@ namespace FlashOffer.API.Infrastructure.Services;
 
 public class CtvService : ICtvService
 {
-    private readonly IRepository<CtvRegistration> _repository;
+    private readonly IRepository<Collaborator> _repository;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CtvService(
-        IRepository<CtvRegistration> repository,
+        IRepository<Collaborator> repository,
         IMapper mapper,
         ICurrentUserService currentUserService,
         IStringLocalizer<SharedResource> localizer)
@@ -62,12 +62,12 @@ public class CtvService : ICtvService
     {
         var entity = await GetAndValidateAsync(id);
 
-        if (entity.Status != CTVRegistrationStatus.Pending)
+        if (entity.Status != CollaboratorStatus.Pending)
             throw new InvalidOperationException(string.Format(
                 _localizer["CTV_InvalidStatusTransition"],
                 entity.Status.ToString()));
 
-        entity.Status = CTVRegistrationStatus.Approved;
+        entity.Status = CollaboratorStatus.Approved;
         entity.IsApproved = true;
         entity.ApprovedAt = DateTime.UtcNow;
 
@@ -80,12 +80,12 @@ public class CtvService : ICtvService
     {
         var entity = await GetAndValidateAsync(id);
 
-        if (entity.Status != CTVRegistrationStatus.Pending)
+        if (entity.Status != CollaboratorStatus.Pending)
             throw new InvalidOperationException(string.Format(
                 _localizer["CTV_InvalidStatusTransition"],
                 entity.Status.ToString()));
 
-        entity.Status = CTVRegistrationStatus.Rejected;
+        entity.Status = CollaboratorStatus.Rejected;
         entity.IsApproved = false;
 
         await _repository.SaveChangesAsync();
@@ -93,7 +93,7 @@ public class CtvService : ICtvService
         return _mapper.Map<CtvResponseDto>(entity);
     }
 
-    private async Task<CtvRegistration> GetAndValidateAsync(Guid id)
+    private async Task<Collaborator> GetAndValidateAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)

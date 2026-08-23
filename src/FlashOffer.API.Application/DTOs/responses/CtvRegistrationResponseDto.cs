@@ -6,7 +6,7 @@ using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Application.DTOs.responses;
 
-public class CtvRegistrationResponseDto : IMapFrom<CtvRegistration>
+public class CtvRegistrationResponseDto : IMapFrom<Collaborator>
 {
 	public Guid Id { get; set; }
 	public string FullName { get; set; } = string.Empty;
@@ -20,5 +20,5 @@ public class CtvRegistrationResponseDto : IMapFrom<CtvRegistration>
 	public DateTime? ApprovedAt { get; set; }
 
 	public void Mapping(Profile profile)
-		=> profile.CreateMap<CtvRegistration, CtvRegistrationResponseDto>();
+		=> profile.CreateMap<Collaborator, CtvRegistrationResponseDto>();
 }
