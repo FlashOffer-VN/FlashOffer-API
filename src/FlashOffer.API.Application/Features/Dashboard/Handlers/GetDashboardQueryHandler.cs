@@ -14,7 +14,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
 	private readonly IRepository<PurchaseRequest> _purchaseRepo;
 	private readonly IRepository<GroupBuyingRequest> _groupBuyingRepo;
 	private readonly IRepository<OfferRequest> _offerRepo;
-	private readonly IRepository<CtvRegistration> _ctvRepo;
+	private readonly IRepository<Collaborator> _ctvRepo;
 	private readonly IRepository<User> _userRepo;
 	private readonly ILogger<GetDashboardQueryHandler> _logger;
 
@@ -22,7 +22,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
 		IRepository<PurchaseRequest> purchaseRepo,
 		IRepository<GroupBuyingRequest> groupBuyingRepo,
 		IRepository<OfferRequest> offerRepo,
-		IRepository<CtvRegistration> ctvRepo,
+		IRepository<Collaborator> ctvRepo,
 		IRepository<User> userRepo,
 		ILogger<GetDashboardQueryHandler> logger)
 	{
@@ -47,7 +47,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
 			TotalOfferRequests = await CountAsync(_offerRepo, x => !x.IsDeleted, cancellationToken),
 			PendingOfferRequests = await CountAsync(_offerRepo, x => !x.IsDeleted && x.Status == OfferStatus.Pending, cancellationToken),
 			TotalCTVRegistrations = await CountAsync(_ctvRepo, x => !x.IsDeleted, cancellationToken),
-			PendingCTVRegistrations = await CountAsync(_ctvRepo, x => !x.IsDeleted && x.Status == CTVRegistrationStatus.Pending, cancellationToken),
+			PendingCTVRegistrations = await CountAsync(_ctvRepo, x => !x.IsDeleted && x.Status == CollaboratorStatus.Pending, cancellationToken),
 			RecentActivities = await GetRecentActivities(cancellationToken)
 		};
 

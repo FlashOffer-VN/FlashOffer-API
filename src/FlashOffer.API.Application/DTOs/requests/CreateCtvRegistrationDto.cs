@@ -5,7 +5,7 @@ using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Application.DTOs.requests;
 
-public class CreateCtvRegistrationDto : IMapFrom<CtvRegistration>
+public class CreateCtvRegistrationDto : IMapFrom<Collaborator>
 {
 	public string FullName { get; set; } = string.Empty;
 	public string Phone { get; set; } = string.Empty;
@@ -15,5 +15,5 @@ public class CreateCtvRegistrationDto : IMapFrom<CtvRegistration>
 	public string? Experience { get; set; }
 
 	public void Mapping(Profile profile)
-		=> profile.CreateMap<CreateCtvRegistrationDto, CtvRegistration>();
+		=> profile.CreateMap<CreateCtvRegistrationDto, Collaborator>();
 }

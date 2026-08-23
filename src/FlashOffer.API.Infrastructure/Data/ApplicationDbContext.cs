@@ -19,8 +19,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
 	public DbSet<GroupBuyingRequest> GroupBuyingRequests { get; set; }
 	public DbSet<OfferRequest> OfferRequests { get; set; }
-	public DbSet<CtvRegistration> CtvRegistrations { get; set; }
-	public DbSet<User> Users { get; set; }
+    public DbSet<Collaborator> Collaborators { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Partner> Partners { get; set; }
     public DbSet<PartnerProduct> PartnerProducts { get; set; }
     public DbSet<PartnerCommission> PartnerCommissions { get; set; }

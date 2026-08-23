@@ -12,11 +12,11 @@ namespace FlashOffer.API.Application.Services;
 
 public class CtvRegistrationService : ICtvRegistrationService
 {
-	private readonly IRepository<CtvRegistration> _repository;
+	private readonly IRepository<Collaborator> _repository;
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
 
-	public CtvRegistrationService(IRepository<CtvRegistration> repository, IMapper mapper, IUserService userService)
+	public CtvRegistrationService(IRepository<Collaborator> repository, IMapper mapper, IUserService userService)
 	{
 		_repository = repository;
 		_mapper = mapper;
@@ -33,7 +33,7 @@ public class CtvRegistrationService : ICtvRegistrationService
         );
 
         // 2. Map và gán UserId
-        var entity = _mapper.Map<CtvRegistration>(dto);
+        var entity = _mapper.Map<Collaborator>(dto);
         entity.UserId = userId;
         entity.IsApproved = false;
         entity.CreatedAt = DateTime.UtcNow.AddHours(7);
@@ -60,7 +60,7 @@ public class CtvRegistrationService : ICtvRegistrationService
 		return new PagedList<CtvRegistrationResponseDto>(items, pagedEntities.TotalCount, query.Page, query.PageSize);
 	}
 
-	private static Expression<Func<CtvRegistration, bool>>? BuildPredicate(bool? isApproved)
+	private static Expression<Func<Collaborator, bool>>? BuildPredicate(bool? isApproved)
 	{
 		if (!isApproved.HasValue) return null;
 		return x => x.IsApproved == isApproved.Value;
