@@ -1,10 +1,6 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
-using FlashOffer.API.Application.DTOs.Requests;
-using FlashOffer.API.Application.Services;
 using FlashOffer.API.Domain.Enums;
-using FlashOffer.API.Domain.Models;
-using FlashOffer.API.WebApi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +9,6 @@ namespace FlashOffer.API.WebApi.Controllers;
 [ApiVersion("1.0")]
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize]
 public class SocialController : ApiControllerBase
 {
     private readonly ISocialService _socialService;
@@ -50,6 +45,7 @@ public class SocialController : ApiControllerBase
     /// <summary>
     /// Lấy chi tiết bài viết theo ID
     /// </summary>
+    [Authorize]
     [HttpGet("posts/{id}")]
     public async Task<IActionResult> GetPostById(Guid id)
     {
@@ -60,6 +56,7 @@ public class SocialController : ApiControllerBase
     /// <summary>
     /// Tạo bài viết mới
     /// </summary>
+    [Authorize]
     [HttpPost("posts")]
     public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
     {
@@ -70,6 +67,7 @@ public class SocialController : ApiControllerBase
     /// <summary>
     /// Cập nhật bài viết
     /// </summary>
+    [Authorize]
     [HttpPut("posts/{id}")]
     public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdatePostRequest request)
     {
@@ -80,6 +78,7 @@ public class SocialController : ApiControllerBase
     /// <summary>
     /// Xóa bài viết
     /// </summary>
+    [Authorize]
     [HttpDelete("posts/{id}")]
     public async Task<IActionResult> DeletePost(Guid id)
     {
