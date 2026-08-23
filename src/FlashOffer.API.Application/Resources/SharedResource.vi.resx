@@ -518,4 +518,81 @@
   <data name="Social_PageNumberInvalid"><value>Số trang phải lớn hơn hoặc bằng 1</value></data>
   <data name="Social_PageSizeInvalid"><value>Số lượng item/trang phải từ 1 đến 50</value></data>
   <data name="Social_NotAuthorized"><value>Bạn không có quyền thực hiện hành động này</value></data>
+  <data name="Collaborator_FullNameRequired">
+    <value>Họ tên là bắt buộc</value>
+  </data>
+  <data name="Collaborator_FullNameMaxLength">
+    <value>Họ tên không được vượt quá 200 ký tự</value>
+  </data>
+  <data name="Collaborator_PhoneRequired">
+    <value>Số điện thoại là bắt buộc</value>
+  </data>
+  <data name="Collaborator_PhoneInvalid">
+    <value>Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có 10-11 số)</value>
+  </data>
+  <data name="Collaborator_EmailInvalid">
+    <value>Email không hợp lệ</value>
+  </data>
+  <data name="Collaborator_UsernameRequired">
+    <value>Tên đăng nhập là bắt buộc</value>
+  </data>
+  <data name="Collaborator_UsernameMinLength">
+    <value>Tên đăng nhập phải có ít nhất 3 ký tự</value>
+  </data>
+  <data name="Collaborator_UsernameMaxLength">
+    <value>Tên đăng nhập không được vượt quá 50 ký tự</value>
+  </data>
+  <data name="Collaborator_PasswordRequired">
+    <value>Mật khẩu là bắt buộc</value>
+  </data>
+  <data name="Collaborator_PasswordMinLength">
+    <value>Mật khẩu phải có ít nhất 6 ký tự</value>
+  </data>
+  <data name="Collaborator_PasswordMaxLength">
+    <value>Mật khẩu không được vượt quá 100 ký tự</value>
+  </data>
+  <data name="Collaborator_PasswordComplexity">
+    <value>Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt</value>
+  </data>
+  <data name="Collaborator_PasswordMismatch">
+    <value>Mật khẩu xác nhận không khớp</value>
+  </data>
+  <data name="Collaborator_AgreeTermsRequired">
+    <value>Bạn phải đồng ý với điều khoản</value>
+  </data>
+  <data name="Collaborator_BusinessNameMaxLength">
+    <value>Tên doanh nghiệp không được vượt quá 200 ký tự</value>
+  </data>
+  <data name="Collaborator_BusinessSizeInvalid">
+    <value>Quy mô doanh nghiệp phải từ 1 đến 1000</value>
+  </data>
+  <data name="Collaborator_WebsiteInvalid">
+    <value>Website không hợp lệ</value>
+  </data>
+  <data name="Collaborator_ParentIdInvalid">
+    <value>ParentCollaboratorId không hợp lệ</value>
+  </data>
+
+  <!-- Success Messages -->
+  <data name="Collaborator_CreateSuccess">
+    <value>Đăng ký CTV thành công</value>
+  </data>
+  <data name="Collaborator_UpdateSuccess">
+    <value>Cập nhật CTV thành công</value>
+  </data>
+  <data name="Collaborator_ApproveSuccess">
+    <value>Duyệt CTV thành công</value>
+  </data>
+  <data name="Collaborator_RejectSuccess">
+    <value>Từ chối CTV thành công</value>
+  </data>
+  <data name="Collaborator_DeleteSuccess">
+    <value>Xóa CTV thành công</value>
+  </data>
+  <data name="Collaborator_RestoreSuccess">
+    <value>Khôi phục CTV thành công</value>
+  </data>
+  <data name="Collaborator_NotFound">
+    <value>Không tìm thấy CTV</value>
+  </data>
 </root>

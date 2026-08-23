@@ -588,4 +588,81 @@
   <data name="Social_NotAuthorized">
     <value>You are not authorized to perform this action</value>
   </data>
+  <data name="Collaborator_FullNameRequired">
+    <value>Full name is required</value>
+  </data>
+  <data name="Collaborator_FullNameMaxLength">
+    <value>Full name cannot exceed 200 characters</value>
+  </data>
+  <data name="Collaborator_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="Collaborator_PhoneInvalid">
+    <value>Invalid phone number (must start with 0 and have 10-11 digits)</value>
+  </data>
+  <data name="Collaborator_EmailInvalid">
+    <value>Invalid email format</value>
+  </data>
+  <data name="Collaborator_UsernameRequired">
+    <value>Username is required</value>
+  </data>
+  <data name="Collaborator_UsernameMinLength">
+    <value>Username must be at least 3 characters</value>
+  </data>
+  <data name="Collaborator_UsernameMaxLength">
+    <value>Username cannot exceed 50 characters</value>
+  </data>
+  <data name="Collaborator_PasswordRequired">
+    <value>Password is required</value>
+  </data>
+  <data name="Collaborator_PasswordMinLength">
+    <value>Password must be at least 6 characters</value>
+  </data>
+  <data name="Collaborator_PasswordMaxLength">
+    <value>Password cannot exceed 100 characters</value>
+  </data>
+  <data name="Collaborator_PasswordComplexity">
+    <value>Password must contain at least 1 uppercase, 1 lowercase, 1 number and 1 special character</value>
+  </data>
+  <data name="Collaborator_PasswordMismatch">
+    <value>Password confirmation does not match</value>
+  </data>
+  <data name="Collaborator_AgreeTermsRequired">
+    <value>You must agree to the terms</value>
+  </data>
+  <data name="Collaborator_BusinessNameMaxLength">
+    <value>Business name cannot exceed 200 characters</value>
+  </data>
+  <data name="Collaborator_BusinessSizeInvalid">
+    <value>Business size must be between 1 and 1000</value>
+  </data>
+  <data name="Collaborator_WebsiteInvalid">
+    <value>Invalid website URL</value>
+  </data>
+  <data name="Collaborator_ParentIdInvalid">
+    <value>Invalid Parent Collaborator ID</value>
+  </data>
+
+  <!-- Success Messages -->
+  <data name="Collaborator_CreateSuccess">
+    <value>Collaborator registered successfully</value>
+  </data>
+  <data name="Collaborator_UpdateSuccess">
+    <value>Collaborator updated successfully</value>
+  </data>
+  <data name="Collaborator_ApproveSuccess">
+    <value>Collaborator approved successfully</value>
+  </data>
+  <data name="Collaborator_RejectSuccess">
+    <value>Collaborator rejected successfully</value>
+  </data>
+  <data name="Collaborator_DeleteSuccess">
+    <value>Collaborator deleted successfully</value>
+  </data>
+  <data name="Collaborator_RestoreSuccess">
+    <value>Collaborator restored successfully</value>
+  </data>
+  <data name="Collaborator_NotFound">
+    <value>Collaborator not found</value>
+  </data>
 </root>
