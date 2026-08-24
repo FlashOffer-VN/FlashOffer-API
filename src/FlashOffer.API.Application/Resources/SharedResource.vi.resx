@@ -595,4 +595,38 @@
   <data name="Collaborator_NotFound">
     <value>Không tìm thấy CTV</value>
   </data>
+  <!-- Social Interaction Keys -->
+  <data name="Social_LikeSuccess">
+    <value>Đã thích bài viết</value>
+  </data>
+  <data name="Social_UnlikeSuccess">
+    <value>Đã bỏ thích bài viết</value>
+  </data>
+  <data name="Social_CommentDeleted">
+    <value>Đã xóa bình luận</value>
+  </data>
+  <data name="Social_ShareSuccess">
+    <value>Đã chia sẻ bài viết</value>
+  </data>
+
+  <data name="SocialPost_NotFound">
+    <value>Không tìm thấy bài viết</value>
+  </data>
+  <data name="SocialComment_NotFound">
+    <value>Không tìm thấy bình luận</value>
+  </data>
+  <data name="SocialComment_ParentNotFound">
+    <value>Không tìm thấy bình luận cha</value>
+  </data>
+  <data name="SocialComment_NoPermission">
+    <value>Bạn không có quyền xóa bình luận này</value>
+  </data>
+
+  <!-- Validation -->
+  <data name="SocialComment_ContentRequired">
+    <value>Nội dung bình luận là bắt buộc</value>
+  </data>
+  <data name="SocialComment_ContentMaxLength">
+    <value>Nội dung bình luận không được vượt quá 1000 ký tự</value>
+  </data>
 </root>

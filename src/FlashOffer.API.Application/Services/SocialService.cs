@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
-using FlashOffer.API.Application.DTOs.Requests;
 using FlashOffer.API.Application.DTOs.responses;
-using FlashOffer.API.Application.DTOs.Responses;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
@@ -27,6 +25,7 @@ public class SocialService : ISocialService
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ISocialInteractionService _interactionService;
 
     public SocialService(
         IRepository<SocialPost> postRepository,
@@ -35,7 +34,8 @@ public class SocialService : ISocialService
         IRepository<PostTag> postTagRepository,
         IMapper mapper,
         IStringLocalizer<SharedResource> localizer,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ISocialInteractionService interactionService)
     {
         _postRepository = postRepository;
         _userRepository = userRepository;
@@ -44,6 +44,7 @@ public class SocialService : ISocialService
         _mapper = mapper;
         _localizer = localizer;
         _currentUserService = currentUserService;
+        _interactionService = interactionService;
     }
 
     public async Task<PagedList<PostResponse>> GetPostsAsync(GetPostsQuery query)
@@ -51,7 +52,7 @@ public class SocialService : ISocialService
         var userId = _currentUserService.UserId;
         var isAdmin = _currentUserService.IsInRole("Admin");
 
-        // Xây dựng predicate - Dùng ExpressionExtensions.And()
+        // Xây dựng predicate
         Expression<Func<SocialPost, bool>>? predicate = null;
 
         if (query.Type.HasValue)
@@ -72,12 +73,15 @@ public class SocialService : ISocialService
 
         predicate ??= p => true;
 
-        // Lấy dữ liệu - Dùng QueryableExtensions
+        // Thêm Includes cho Likes, Comments, Shares
         var posts = await _postRepository.GetPagedWithIncludesAsync(
             query.PageNumber,
             query.PageSize,
             includes: q => q
                 .Include(p => p.Author)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .Include(p => p.Shares)
                 .Include(p => p.PostTags)
                     .ThenInclude(pt => pt.Tag),
             predicate: predicate,
@@ -87,6 +91,18 @@ public class SocialService : ISocialService
 
         var postResponses = _mapper.Map<List<PostResponse>>(posts.Items);
 
+        // Thêm logic lấy Like status cho current user
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var userGuid = Guid.Parse(userId);
+            foreach (var response in postResponses)
+            {
+                var post = posts.Items.First(p => p.Id == response.Id);
+                response.IsLiked = await _interactionService.HasLikedAsync(post.Id, userGuid);
+            }
+        }
+
+        // Gán Author
         foreach (var response in postResponses)
         {
             var post = posts.Items.First(p => p.Id == response.Id);
@@ -103,10 +119,19 @@ public class SocialService : ISocialService
 
     public async Task<PostResponse> GetPostByIdAsync(Guid id)
     {
+        // Thêm Includes cho Likes, Comments, Shares và Comments.User
         var post = await _postRepository.GetFirstWithIncludesAsync(
             p => p.Id == id,
             includes: q => q
                 .Include(p => p.Author)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.Replies)
+                        .ThenInclude(r => r.User)
+                .Include(p => p.Shares)
+                    .ThenInclude(s => s.User)
                 .Include(p => p.PostTags)
                     .ThenInclude(pt => pt.Tag)
         );
@@ -118,6 +143,15 @@ public class SocialService : ISocialService
 
         var response = _mapper.Map<PostResponse>(post);
         response.Author = _mapper.Map<AuthorDto>(post.Author);
+
+        // Kiểm tra current user đã Like chưa
+        var userId = _currentUserService.UserId;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var userGuid = Guid.Parse(userId);
+            response.IsLiked = await _interactionService.HasLikedAsync(post.Id, userGuid);
+        }
+
         return response;
     }
 

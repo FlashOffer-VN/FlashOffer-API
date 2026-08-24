@@ -1,8 +1,10 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
+using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.WebApi.Controllers;
 
@@ -12,10 +14,12 @@ namespace FlashOffer.API.WebApi.Controllers;
 public class SocialController : ApiControllerBase
 {
     private readonly ISocialService _socialService;
+    private readonly IStringLocalizer<SharedResource> _stringLocalizer;
 
-    public SocialController(ISocialService socialService)
+    public SocialController(ISocialService socialService, IStringLocalizer<SharedResource> stringLocalizer)
     {
         _socialService = socialService;
+        _stringLocalizer = stringLocalizer;
     }
 
     /// <summary>
@@ -39,7 +43,7 @@ public class SocialController : ApiControllerBase
         };
 
         var result = await _socialService.GetPostsAsync(query);
-        return OkPaged(result, "Social_GetPostsSuccess");
+        return OkPaged(result, _stringLocalizer["Social_GetPostsSuccess"]);
     }
 
     /// <summary>
@@ -50,7 +54,7 @@ public class SocialController : ApiControllerBase
     public async Task<IActionResult> GetPostById(Guid id)
     {
         var result = await _socialService.GetPostByIdAsync(id);
-        return Ok(result, "Social_GetPostSuccess");
+        return Ok(result, _stringLocalizer["Social_GetPostSuccess"]);
     }
 
     /// <summary>
@@ -61,7 +65,7 @@ public class SocialController : ApiControllerBase
     public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
     {
         var result = await _socialService.CreatePostAsync(request);
-        return Created(nameof(GetPostById), result, "Social_CreateSuccess");
+        return Created(nameof(GetPostById), result, _stringLocalizer["Social_CreateSuccess"]);
     }
 
     /// <summary>
@@ -72,7 +76,7 @@ public class SocialController : ApiControllerBase
     public async Task<IActionResult> UpdatePost(Guid id, [FromBody] UpdatePostRequest request)
     {
         var result = await _socialService.UpdatePostAsync(id, request);
-        return Ok(result, "Social_UpdateSuccess");
+        return Ok(result, _stringLocalizer["Social_UpdateSuccess"]);
     }
 
     /// <summary>
@@ -83,6 +87,6 @@ public class SocialController : ApiControllerBase
     public async Task<IActionResult> DeletePost(Guid id)
     {
         await _socialService.DeletePostAsync(id);
-        return Ok("Social_DeleteSuccess");
+        return Ok(_stringLocalizer["Social_DeleteSuccess"]);
     }
 }
