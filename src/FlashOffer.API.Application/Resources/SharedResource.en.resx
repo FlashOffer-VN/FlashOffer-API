@@ -665,4 +665,38 @@
   <data name="Collaborator_NotFound">
     <value>Collaborator not found</value>
   </data>
+  <!-- Social Interaction Keys -->
+  <data name="Social_LikeSuccess">
+    <value>Post liked</value>
+  </data>
+  <data name="Social_UnlikeSuccess">
+    <value>Post unliked</value>
+  </data>
+  <data name="Social_CommentDeleted">
+    <value>Comment deleted</value>
+  </data>
+  <data name="Social_ShareSuccess">
+    <value>Post shared</value>
+  </data>
+
+  <data name="SocialPost_NotFound">
+    <value>Post not found</value>
+  </data>
+  <data name="SocialComment_NotFound">
+    <value>Comment not found</value>
+  </data>
+  <data name="SocialComment_ParentNotFound">
+    <value>Parent comment not found</value>
+  </data>
+  <data name="SocialComment_NoPermission">
+    <value>You don't have permission to delete this comment</value>
+  </data>
+
+  <!-- Validation -->
+  <data name="SocialComment_ContentRequired">
+    <value>Comment content is required</value>
+  </data>
+  <data name="SocialComment_ContentMaxLength">
+    <value>Comment content cannot exceed 1000 characters</value>
+  </data>
 </root>
