@@ -13,7 +13,8 @@ using Microsoft.Extensions.Localization;
 namespace FlashOffer.API.WebApi.Controllers;
 
 [ApiController]
-[Route("api/social/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class SocialInteractionController : ApiControllerBase
 {
