@@ -50,6 +50,7 @@ public class SocialController : ApiControllerBase
     /// Lấy chi tiết bài viết theo ID
     /// </summary>
     [Authorize]
+    [AllowAnonymous]
     [HttpGet("posts/{id}")]
     public async Task<IActionResult> GetPostById(Guid id)
     {
