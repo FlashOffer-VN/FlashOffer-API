@@ -45,6 +45,10 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
         builder.Property(c => c.Experience)
             .HasMaxLength(1000);
 
+        // 👇 THÊM MỚI: Business Field
+        builder.Property(c => c.BusinessField)
+            .HasMaxLength(200);
+
         builder.Property(c => c.ReferralCode)
             .HasMaxLength(50);
 
