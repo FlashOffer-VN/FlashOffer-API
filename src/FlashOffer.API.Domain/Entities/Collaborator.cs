@@ -19,7 +19,7 @@ public class Collaborator : BaseEntity
     public string? Experience { get; set; }
     public string? Address { get; set; }
     public bool AgreeTerms { get; set; }
-
+    public string? BusinessField { get; set; }
     // Hỗ trợ đa cấp
     public Guid? ParentCollaboratorId { get; set; }
     public int Level { get; set; } = 1;

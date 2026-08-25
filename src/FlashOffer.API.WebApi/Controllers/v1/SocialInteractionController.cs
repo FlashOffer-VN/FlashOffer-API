@@ -84,6 +84,7 @@ public class SocialInteractionController : ApiControllerBase
 
     // ===== SHARE =====
     [HttpPost("posts/{postId}/share")]
+    [AllowAnonymous]
     public async Task<IActionResult> SharePost(Guid postId, [FromBody] SharePostDto? dto)
     {
         var userId = Guid.Parse(_currentUserService.UserId!);
