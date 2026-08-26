@@ -27,7 +27,13 @@ COPY docs/ docs/
 # COPY tests/ tests/
 
 # Publish the WebApi project
-RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj -c Release -o /app/publish
+# PublishReadyToRun pre-compiles IL to native code at build time, reducing JIT warmup
+# (faster cold start on Render free tier). linux-x64 matches the Debian runtime image.
+RUN dotnet publish src/FlashOffer.API.WebApi/FlashOffer.API.WebApi.csproj \
+    -c Release \
+    -r linux-x64 \
+    -p:PublishReadyToRun=true \
+    -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
