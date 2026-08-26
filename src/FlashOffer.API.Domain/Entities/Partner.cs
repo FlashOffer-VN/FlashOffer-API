@@ -1,5 +1,4 @@
-﻿// Partner.cs
-using FlashOffer.API.Domain.Enums;
+﻿using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Domain.Entities;
 
@@ -22,8 +21,11 @@ public class Partner : BaseEntity
     public PartnerStatus Status { get; set; } = PartnerStatus.Pending;
     public DateTime? ApprovedAt { get; set; }
 
+    public Guid? BusinessFieldId { get; set; }
+
     // Navigation
     public virtual User User { get; set; } = null!;
     public virtual ICollection<PartnerProduct> Products { get; set; } = new List<PartnerProduct>();
     public virtual PartnerCommission? Commission { get; set; }
+    public virtual BusinessField? BusinessField { get; set; } 
 }

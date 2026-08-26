@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace FlashOffer.API.Infrastructure.Data.Migrations
+namespace FlashOffer.API.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260712082421_AddFieldsToGroupBuyingRequest")]
-    partial class AddFieldsToGroupBuyingRequest
+    [Migration("20260826151423_AddBusinessFieldRelations")]
+    partial class AddBusinessFieldRelations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,14 +25,76 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FlashOffer.API.Domain.Entities.CtvRegistration", b =>
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.BusinessField", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Aliases")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_BusinessFields_NormalizedName");
+
+                    b.ToTable("BusinessFields", (string)null);
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.Collaborator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AgreeTerms")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessFieldName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -53,6 +115,14 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("Goals")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Interests")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsApproved")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -61,20 +131,46 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<int?>("SalesChannel")
+                    b.Property<int>("Level")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(5);
+                        .HasDefaultValue(1);
+
+                    b.Property<Guid?>("ParentCollaboratorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ReferralCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("SalesChannel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Skills")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(1);
+                        .HasDefaultValue(1)
+                        .HasColumnName("Status");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -86,26 +182,39 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Zalo")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email");
+                    b.HasIndex("BusinessFieldId");
 
-                    b.HasIndex("Phone");
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
-                    b.HasIndex("Status");
+                    b.HasIndex("ParentCollaboratorId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Phone")
+                        .IsUnique();
 
-                    b.ToTable("CtvRegistrations", (string)null);
+                    b.HasIndex("ReferralCode")
+                        .IsUnique()
+                        .HasFilter("[ReferralCode] IS NOT NULL");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Collaborators", (string)null);
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.GroupBuyingRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BusinessFieldId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -165,6 +274,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("GroupBuyingRequests");
@@ -176,20 +287,31 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<decimal>("CurrentPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<decimal?>("ExpectedPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -199,20 +321,36 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<string>("SelectedOffer")
-                        .IsRequired()
+                    b.Property<string>("Note")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
+                    b.Property<string>("ProductLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(1);
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -224,19 +362,14 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Zalo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Phone");
-
-                    b.HasIndex("Status");
+                    b.HasIndex("BusinessFieldId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("Zalo");
 
                     b.ToTable("OfferRequests", (string)null);
                 });
@@ -250,8 +383,14 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("BusinessType")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("CollaboratorId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CompanyAddress")
                         .IsRequired()
@@ -333,6 +472,10 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
+                    b.HasIndex("CollaboratorId");
+
                     b.HasIndex("Email");
 
                     b.HasIndex("PartnerCode")
@@ -402,6 +545,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Category")
                         .HasColumnType("integer");
 
@@ -445,9 +591,26 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("PartnerId");
 
                     b.ToTable("PartnerProducts", (string)null);
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.PostTag", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("PostTags", (string)null);
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.PurchaseRequest", b =>
@@ -461,6 +624,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<Guid?>("AssignedTo")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BusinessFieldId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -538,9 +704,271 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("PurchaseRequests", (string)null);
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SocialComment");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialLike", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LikedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SocialLike");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CommentsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CurrentParticipants")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EventDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Images")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAnswered")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsOnline")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("MaxParticipants")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PinnedUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Priority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(2);
+
+                    b.Property<int>("Privacy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("SharesCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Type")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsDeleted");
+
+                    b.HasIndex("Privacy");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("SocialPosts", (string)null);
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialShare", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ShareNote")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SharedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SocialShare");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.User", b =>
@@ -615,46 +1043,81 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("FlashOffer.API.Domain.Entities.CtvRegistration", b =>
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.Collaborator", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.Collaborator", "ParentCollaborator")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentCollaboratorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
+
+                    b.Navigation("ParentCollaborator");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.GroupBuyingRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.OfferRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.Partner", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.Collaborator", null)
+                        .WithMany("Partners")
+                        .HasForeignKey("CollaboratorId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
 
                     b.Navigation("User");
                 });
@@ -672,24 +1135,136 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.PartnerProduct", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.Partner", "Partner")
                         .WithMany("Products")
                         .HasForeignKey("PartnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.PostTag", b =>
+                {
+                    b.HasOne("FlashOffer.API.Domain.Entities.SocialPost", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.Tag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.PurchaseRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialComment", b =>
+                {
+                    b.HasOne("FlashOffer.API.Domain.Entities.SocialComment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.SocialPost", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialLike", b =>
+                {
+                    b.HasOne("FlashOffer.API.Domain.Entities.SocialPost", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialPost", b =>
+                {
+                    b.HasOne("FlashOffer.API.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialShare", b =>
+                {
+                    b.HasOne("FlashOffer.API.Domain.Entities.SocialPost", "Post")
+                        .WithMany("Shares")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.Collaborator", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Partners");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.Partner", b =>
@@ -697,6 +1272,27 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                     b.Navigation("Commission");
 
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialComment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialPost", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("PostTags");
+
+                    b.Navigation("Shares");
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("PostTags");
                 });
 #pragma warning restore 612, 618
         }
