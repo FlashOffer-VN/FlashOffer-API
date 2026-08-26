@@ -7,6 +7,7 @@ using FlashOffer.API.Shared.Common.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Scrutor;
 
 namespace FlashOffer.API.Application;
 
@@ -15,8 +16,20 @@ public static class DependencyInjection
 	public static IServiceCollection AddApplicationServices(
 		this IServiceCollection services)
 	{
-		// Add AutoMapper
-		services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(DependencyInjection).Assembly)
+            .AddClasses(classes => classes.AssignableTo<IBusinessFieldService>())
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(DependencyInjection).Assembly)
+            .AddClasses(classes => classes.Where(t => t.Name.EndsWith("Service")))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        // Add AutoMapper
+        services.AddAutoMapper(typeof(DependencyInjection).Assembly);
 
 		// Add FluentValidation
 		services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -37,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<ISocialService, SocialService>();
         services.AddScoped<ICollaboratorService, CollaboratorService>();
         services.AddScoped<ISocialInteractionService, SocialInteractionService>();
+        services.AddScoped<IBusinessFieldService, BusinessFieldService>();
 
         return services;
 	}

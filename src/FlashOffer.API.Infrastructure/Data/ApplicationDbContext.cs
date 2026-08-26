@@ -27,6 +27,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<SocialPost> SocialPosts { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<PostTag> PostTags { get; set; }
+    public DbSet<BusinessField> BusinessFields { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
