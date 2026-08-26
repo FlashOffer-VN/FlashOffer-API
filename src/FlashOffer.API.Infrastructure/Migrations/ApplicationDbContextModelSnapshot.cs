@@ -3,7 +3,6 @@ using System;
 using FlashOffer.API.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,11 +11,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlashOffer.API.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260825154502_AddBusinessFieldToCollaborator")]
-    partial class AddBusinessFieldToCollaborator
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,6 +21,55 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.BusinessField", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Aliases")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_BusinessFields_NormalizedName");
+
+                    b.ToTable("BusinessFields", (string)null);
+                });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.Collaborator", b =>
                 {
@@ -40,7 +86,10 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("BusinessField")
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessFieldName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
@@ -135,6 +184,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasFilter("[Email] IS NOT NULL");
@@ -158,6 +209,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BusinessFieldId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -217,6 +271,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("GroupBuyingRequests");
@@ -226,6 +282,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BusinessFieldId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -305,6 +364,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("OfferRequests", (string)null);
@@ -318,6 +379,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("BusinessType")
                         .HasColumnType("integer");
@@ -405,6 +469,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("CollaboratorId");
 
                     b.HasIndex("Email");
@@ -476,6 +542,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BusinessFieldId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Category")
                         .HasColumnType("integer");
 
@@ -519,6 +588,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldId");
+
                     b.HasIndex("PartnerId");
 
                     b.ToTable("PartnerProducts", (string)null);
@@ -550,6 +621,9 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<Guid?>("AssignedTo")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BusinessFieldId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -626,6 +700,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessFieldId");
 
                     b.HasIndex("UserId");
 
@@ -966,6 +1042,10 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.Collaborator", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.Collaborator", "ParentCollaborator")
                         .WithMany("Children")
                         .HasForeignKey("ParentCollaboratorId")
@@ -977,6 +1057,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("ParentCollaborator");
 
                     b.Navigation("User");
@@ -984,28 +1066,44 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.GroupBuyingRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.OfferRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("BusinessField");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.Partner", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.Collaborator", null)
                         .WithMany("Partners")
                         .HasForeignKey("CollaboratorId");
@@ -1015,6 +1113,8 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
 
                     b.Navigation("User");
                 });
@@ -1032,11 +1132,17 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.PartnerProduct", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.Partner", "Partner")
                         .WithMany("Products")
                         .HasForeignKey("PartnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
 
                     b.Navigation("Partner");
                 });
@@ -1062,11 +1168,17 @@ namespace FlashOffer.API.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.PurchaseRequest", b =>
                 {
+                    b.HasOne("FlashOffer.API.Domain.Entities.BusinessField", "BusinessField")
+                        .WithMany()
+                        .HasForeignKey("BusinessFieldId");
+
                     b.HasOne("FlashOffer.API.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("BusinessField");
 
                     b.Navigation("User");
                 });

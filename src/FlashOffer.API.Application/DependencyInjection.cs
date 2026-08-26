@@ -1,13 +1,15 @@
 using AutoMapper;
+using FlashOffer.API.Application.Common.Behaviors;
 using FlashOffer.API.Application.Common.Configurations;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Services;
 using FlashOffer.API.Infrastructure.Services;
 using FlashOffer.API.Shared.Common.Interfaces;
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 using Scrutor;
+using System.Reflection;
 
 namespace FlashOffer.API.Application;
 
@@ -34,7 +36,14 @@ public static class DependencyInjection
 		// Add FluentValidation
 		services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-		services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+        });
 
 		// JWT Service
 		services.AddScoped<IJwtService, JwtService>();

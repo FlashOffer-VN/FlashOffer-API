@@ -16,7 +16,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 		_currentUserService = currentUserService;
 	}
 
-	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+    DatabaseFacade IApplicationDbContext.Database => Database;
+    public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
 	public DbSet<GroupBuyingRequest> GroupBuyingRequests { get; set; }
 	public DbSet<OfferRequest> OfferRequests { get; set; }
     public DbSet<Collaborator> Collaborators { get; set; }

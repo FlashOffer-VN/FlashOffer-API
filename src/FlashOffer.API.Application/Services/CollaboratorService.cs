@@ -246,9 +246,4 @@ public class CollaboratorService : ICollaboratorService
         _repository.Restore(collaborator);
         await _repository.SaveChangesAsync();
     }
-
-    private string GenerateReferralCode()
-    {
-        return $"CTV{DateTime.Now.Ticks:X8}{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
-    }
 }
