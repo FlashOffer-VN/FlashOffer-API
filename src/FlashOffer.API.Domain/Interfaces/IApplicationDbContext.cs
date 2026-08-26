@@ -8,6 +8,6 @@ public interface IApplicationDbContext
     DbSet<T> Set<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    // ✅ Thêm property Database
+
     Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
 }

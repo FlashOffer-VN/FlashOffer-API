@@ -1,7 +1,8 @@
-﻿using FlashOffer.API.Domain.Interfaces;
-using FlashOffer.API.Domain.Entities;
+﻿using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Shared.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Reflection;
 
 namespace FlashOffer.API.Infrastructure.Data;
