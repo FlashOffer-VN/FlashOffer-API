@@ -1,6 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Remove="Common\NewFolder\**" />
+    <EmbeddedResource Remove="Common\NewFolder\**" />
+    <None Remove="Common\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="FlashOffer.API.Application.csproj.Backup.tmp" />
   </ItemGroup>
 
@@ -16,7 +22,6 @@
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" />
-    <PackageReference Include="Scrutor" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 

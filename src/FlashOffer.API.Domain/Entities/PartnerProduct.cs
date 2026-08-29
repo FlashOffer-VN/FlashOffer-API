@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Domain.Enums;
+﻿// PartnerProduct.cs
+using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Domain.Entities;
 
@@ -12,9 +13,6 @@ public class PartnerProduct : BaseEntity
     public decimal WholesalePrice { get; set; }
     public int MinOrderQuantity { get; set; }
 
-    public Guid? BusinessFieldId { get; set; }
-
     // Navigation
     public virtual Partner Partner { get; set; } = null!;
-    public virtual BusinessField? BusinessField { get; set; }
 }
