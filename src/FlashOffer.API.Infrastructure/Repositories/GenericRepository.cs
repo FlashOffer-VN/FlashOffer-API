@@ -6,34 +6,37 @@ using FlashOffer.API.Domain.Entities;
 
 namespace FlashOffer.API.Infrastructure.Repositories;
 
-/// <summary>
-/// Generic Repository với Auto-Save - Tự động lưu khi gọi Add/Update/Delete
-/// </summary>
 public class GenericRepository<T> : IRepository<T> where T : class
 {
     protected readonly IApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
-    protected readonly IUnitOfWork _unitOfWork;
 
-    public GenericRepository(IApplicationDbContext context, IUnitOfWork unitOfWork)
+    public GenericRepository(IApplicationDbContext context)
     {
         _context = context;
         _dbSet = context.Set<T>();
-        _unitOfWork = unitOfWork;
     }
 
     // ========== QUERY METHODS ==========
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+    {
+        return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+    }
 
     public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
-        => await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+    {
+        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+    }
 
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await _dbSet.ToListAsync(cancellationToken);
+    {
+        return await _dbSet.ToListAsync(cancellationToken);
+    }
 
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
-        => await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+    {
+        return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+    }
 
     // ========== PAGED METHODS ==========
     public async Task<PagedList<T>> GetPagedAsync(
@@ -43,7 +46,8 @@ public class GenericRepository<T> : IRepository<T> where T : class
         CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (predicate != null) query = query.Where(predicate);
+        if (predicate != null)
+            query = query.Where(predicate);
         return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
     }
 
@@ -56,7 +60,8 @@ public class GenericRepository<T> : IRepository<T> where T : class
         CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (predicate != null) query = query.Where(predicate);
+        if (predicate != null)
+            query = query.Where(predicate);
         if (orderBy != null)
             query = isDescending ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
         return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
@@ -72,8 +77,10 @@ public class GenericRepository<T> : IRepository<T> where T : class
         CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (includes != null) query = includes(query);
-        if (predicate != null) query = query.Where(predicate);
+        if (includes != null)
+            query = includes(query);
+        if (predicate != null)
+            query = query.Where(predicate);
         if (orderBy != null)
             query = isDescending ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
         return await PagedList<T>.CreateAsync(query, pageNumber, pageSize);
@@ -83,7 +90,8 @@ public class GenericRepository<T> : IRepository<T> where T : class
     public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (predicate != null) query = query.Where(predicate);
+        if (predicate != null)
+            query = query.Where(predicate);
         return await query.CountAsync(cancellationToken);
     }
 
@@ -93,7 +101,8 @@ public class GenericRepository<T> : IRepository<T> where T : class
         CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (includes != null) query = includes(query);
+        if (includes != null)
+            query = includes(query);
         return await query.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
@@ -105,18 +114,24 @@ public class GenericRepository<T> : IRepository<T> where T : class
         CancellationToken cancellationToken = default)
     {
         IQueryable<T> query = _dbSet;
-        if (predicate != null) query = query.Where(predicate);
-        if (includes != null) query = includes(query);
+        if (predicate != null)
+            query = query.Where(predicate);
+        if (includes != null)
+            query = includes(query);
         if (orderBy != null)
             query = isDescending ? query.OrderByDescending(orderBy) : query.OrderBy(orderBy);
         return await query.ToListAsync(cancellationToken);
     }
 
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
-        => await _dbSet.AnyAsync(predicate, cancellationToken);
+    {
+        return await _dbSet.AnyAsync(predicate, cancellationToken);
+    }
 
     public async Task<IEnumerable<T>> FromSqlRawAsync(string sql, params object[] parameters)
-        => await _dbSet.FromSqlRaw(sql, parameters).ToListAsync();
+    {
+        return await _dbSet.FromSqlRaw(sql, parameters).ToListAsync();
+    }
 
     public async Task<IEnumerable<T>> GetDeletedAsync(CancellationToken cancellationToken = default)
     {
@@ -129,67 +144,25 @@ public class GenericRepository<T> : IRepository<T> where T : class
         return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    // ========== COMMAND METHODS - AUTO SAVE ==========
+    // ========== COMMAND METHODS ==========
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-    }
-
-    public void Add(T entity)
-    {
-        _dbSet.Add(entity);
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
     }
 
     public async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddRangeAsync(entities, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-    }
-
-    public void AddRange(IEnumerable<T> entities)
-    {
-        _dbSet.AddRange(entities);
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        _dbSet.Update(entity);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     public void Update(T entity)
     {
         _dbSet.Update(entity);
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
-    {
-        _dbSet.UpdateRange(entities);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     public void UpdateRange(IEnumerable<T> entities)
     {
         _dbSet.UpdateRange(entities);
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        if (entity is BaseEntity baseEntity)
-        {
-            baseEntity.IsDeleted = true;
-            _dbSet.Update(entity);
-        }
-        else
-        {
-            _dbSet.Remove(entity);
-        }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     public void Delete(T entity)
@@ -198,55 +171,16 @@ public class GenericRepository<T> : IRepository<T> where T : class
         {
             baseEntity.IsDeleted = true;
             _dbSet.Update(entity);
+            return;
         }
-        else
-        {
-            _dbSet.Remove(entity);
-        }
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
-    {
-        foreach (var entity in entities)
-        {
-            if (entity is BaseEntity baseEntity)
-            {
-                baseEntity.IsDeleted = true;
-                _dbSet.Update(entity);
-            }
-            else
-            {
-                _dbSet.Remove(entity);
-            }
-        }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _dbSet.Remove(entity);
     }
 
     public void DeleteRange(IEnumerable<T> entities)
     {
         foreach (var entity in entities)
         {
-            if (entity is BaseEntity baseEntity)
-            {
-                baseEntity.IsDeleted = true;
-                _dbSet.Update(entity);
-            }
-            else
-            {
-                _dbSet.Remove(entity);
-            }
-        }
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
-    }
-
-    public async Task RestoreAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        if (entity is BaseEntity baseEntity)
-        {
-            baseEntity.IsDeleted = false;
-            _dbSet.Update(entity);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            Delete(entity);
         }
     }
 
@@ -256,42 +190,28 @@ public class GenericRepository<T> : IRepository<T> where T : class
         {
             baseEntity.IsDeleted = false;
             _dbSet.Update(entity);
-            _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
         }
-    }
-
-    public async Task RestoreRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
-    {
-        foreach (var entity in entities)
-        {
-            if (entity is BaseEntity baseEntity)
-            {
-                baseEntity.IsDeleted = false;
-                _dbSet.Update(entity);
-            }
-        }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     public void RestoreRange(IEnumerable<T> entities)
     {
         foreach (var entity in entities)
         {
-            if (entity is BaseEntity baseEntity)
-            {
-                baseEntity.IsDeleted = false;
-                _dbSet.Update(entity);
-            }
+            Restore(entity);
         }
-        _unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => await _unitOfWork.SaveChangesAsync(cancellationToken);
+    {
+        return await _context.SaveChangesAsync(cancellationToken);
+    }
 
     public IQueryable<T> GetQueryable()
-        => _context.Set<T>().AsQueryable();
-
+    {
+        return _context.Set<T>().AsQueryable();
+    }
     public async Task<IQueryable<T>> GetQueryableAsync()
-        => await Task.FromResult(_context.Set<T>().AsQueryable());
+    {
+        return await Task.FromResult(_context.Set<T>().AsQueryable());
+    }
 }

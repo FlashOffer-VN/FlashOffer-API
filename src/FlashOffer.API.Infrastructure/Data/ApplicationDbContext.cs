@@ -1,8 +1,7 @@
-﻿using FlashOffer.API.Domain.Entities;
-using FlashOffer.API.Domain.Interfaces;
+﻿using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Shared.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Reflection;
 
 namespace FlashOffer.API.Infrastructure.Data;
@@ -17,8 +16,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 		_currentUserService = currentUserService;
 	}
 
-    DatabaseFacade IApplicationDbContext.Database => Database;
-    public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+	public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
 	public DbSet<GroupBuyingRequest> GroupBuyingRequests { get; set; }
 	public DbSet<OfferRequest> OfferRequests { get; set; }
     public DbSet<Collaborator> Collaborators { get; set; }
@@ -29,7 +27,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<SocialPost> SocialPosts { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<PostTag> PostTags { get; set; }
-    public DbSet<BusinessField> BusinessFields { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{

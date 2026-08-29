@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Domain.Enums;
+﻿// src/FlashOffer.API.Domain/Entities/OfferRequest.cs
+using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Domain.Entities;
 
@@ -23,11 +24,8 @@ public class OfferRequest : BaseEntity
 
     // Status
     public OfferStatus Status { get; set; } = OfferStatus.Pending;
-    public bool IsOfferSent { get; set; }
-
-    public Guid? BusinessFieldId { get; set; }
+    public bool IsOfferSent { get; set; } // Keep for backward compatibility
 
     // Navigation
     public virtual User User { get; set; } = null!;
-    public virtual BusinessField? BusinessField { get; set; } 
 }

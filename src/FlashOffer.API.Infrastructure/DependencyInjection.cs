@@ -26,11 +26,10 @@ public static class DependencyInjection
 			provider.GetRequiredService<ApplicationDbContext>());
 
 		// Generic repository
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+		services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 
-        // Current User Service
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+		// Current User Service
+		services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 		// HttpContextAccessor
 		services.AddHttpContextAccessor();
