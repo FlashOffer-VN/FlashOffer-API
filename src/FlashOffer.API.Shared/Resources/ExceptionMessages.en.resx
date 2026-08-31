@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ===== USER ===== -->
+  <data name="User_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="User_PhoneAlreadyExists">
+    <value>Phone '{0}' already exists in the system</value>
+  </data>
+  <data name="User_EmailAlreadyExists">
+    <value>Email '{0}' already exists in the system</value>
+  </data>
+
+  <!-- ===== COLLABORATOR ===== -->
+  <data name="Collaborator_NotFound">
+    <value>Collaborator with Id {0} not found</value>
+  </data>
+  <data name="Collaborator_EmailAlreadyExists">
+    <value>Email '{0}' already exists</value>
+  </data>
+  <data name="Collaborator_PhoneAlreadyExists">
+    <value>Phone '{0}' already exists</value>
+  </data>
+  <data name="Collaborator_UserAlreadyExists">
+    <value>User {0} is already a collaborator</value>
+  </data>
+  <data name="Collaborator_ParentNotFound">
+    <value>Parent collaborator with Id {0} not found</value>
+  </data>
+  <data name="Collaborator_ParentNotApproved">
+    <value>Parent collaborator {0} is not approved</value>
+  </data>
+  <data name="Collaborator_LevelExceeded">
+    <value>Collaborator level exceeds maximum {0}</value>
+  </data>
+  <data name="Collaborator_CircularReference">
+    <value>Circular reference detected with parent {0}</value>
+  </data>
+</root>

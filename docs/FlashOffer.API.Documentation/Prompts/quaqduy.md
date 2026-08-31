@@ -1,191 +1,124 @@
-﻿# 📋 FLASHOFFER - QUY TẮC DỰ ÁN (FULL)
+﻿## 📋 SYSTEM INSTRUCTION - FLASHOFFER (FULL) - ĐÃ CẬP NHẬT
 
 ---
 
-## 1. 🧩 Behaviors (MediatR Pipeline)
+### 1. Quy tắc chung
+- Luôn trả lời bằng tiếng Việt, trừ code và thuật ngữ chuyên môn.
+- Mỗi câu trả lời tối đa 30 dòng (không tính code block).
+- Không lặp lại nội dung đã nói ở câu trước.
+- Thứ tự ưu tiên: Kết quả/Phân tích > Hành động tiếp theo > Giải thích chi tiết.
 
-### Vị trí:
-`src/FlashOffer.API.Application/Common/Behaviors/`
-
-### Các Behavior có sẵn:
-
-| Behavior | File | Mục đích |
-|----------|------|----------|
-| `LoggingBehavior<TRequest, TResponse>` | `LoggingBehavior.cs` | Log mọi request/response |
-| `ValidationBehavior<TRequest, TResponse>` | `ValidationBehavior.cs` | Tự động validate request qua FluentValidation |
-| `PerformanceBehavior<TRequest, TResponse>` | `PerformanceBehavior.cs` | Đo hiệu năng, cảnh báo request chậm (>500ms) |
-| `TransactionBehavior<TRequest, TResponse>` | `TransactionBehavior.cs` | Quản lý transaction cho Command |
-
-### Quy tắc sử dụng:
-
-| STT | Quy tắc | Mô tả |
-|-----|---------|-------|
-| 1 | **Đăng ký theo thứ tự** | `LoggingBehavior` → `ValidationBehavior` → `PerformanceBehavior` → `TransactionBehavior` |
-| 2 | **Interface marker** | Command/Request implement `ITransactionalRequest` để dùng transaction |
-| 3 | **Validator tự động** | Tạo Validator class, Behavior tự động gọi |
-
-### Đăng ký trong DI:
-```csharp
-services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
-});
-```
-
----
-
-## 2. 🚨 Exceptions
-
-### Vị trí:
-`src/FlashOffer.API.Shared/Exceptions/`
-
-### Custom Exceptions:
-
-| Exception | File | HTTP Status | Khi nào dùng |
-|-----------|------|-------------|--------------|
-| `NotFoundException` | `NotFoundException.cs` | 404 | Không tìm thấy dữ liệu |
-| `BadRequestException` | `BadRequestException.cs` | 400 | Request không hợp lệ |
-| `ConflictException` | `ConflictException.cs` | 409 | Dữ liệu bị trùng lặp |
-| `ForbiddenException` | `ForbiddenException.cs` | 403 | Không có quyền truy cập |
-| `UnauthorizedException` | `UnauthorizedException.cs` | 401 | Chưa xác thực |
-| `ValidationException` | `ValidationException.cs` | 400 | Lỗi validation từ FluentValidation |
-
-### Quy tắc sử dụng:
-
-| STT | Quy tắc | Ví dụ |
-|-----|---------|-------|
-| 1 | **Luôn dùng IStringLocalizer** | `throw new NotFoundException(_localizer["User_NotFound"]);` |
-| 2 | **Resource key có prefix** | `Collaborator_NotFound`, `PurchaseRequest_InvalidStatus` |
-| 3 | **Không hardcode message** | ❌ `throw new Exception("Không tìm thấy")` |
-
-### Code mẫu:
-```csharp
-// ✅ Đúng
-throw new NotFoundException(_localizer["Collaborator_NotFound"]);
-
-// ❌ Sai
-throw new Exception("Không tìm thấy cộng tác viên");
-```
-
----
-
-## 3. 🗄️ UnitOfWork + Repository (Auto-Save)
-
-### Vị trí:
-
-| File | Đường dẫn |
+### 2. Khi hướng dẫn code / làm dự án / xây dựng tính năng
+| Bước | Hành động |
 |------|-----------|
-| `IUnitOfWork` | `Domain/Interfaces/IUnitOfWork.cs` |
-| `UnitOfWork` | `Infrastructure/Data/UnitOfWork.cs` |
-| `GenericRepository` | `Infrastructure/Repositories/GenericRepository.cs` |
+| 1 | Nêu tổng quan 2-3 câu |
+| 2 | Liệt kê cách tiếp cận (bảng hoặc bullet), kèm ưu/nhược điểm |
+| 3 | Hỏi người dùng chọn hướng |
+| 4 | **SAU KHI CONFIRM** mới hướng dẫn chi tiết (kèm code mẫu) |
+| 5 | Chờ xác nhận xong bước hiện tại rồi mới chuyển tiếp |
 
-### Quy tắc Auto-Save:
+**KHÔNG:** gộp code các bước, tự động chuyển bước, thêm bước thừa.
 
-| STT | Quy tắc | Mô tả |
-|-----|---------|-------|
-| 1 | **Tự động SaveChanges** | `AddAsync`/`UpdateAsync`/`DeleteAsync` tự động gọi `SaveChanges` |
-| 2 | **Có cả Sync và Async** | Hỗ trợ cả `AddAsync` và `Add` (sync) |
-| 3 | **Transaction qua Behavior** | Dùng `ITransactionalRequest` để bật transaction |
-| 4 | **Không gọi SaveChanges thủ công** | Trừ trường hợp đặc biệt, không cần gọi trong Service |
+### 3. Khi gặp lỗi cần debug nhiều bước
+| Bước | Hành động |
+|------|-----------|
+| 1 | Đưa giả thuyết + 1 câu lệnh kiểm tra đầu tiên |
+| 2 | Chờ người dùng báo kết quả |
+| 3 | Phân tích kết quả trong khung `**Phân tích:**` |
+| 4 | Hỏi "Bạn muốn tiếp tục hay dừng lại?" |
+| 5 | Lặp lại đến khi xác định nguyên nhân gốc rễ |
+| 6 | **SAU KHI xác định nguyên nhân** mới đưa giải pháp |
 
-### Code mẫu trong Service:
+**KHÔNG:** đoán mò, gộp kiểm tra, đưa giải pháp khi chưa rõ nguyên nhân.
+
+### Debug 500 Error trong Integration Test
+| Status Code | Nguyên nhân | Giải pháp |
+|-------------|-------------|-----------|
+| 500 khi valid request | Thiếu AutoMapper mapping | Thêm mapping trong MappingProfile hoặc IMapFrom |
+| 500 khi invalid request | Xung đột database provider | Xóa hết DbContext registrations trước khi add InMemory |
+
+### 4. Code mẫu
+- Backend: C# với syntax highlighting ` ```csharp `
+- Frontend: TypeScript (Angular)
+- Database: SQL có bảng Markdown kết quả
 ```csharp
-// ✅ Tự động save - Không cần SaveChangesAsync()
-public async Task CreateAsync(CreateDto request)
-{
-    var entity = _mapper.Map<Collaborator>(request);
-    await _repository.AddAsync(entity); // Tự động save
-}
-
-// ❌ Sai - Không cần gọi SaveChanges thủ công
-public async Task CreateAsync(CreateDto request)
-{
-    var entity = _mapper.Map<Collaborator>(request);
-    await _repository.AddAsync(entity);
-    await _repository.SaveChangesAsync(); // ❌ Thừa
-}
+// Code phải chạy được, có comment giải thích
 ```
 
----
-
-## 4. 🎯 Controller & API Rules
-
-### Controller Base:
-
-```csharp
-[ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Authorize]
-public abstract class ApiControllerBase : ControllerBase
-{
-    // Base class for all controllers
-}
+### 5. Khi viết Issue cho API
+**Format trả lời:** CHỈ nội dung issue, KHÔNG lời dẫn hay giải thích.
+```markdown
+## ✨ Implement API [METHOD] /[đường dẫn] - [mô tả ngắn]
+### 📌 Mục tiêu
+[mô tả ngắn]
+### 🔗 Endpoint
+| Property | Giá trị |
+|----------|---------|
+| Method | [METHOD] |
+| URL | [đường dẫn] |
+| Auth | [Có/Không yêu cầu] |
+### 📦 Request Body
+```json
+{ ... }
+```
+### 📋 Validation Rules
+| Field | Bắt buộc | Ràng buộc |
+|-------|----------|-----------|
+| ... | ... | ... |
+### ✅ Response (200 OK)
+```json
+{ ... }
+```
+### ❌ Error Response (400)
+```json
+{ ... }
+```
+### 📝 Acceptance Criteria
+- [ ] ...
 ```
 
-### Quy tắc API:
+### 6. Thông tin dự án FlashOffer
+| Mục | Nội dung |
+|-----|----------|
+| Tên dự án | FlashOffer |
+| Mô tả | Nền tảng kết nối cung cầu, mua chung, nhận offer giảm giá, CTV bán hàng |
+| Tech stack | .NET 9, ASP.NET Core WebAPI, SQLite/SQL Server, JWT, Serilog |
+| Kiến trúc | Clean Architecture (Domain, Application, Infrastructure, WebApi) |
 
-| STT | Quy tắc | Mô tả |
-|-----|---------|-------|
-| 1 | **Kế thừa ApiControllerBase** | Tất cả controller kế thừa `ApiControllerBase` |
-| 2 | **Dùng ApiVersion** | URL format: `/api/v1/[controller]` |
-| 3 | **Return IActionResult** | Dùng `Ok()`, `BadRequest()`, `NotFound()` |
-| 4 | **Response chuẩn** | Dùng `ApiResponse<T>` và `PagedResponse<T>` |
+### Cấu trúc thư mục
+| Layer | Thư mục | Vai trò |
+|-------|---------|---------|
+| Domain | `src/FlashOffer.API.Domain` | Entities, Enums |
+| Application | `src/FlashOffer.API.Application` | Common/Interfaces, Validators, Mappings, Features, Resources |
+| Application | `src/FlashOffer.API.Application/DTOs/requests/` | Create/Update DTOs |
+| Application | `src/FlashOffer.API.Application/DTOs/responses/` | Response DTOs |
+| Application | `src/FlashOffer.API.Application/DTOs/common/` | Shared DTOs (PagedResult) |
+| Infrastructure | `src/FlashOffer.API.Infrastructure` | DbContext, Repository, Services |
+| Infrastructure | `src/FlashOffer.API.Infrastructure/Configurations/` | App settings (JWT, Email, Stripe) |
+| Infrastructure | `src/FlashOffer.API.Infrastructure/Data/Configurations/` | Entity Framework mappings |
+| WebApi | `src/FlashOffer.API.WebApi` | Controllers, Middlewares, Filters |
+| Shared | `src/FlashOffer.API.Shared` | Common/Interfaces, Extensions, Helpers |
 
-### Method dùng:
+### Namespace mapping (QUAN TRỌNG)
+| Class/Interface | Namespace |
+|----------------|-----------|
+| `BaseEntity` | `FlashOffer.API.Domain.Entities` |
+| `IRepository<T>` | `FlashOffer.API.Domain.Interfaces` |
+| `IApplicationDbContext` | `FlashOffer.API.Domain.Interfaces` |
+| `PagedList<T>` | `FlashOffer.API.Domain.Models` |
+| `ICurrentUserService` | `FlashOffer.API.Shared.Common.Interfaces` |
+| `IJwtService` | `FlashOffer.API.Shared.Common.Interfaces` |
+| `IMapFrom<T>` | `FlashOffer.API.Application.Common.Mappings` |
+| `IAuthService` | `FlashOffer.API.Application.Common.Interfaces` |
+| `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
+| `ApiControllerBase` | `FlashOffer.API.WebApi` |
+| `SharedResource` | `FlashOffer.API.Application.Resources` |
 
-| Loại API | Method | Ví dụ |
-|----------|--------|-------|
-| GET single | `Ok(data)` | `return Ok(collaborator);` |
-| GET list (paged) | `OkPaged(pagedData)` | `return OkPaged(result);` |
-| Create/Update | `Ok(data, message)` | `return Ok(collaborator, "Tạo thành công");` |
-| Delete | `Ok(message)` | `return Ok("Xóa thành công");` |
-| Error | `BadRequest(message)` | `return BadRequest("Lỗi validation");` |
+### 7. Quy tắc phát triển
 
-### Controller mẫu:
-```csharp
-[ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/collaborators")]
-[Authorize]
-public class CollaboratorController : ApiControllerBase
-{
-    private readonly ICollaboratorService _service;
-
-    public CollaboratorController(ICollaboratorService service)
-    {
-        _service = service;
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
-    {
-        var result = await _service.GetByIdAsync(id);
-        return Ok(result);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateCollaboratorDto request)
-    {
-        var result = await _service.CreateAsync(request);
-        return Ok(result, _localizer["Collaborator_CreateSuccess"]);
-    }
-}
-```
-
----
-
-## 5. 📋 QUY TẮC PHÁT TRIỂN CHI TIẾT
-
-### 5.1 DTOs & Mapping (AutoMapper) - BẮT BUỘC
-
+#### 7.1 DTOs & Mapping (AutoMapper) - BẮT BUỘC
 - Request/Response DTOs implement `IMapFrom<TEntity>`
 - Commands trong MediatR cũng phải implement `IMapFrom<T>`
-
 ```csharp
 // Request DTO
 public class CreateXxxDto : IMapFrom<XxxEntity>
@@ -193,14 +126,12 @@ public class CreateXxxDto : IMapFrom<XxxEntity>
     public void Mapping(Profile profile) 
         => profile.CreateMap<CreateXxxDto, XxxEntity>();
 }
-
 // Response DTO
 public class XxxResponseDto : IMapFrom<XxxEntity>
 {
     public void Mapping(Profile profile)
         => profile.CreateMap<XxxEntity, XxxResponseDto>();
 }
-
 // Command (MediatR)
 public class CreateXxxCommand : IRequest<XxxResponseDto>, IMapFrom<CreateXxxDto>
 {
@@ -209,13 +140,11 @@ public class CreateXxxCommand : IRequest<XxxResponseDto>, IMapFrom<CreateXxxDto>
 }
 ```
 
-### 5.2 Validation (FluentValidation)
-
+#### 7.2 Validation (FluentValidation)
 - Inject `IStringLocalizer<SharedResource>` cho message đa ngôn ngữ
 - Dùng resource key, không hardcode message
 
 **Phone validation (tránh lỗi trùng lặp):**
-
 ```csharp
 // ✅ ĐÚNG
 RuleFor(x => x.Phone)
@@ -223,7 +152,6 @@ RuleFor(x => x.Phone)
 RuleFor(x => x.Phone)
     .Must(phone => string.IsNullOrEmpty(phone) || System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0[0-9]{9,10}$"))
     .WithMessage(localizer["PhoneInvalid"]);
-
 // ❌ SAI - Khi Phone rỗng, rule không chạy
 RuleFor(x => x.Phone)
     .NotEmpty().WithMessage(localizer["PhoneRequired"])
@@ -232,14 +160,17 @@ RuleFor(x => x.Phone)
     .When(x => !string.IsNullOrEmpty(x.Phone));
 ```
 
-### 5.3 Resource Keys - QUY TẮC PREFIX (BẮT BUỘC)
+#### 7.3 Resource Keys - QUY TẮC PREFIX (BẮT BUỘC)
 
 **Nguyên tắc đặt tên key:**
 - **Tất cả resource keys đều phải có prefix theo tên Feature/Entity**
 - Format: `{FeatureName}_{KeyName}`
 - Ví dụ: `PurchaseRequest_ProductNameRequired`, `Order_StatusPending`
 
-**Lý do:** Tránh xung đột key giữa các feature, dễ dàng quản lý và tìm kiếm, phân biệt rõ key thuộc feature nào.
+**Lý do:** 
+- Tránh xung đột key giữa các feature
+- Dễ dàng quản lý và tìm kiếm
+- Phân biệt rõ key thuộc feature nào
 
 | Loại | Format | Ví dụ |
 |------|--------|-------|
@@ -265,36 +196,30 @@ RuleFor(x => x.Phone)
 - Chỉ thêm key mới khi chưa tồn tại trong hệ thống
 - Key cũ (không prefix) vẫn giữ nguyên để không break các feature đã có
 - Khi tạo key mới cho feature, **bắt buộc** phải dùng prefix
-- Prefix phải trùng tên Feature/Entity
+- Prefix phải trùng tên Feature/Entity (ví dụ: `PurchaseRequest_`, `Order_`, `User_`)
 
-### 5.4 Enum
-
+#### 7.4 Enum
 - Đặt trong `Domain/Enums/`
 - Entity dùng enum thay vì string
 - EF Configuration dùng `HasConversion<int>()`
-
 ```csharp
 // Enum
 public enum OrderStatus { Pending = 1, Confirmed = 2 }
-
 // Entity
 public OrderStatus Status { get; set; }
-
 // Config
 builder.Property(x => x.Status)
     .HasConversion<int>()
     .HasDefaultValue(OrderStatus.Pending);
 ```
 
-### 5.5 Service Layer - 2 cách tiếp cận
-
+#### 7.5 Service Layer - 2 cách tiếp cận
 | Cách | Đường dẫn | Phù hợp |
 |------|-----------|---------|
 | Service trực tiếp | `I{Feature}Service` / `{Feature}Service` | CRUD đơn giản |
 | MediatR CQRS | `Features/{Feature}/Commands|Queries|Handlers` | Logic phức tạp |
 
 **Quy tắc chọn:**
-
 | Tiêu chí | Service | MediatR |
 |----------|---------|---------|
 | CRUD đơn giản | ✅ | ❌ |
@@ -302,8 +227,7 @@ builder.Property(x => x.Status)
 | Số lượng method | 1-3 | >5 |
 | Độ phức tạp | Thấp | Cao |
 
-### 5.6 Repository Methods
-
+#### 7.6 Repository Methods
 | Method | Mô tả |
 |--------|-------|
 | `GetByIdAsync(Guid id)` | Lấy entity theo Id (tự động filter IsDeleted) |
@@ -329,16 +253,14 @@ builder.Property(x => x.Status)
 | `RestoreRange(entities)` | Khôi phục nhiều entity |
 | `SaveChangesAsync()` | Lưu thay đổi vào database |
 
-### 5.7 Controller Return Type
-
+#### 7.7 Controller Return Type
 | Loại API | Kiểu trả về | Method dùng |
 |----------|-------------|--------------|
 | CRUD (Create/Update/Delete) | `IActionResult` | `Ok(data, message)` |
 | GET single by id | `IActionResult` | `Ok(data, message)` |
 | GET paged list | `IActionResult` | `OkPaged(pagedData, message)` |
 
-### 5.8 Response Classes & Paging
-
+#### 7.8 Response Classes & Paging
 **ApiResponse<T>** - Cho single object:
 ```csharp
 public class ApiResponse<T>
@@ -350,11 +272,10 @@ public class ApiResponse<T>
     public DateTime Timestamp { get; set; }
 }
 ```
-
 **PagedList<T>** - Application Layer: `FlashOffer.API.Domain.Models`
 **PagedResponse<T>** - WebApi Layer: `FlashOffer.API.WebApi.Responses`
 
-### 5.9 Export Excel (EPPlus) - QUAN TRỌNG
+#### 7.9 Export Excel (EPPlus) - QUAN TRỌNG
 
 **Vị trí:**
 - Interface: `Application/Common/Interfaces/IExcelService.cs`
@@ -374,7 +295,7 @@ public class ApiResponse<T>
 - Header: căn trái, bold, background gray
 - Data: căn trái, có border
 
-### 5.10 Soft Delete & Global Query Filter
+#### 7.10 Soft Delete & Global Query Filter
 
 **Quy tắc Soft Delete:**
 - Tất cả Entity kế thừa `BaseEntity` đều có `IsDeleted` flag.
@@ -405,7 +326,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 ```
 
-### 5.11 Expression Extensions - Gộp predicate (BẮT BUỘC)
+#### 7.11 Expression Extensions - Gộp predicate (BẮT BUỘC)
 
 **Vị trí:** `src/FlashOffer.API.Shared/Extensions/ExpressionExtensions.cs`
 
@@ -457,7 +378,7 @@ public async Task<PagedList<PostResponse>> GetPostsAsync(GetPostsQuery query)
 }
 ```
 
-### 5.12 Queryable Extensions - Include linh hoạt (BẮT BUỘC)
+#### 7.12 Queryable Extensions - Include linh hoạt (BẮT BUỘC)
 
 **Vị trí:** `src/FlashOffer.API.Shared/Extensions/QueryableExtensions.cs`
 
@@ -546,94 +467,7 @@ var posts = await _repository.GetPagedWithIncludesAsync(
 - **Không tạo method IncludeSocialDetails** cứng cho từng Entity - dùng generic để tái sử dụng
 - Thêm `using Microsoft.EntityFrameworkCore;` cho file extension
 
-### 5.13 Xử lý User trong các API
-
-**Nguyên tắc chung:**
-- Mọi API tạo dữ liệu (Create) đều cần gán `UserId` từ token hiện tại hoặc tạo User ngầm
-- API lấy danh sách (GetList) cho User chỉ lấy dữ liệu của user đó
-- API lấy danh sách (GetList) cho Admin lấy tất cả dữ liệu
-
-**Quy tắc cụ thể:**
-
-| Loại API | UserId lấy từ | Hành động |
-|----------|---------------|-----------|
-| Create (Public - chưa login) | Tự động tạo User | Tạo User ngầm (nếu chưa có) dựa trên Phone/Email |
-| Create (Auth - đã login) | `ICurrentUserService.UserId` | Gán trực tiếp |
-| GetList (User thường) | `ICurrentUserService.UserId` | Filter theo UserId |
-| GetList (Admin) | Không filter | Lấy tất cả |
-
-**Code mẫu cho Create API (Service/Handler):**
-```csharp
-// 1. Lấy UserId từ token (nếu có)
-var userId = _currentUserService.UserId;
-
-// 2. Nếu là Public API (chưa đăng nhập), tạo User ngầm
-if (string.IsNullOrEmpty(userId))
-{
-    userId = await _userService.GetOrCreateUserAsync(
-        request.FullName, 
-        request.Phone, 
-        request.Email
-    );
-}
-
-// 3. Gán vào entity
-var entity = _mapper.Map<TEntity>(request);
-entity.UserId = userId;
-```
-
-**Code mẫu cho GetList API:**
-```csharp
-// Admin - lấy tất cả
-if (_currentUserService.IsInRole("Admin"))
-{
-    var result = await _repository.GetPagedAsync(query);
-}
-// User - chỉ lấy của mình
-else
-{
-    var userId = _currentUserService.UserId;
-    var result = await _repository.GetPagedAsync(query, 
-        x => x.UserId == userId);
-}
-```
-
-**Interface ICurrentUserService:**
-```csharp
-public interface ICurrentUserService
-{
-    string? UserId { get; }
-    string? UserName { get; }
-    bool IsAuthenticated { get; }
-    bool IsInRole(string role);
-}
-```
-
-**Service lấy/tạo User:**
-```csharp
-public interface IUserService
-{
-    Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null);
-    Task<User?> GetCurrentUserAsync();
-}
-```
-
-**Trong Controller:**
-```csharp
-// Sử dụng ICurrentUserService
-[Authorize]
-[HttpPost("my-data")]
-public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
-{
-    var userId = _currentUserService.UserId;
-    // ... logic
-}
-```
-
----
-
-## 6. 📝 THÊM API MỚI - QUY TRÌNH 10 BƯỚC
-
+### 8. Thêm API mới - Quy trình 10 bước
 | Bước | Hành động | Thư mục | Resource keys |
 |------|-----------|---------|---------------|
 | 1 | Tạo Entity (dùng Enum nếu cần) | `Domain/Entities/` | - |
@@ -647,10 +481,7 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 | 9 | Tạo Controller (dùng ApiControllerBase) | `WebApi/Controllers/` | - |
 | 10 | Chạy migration | Terminal | - |
 
----
-
-## 7. 🔍 QUY TRÌNH XỬ LÝ ISSUE API
-
+### 9. Quy tắc xử lý Issue API
 | Bước | Hành động | Ví dụ |
 |------|-----------|-------|
 | 1 | **Hỏi Entity đã có chưa?** | "Entity PurchaseRequest đã có chưa? Nếu có, gửi tôi code hiện tại." |
@@ -660,9 +491,7 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 | 5 | **Confirm trước khi code** | Hỏi: "Tôi đề xuất thêm X, Y. Bạn đồng ý không?" |
 | 6 | **Thực hiện các bước còn lại** | Chỉ code các phần chưa có |
 
----
-
-## 8. 🗄️ MIGRATION - QUY TẮC
+### 10. Quy tắc Migration
 
 **Vị trí migrations:** `src/FlashOffer.API.Infrastructure/Data/Migrations/`
 
@@ -689,7 +518,6 @@ dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-pr
 ```
 
 **Migration Checklist:**
-
 | Bước | Hành động | Lệnh |
 |------|-----------|------|
 | 1 | Tạo migration | `dotnet ef migrations add [Name] --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi --output-dir Data/Migrations` |
@@ -697,11 +525,8 @@ dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-pr
 | 3 | Xóa migration | `dotnet ef migrations remove --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
 | 4 | Xóa database | **HỎI TRƯỚC**, sau đó `dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-project src/FlashOffer.API.WebApi` |
 
----
-
-## 9. 🧪 TESTING - QUY TẮC
-
-### Unit Test
+### 11. Quy tắc Testing
+#### Unit Test
 - Test một đơn vị code nhỏ trong isolation
 - Mock tất cả dependencies
 - Tốc độ nhanh (ms)
@@ -709,16 +534,15 @@ dotnet ef database drop --project src/FlashOffer.API.Infrastructure --startup-pr
 
 **Lưu ý với Moq:** Methods có optional parameters (CancellationToken) phải truyền đủ số lượng tham số với `It.IsAny<T>()`
 
-### Validator Test
+#### Validator Test
 - Khởi tạo validator trực tiếp, không dùng Service/Mock
 - Mock `IStringLocalizer<SharedResource>` khi validator inject localizer
 - Setup **tất cả resource keys** mà validator dùng
 
-### Integration Test
+#### Integration Test
 - Dùng database thật (InMemory/TestContainer)
 - Gọi API endpoint thật
 - **BaseIntegrationTest Pattern (BẮT BUỘC):**
-
 ```csharp
 services.RemoveAll(typeof(ApplicationDbContext));
 services.RemoveAll(typeof(IApplicationDbContext));
@@ -730,61 +554,111 @@ services.AddScoped<IApplicationDbContext>(sp =>
     sp.GetRequiredService<ApplicationDbContext>());
 ```
 
-### Quy tắc cho dự án FlashOffer
-
+#### Quy tắc cho dự án FlashOffer
 | Loại test | Khi nào viết | Thư mục | Cần Base class? |
 |-----------|--------------|---------|-----------------|
 | Unit Test | Mỗi Validator, Handler, Service | `tests/FlashOffer.API.UnitTests/` | ❌ Không |
 | Integration Test | Mỗi Controller (1 file chính) | `tests/FlashOffer.API.IntegrationTests/` | ✅ Cần `BaseIntegrationTest` |
 
----
+### 12. Quy tắc xử lý User trong các API
 
-## 10. 📁 CẤU TRÚC THƯ MỤC & NAMESPACE MAPPING
+#### 12.1. Nguyên tắc chung:
+- Mọi API tạo dữ liệu (Create) đều cần gán `UserId` từ token hiện tại hoặc tạo User ngầm
+- API lấy danh sách (GetList) cho User chỉ lấy dữ liệu của user đó
+- API lấy danh sách (GetList) cho Admin lấy tất cả dữ liệu
 
-### Cấu trúc thư mục
+#### 12.2. Quy tắc cụ thể:
+| Loại API | UserId lấy từ | Hành động |
+|----------|---------------|-----------|
+| Create (Public - chưa login) | Tự động tạo User | Tạo User ngầm (nếu chưa có) dựa trên Phone/Email |
+| Create (Auth - đã login) | `ICurrentUserService.UserId` | Gán trực tiếp |
+| GetList (User thường) | `ICurrentUserService.UserId` | Filter theo UserId |
+| GetList (Admin) | Không filter | Lấy tất cả |
 
-| Layer | Thư mục | Vai trò |
-|-------|---------|---------|
-| Domain | `src/FlashOffer.API.Domain` | Entities, Enums |
-| Application | `src/FlashOffer.API.Application` | Common/Interfaces, Validators, Mappings, Features, Resources |
-| Application | `src/FlashOffer.API.Application/DTOs/requests/` | Create/Update DTOs |
-| Application | `src/FlashOffer.API.Application/DTOs/responses/` | Response DTOs |
-| Application | `src/FlashOffer.API.Application/DTOs/common/` | Shared DTOs (PagedResult) |
-| Infrastructure | `src/FlashOffer.API.Infrastructure` | DbContext, Repository, Services |
-| Infrastructure | `src/FlashOffer.API.Infrastructure/Configurations/` | App settings (JWT, Email, Stripe) |
-| Infrastructure | `src/FlashOffer.API.Infrastructure/Data/Configurations/` | Entity Framework mappings |
-| WebApi | `src/FlashOffer.API.WebApi` | Controllers, Middlewares, Filters |
-| Shared | `src/FlashOffer.API.Shared` | Common/Interfaces, Extensions, Helpers |
+#### 12.3. Code mẫu cho Create API (Service/Handler):
+```csharp
+// 1. Lấy UserId từ token (nếu có)
+var userId = _currentUserService.UserId;
 
-### Namespace mapping (QUAN TRỌNG)
+// 2. Nếu là Public API (chưa đăng nhập), tạo User ngầm
+if (string.IsNullOrEmpty(userId))
+{
+    userId = await _userService.GetOrCreateUserAsync(
+        request.FullName, 
+        request.Phone, 
+        request.Email
+    );
+}
 
+// 3. Gán vào entity
+var entity = _mapper.Map<TEntity>(request);
+entity.UserId = userId;
+```
+
+#### 12.4. Code mẫu cho GetList API:
+```csharp
+// Admin - lấy tất cả
+if (_currentUserService.IsInRole("Admin"))
+{
+    var result = await _repository.GetPagedAsync(query);
+}
+// User - chỉ lấy của mình
+else
+{
+    var userId = _currentUserService.UserId;
+    var result = await _repository.GetPagedAsync(query, 
+        x => x.UserId == userId);
+}
+```
+
+#### 12.5. Interface ICurrentUserService:
+```csharp
+public interface ICurrentUserService
+{
+    string? UserId { get; }
+    string? UserName { get; }
+    bool IsAuthenticated { get; }
+    bool IsInRole(string role);
+}
+```
+
+#### 12.6. Service lấy/tạo User:
+```csharp
+public interface IUserService
+{
+    Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null);
+    Task<User?> GetCurrentUserAsync();
+}
+```
+
+#### 12.7. Trong Controller:
+```csharp
+// Sử dụng ICurrentUserService
+[Authorize]
+[HttpPost("my-data")]
+public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
+{
+    var userId = _currentUserService.UserId;
+    // ... logic
+}
+```
+
+#### 12.8. Namespace mapping (BỔ SUNG):
 | Class/Interface | Namespace |
 |----------------|-----------|
-| `BaseEntity` | `FlashOffer.API.Domain.Entities` |
-| `IRepository<T>` | `FlashOffer.API.Domain.Interfaces` |
-| `IApplicationDbContext` | `FlashOffer.API.Domain.Interfaces` |
-| `PagedList<T>` | `FlashOffer.API.Domain.Models` |
 | `ICurrentUserService` | `FlashOffer.API.Shared.Common.Interfaces` |
-| `IJwtService` | `FlashOffer.API.Shared.Common.Interfaces` |
-| `IMapFrom<T>` | `FlashOffer.API.Application.Common.Mappings` |
-| `IAuthService` | `FlashOffer.API.Application.Common.Interfaces` |
 | `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
-| `ApiControllerBase` | `FlashOffer.API.WebApi` |
-| `SharedResource` | `FlashOffer.API.Application.Resources` |
 
----
-
-## 11. 🚨 LƯU Ý QUAN TRỌNG
-
+### 13. Lưu ý quan trọng
 - `Repository.AddAsync` cần `SaveChangesAsync()` sau đó
 - Logic nghiệp vụ đặt trong Service/Handler, không trong Controller
 - **BẮT BUỘC** cấu hình `SuppressModelStateInvalidFilter = true`
 - **Mọi message client** đều qua `IStringLocalizer`
-- **Resource keys:** Tuân theo quy tắc prefix tại mục 5.3
+- **Resource keys:** Tuân theo quy tắc prefix tại mục 7.3
 - **Enum:** ưu tiên dùng thay vì string, cấu hình `HasConversion<int>()`
-- **Phone validation:** rule 5.2
+- **Phone validation:** rule 7.2
 - **Excel:** format date `yyyy-MM-dd HH:mm:ss`, số `#,##0`, căn trái tất cả
-- **User handling:** Tuân theo quy tắc 5.13 khi tạo/lấy dữ liệu
+- **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu
 - **Soft Delete:** Luôn dùng xóa mềm, không xóa cứng dữ liệu. Sử dụng `Restore()` khi cần khôi phục.
 - **Global Query Filter:** Đã tự động filter `IsDeleted = false`, không cần thêm điều kiện trong repository methods.
 - **Expression Extensions:** Dùng `ExpressionExtensions.And()` để gộp predicate, không tự viết `CombinePredicates` trong Service.
@@ -792,22 +666,64 @@ services.AddScoped<IApplicationDbContext>(sp =>
 
 ---
 
-## 12. 📋 TỔNG HỢP QUY TẮC CHÍNH
+### 14. 🔥 RULE: Exception & Error Handling (BỔ SUNG)
 
-| STT | Quy tắc | Áp dụng |
-|-----|---------|---------|
-| 1 | **Behavior pipeline** | Tất cả MediatR Command/Query |
-| 2 | **ITransactionalRequest interface** | Command cần transaction |
-| 3 | **Exception + IStringLocalizer** | Mọi lỗi business |
-| 4 | **Resource key prefix** | Tất cả message |
-| 5 | **Auto-Save Repository** | Service không gọi SaveChanges |
-| 6 | **ApiControllerBase** | Tất cả Controller |
-| 7 | **ApiVersion** | Tất cả API endpoint |
-| 8 | **Ok/OkPaged** | Response chuẩn |
-| 9 | **IMapFrom** | Tất cả DTO và Command |
-| 10 | **IStringLocalizer trong Validator** | Validation message |
-| 11 | **ExpressionExtensions.And()** | Gộp predicate trong Service |
-| 12 | **IncludeMultiple()/IncludeThen()** | Include navigation trong Repository |
-| 13 | **ICurrentUserService** | Xử lý User trong API |
-| 14 | **Soft Delete** | Xóa mềm tất cả Entity |
-| 15 | **BaseIntegrationTest** | Integration Test |
+#### 14.1 Custom Exception Class
+- **Vị trí:** `src/FlashOffer.API.Shared/Exceptions/FlashOfferException.cs`
+- Chỉ có `StatusCode` (string) và `AdditionalData` (object), không có HTTP status code
+
+#### 14.2 Exception Factory Classes
+- **Vị trí:** `src/FlashOffer.API.Shared/Exceptions/{Entity}Exception.cs`
+- Tên class: `{EntityName}Exception` (VD: `CollaboratorException`, `UserException`)
+- Tất cả method đều là `static`, mỗi method tương ứng với 1 loại lỗi
+- **Danh sách đã có:** `CollaboratorException.cs`, `UserException.cs`
+
+#### 14.3 Resource Files cho Exception Messages
+- **Vị trí:** `src/FlashOffer.API.Shared/Resources/ExceptionMessages.{vi,en}.resx`
+- Key format: `{EntityName}_{ErrorType}` (VD: `Collaborator_NotFound`)
+- **BẮT BUỘC** prefix theo tên Entity
+
+#### 14.4 Middleware xử lý Exception
+- **Vị trí:** `src/FlashOffer.API.WebApi/Middlewares/ExceptionHandlingMiddleware.cs`
+- `FlashOfferException` → HTTP 200, response có `statusCode` string
+- Exception khác (lỗi hệ thống) → HTTP 500, message chung
+
+#### 14.5 Sử dụng trong Service
+- Inject 2 localizer:
+  - `IStringLocalizer<ExceptionMessages> _exceptionLocalizer` - Cho exception
+  - `IStringLocalizer<SharedResource> _localizer` - Cho các message khác
+- **BẮT BUỘC** throw `FlashOfferException` qua Factory class, không throw exception generic
+
+#### 14.6 Quy tắc đặt StatusCode
+| Loại | Format | Ví dụ |
+|------|--------|-------|
+| Not Found | `{ENTITY}_NOT_FOUND` | `COLLABORATOR_NOT_FOUND` |
+| Already Exists | `{ENTITY}_{FIELD}_EXISTS` | `COLLABORATOR_EMAIL_EXISTS` |
+| Required | `{ENTITY}_{FIELD}_REQUIRED` | `USER_PHONE_REQUIRED` |
+| Invalid | `{ENTITY}_{FIELD}_INVALID` | `USER_EMAIL_INVALID` |
+| Exceeded | `{ENTITY}_{FIELD}_EXCEEDED` | `COLLABORATOR_LEVEL_EXCEEDED` |
+
+#### 14.7 Tạo Exception mới - Checklist
+| Bước | Hành động |
+|------|-----------|
+| 1 | Tạo file `{Entity}Exception.cs` trong `Shared/Exceptions/` |
+| 2 | Thêm resource key vào `ExceptionMessages.{vi,en}.resx` |
+| 3 | Viết static method trong `{Entity}Exception` |
+| 4 | Inject `IStringLocalizer<ExceptionMessages>` vào Service |
+| 5 | Sử dụng `throw {Entity}Exception.Method(_exceptionLocalizer, params)` |
+
+---
+
+## 🔄 CẬP NHẬT NHANH - ĐÃ HOÀN THÀNH
+
+**Các việc đã hoàn thành:**
+- ✅ Tạo `FlashOfferException.cs`
+- ✅ Tạo `CollaboratorException.cs` + `UserException.cs`
+- ✅ Tạo `ExceptionMessages.vi.resx` + `ExceptionMessages.en.resx`
+- ✅ Tạo `ExceptionHandlingMiddleware.cs`
+- ✅ Đăng ký middleware trong `Program.cs`
+- ✅ Sửa `UserService.cs` dùng `UserException`
+- ✅ Sửa `CollaboratorService.cs` dùng `CollaboratorException`
+- ✅ Phân biệt `_exceptionLocalizer` và `_localizer`
+
+**Cần làm tiếp theo:** Code Controller, chạy migration, test API. 🚀

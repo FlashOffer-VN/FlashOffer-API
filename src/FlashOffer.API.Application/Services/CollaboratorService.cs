@@ -12,6 +12,7 @@ using FlashOffer.API.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Linq.Expressions;
+using FlashOffer.API.Shared.Resources;
 
 namespace FlashOffer.API.Application.Services;
 
@@ -22,7 +23,9 @@ public class CollaboratorService : ICollaboratorService
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserService _userService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IStringLocalizer<ExceptionMessages> _exceptionLocalizer;
     private readonly IRepository<User> _userRepo;
+    private readonly IRepository<BusinessField> _businessFieldRepo;
 
     public CollaboratorService(
         IRepository<Collaborator> repository,
@@ -30,19 +33,23 @@ public class CollaboratorService : ICollaboratorService
         ICurrentUserService currentUserService,
         IUserService userService,
         IStringLocalizer<SharedResource> localizer,
-        IRepository<User> userRepo)
+        IRepository<User> userRepo,
+        IStringLocalizer<ExceptionMessages> exceptionLocalizer,
+        IRepository<BusinessField> businessFieldRepo)
     {
         _repository = repository;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _userService = userService;
         _localizer = localizer;
+        _exceptionLocalizer = exceptionLocalizer;
         _userRepo = userRepo;
+        _businessFieldRepo = businessFieldRepo;
     }
 
     public async Task<CollaboratorResponseDto> CreateAsync(CreateCollaboratorDto request)
     {
-        // 1. Lấy UserId
+        // 1. Lấy hoặc tạo User (dùng UserService)
         Guid userGuid;
         var userId = _currentUserService.UserId;
 
@@ -52,21 +59,7 @@ public class CollaboratorService : ICollaboratorService
         }
         else
         {
-            // 1a. Kiểm tra Email/Phone đã tồn tại trong User
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                var existingByEmail = await _userRepo.GetFirstAsync(u => u.Email == request.Email);
-                if (existingByEmail != null)
-                    throw new BadRequestException(_localizer["Collaborator_EmailAlreadyExists"]);
-            }
-
-            if (!string.IsNullOrEmpty(request.Phone))
-            {
-                var existingByPhone = await _userRepo.GetFirstAsync(u => u.Phone == request.Phone);
-                if (existingByPhone != null)
-                    throw new BadRequestException(_localizer["Collaborator_PhoneAlreadyExists"]);
-            }
-
+            // UserService sẽ tự kiểm tra phone/email và throw exception nếu trùng
             userGuid = await _userService.GetOrCreateUserAsync(
                 request.FullName,
                 request.Phone,
@@ -77,7 +70,7 @@ public class CollaboratorService : ICollaboratorService
         // 2. Kiểm tra User đã là Collaborator chưa
         var existingCollaborator = await _repository.GetFirstAsync(c => c.UserId == userGuid);
         if (existingCollaborator != null)
-            throw new BadRequestException(_localizer["Collaborator_UserAlreadyExists"]);
+            throw CollaboratorException.UserAlreadyExists(_exceptionLocalizer, userGuid);
 
         // 3. Tạo Collaborator
         var collaborator = _mapper.Map<Collaborator>(request);
@@ -87,28 +80,57 @@ public class CollaboratorService : ICollaboratorService
         collaborator.IsApproved = false;
         collaborator.Level = 1;
 
-        // 4. Xử lý Parent
+        // 4. Xử lý BusinessField (find or create)
+        if (!string.IsNullOrEmpty(request.BusinessField))
+        {
+            var normalizedName = request.BusinessField.Trim().ToLowerInvariant();
+            var existingField = await _businessFieldRepo.GetFirstAsync(
+                b => b.NormalizedName == normalizedName
+            );
+
+            if (existingField != null)
+            {
+                collaborator.BusinessFieldId = existingField.Id;
+                collaborator.BusinessFieldName = request.BusinessField.Trim();
+            }
+            else
+            {
+                var newField = new BusinessField
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.BusinessField.Trim(),
+                    NormalizedName = normalizedName,
+                    IsActive = true
+                };
+                await _businessFieldRepo.AddAsync(newField);
+                await _businessFieldRepo.SaveChangesAsync();
+                collaborator.BusinessFieldId = newField.Id;
+                collaborator.BusinessFieldName = request.BusinessField.Trim();
+            }
+        }
+
+        // 5. Xử lý Parent
         if (request.ParentCollaboratorId.HasValue)
         {
             var parent = await _repository.GetFirstAsync(c =>
                 c.Id == request.ParentCollaboratorId.Value && !c.IsDeleted);
 
             if (parent == null)
-                throw new NotFoundException(_localizer["Collaborator_ParentNotFound"]);
+                throw CollaboratorException.ParentNotFound(_exceptionLocalizer, request.ParentCollaboratorId.Value);
 
             if (!parent.IsApproved)
-                throw new BadRequestException(_localizer["Collaborator_ParentNotApproved"]);
+                throw CollaboratorException.ParentNotApproved(_exceptionLocalizer, request.ParentCollaboratorId.Value);
 
             if (parent.Level >= 10)
-                throw new BadRequestException(_localizer["Collaborator_LevelExceeded"]);
+                throw CollaboratorException.LevelExceeded(_exceptionLocalizer, 10);
 
             if (await IsCircularReferenceAsync(request.ParentCollaboratorId.Value, userGuid))
-                throw new BadRequestException(_localizer["Collaborator_CircularReference"]);
+                throw CollaboratorException.CircularReference(_exceptionLocalizer, request.ParentCollaboratorId.Value);
 
             collaborator.Level = parent.Level + 1;
         }
 
-        // 5. Lưu
+        // 6. Lưu
         await _repository.AddAsync(collaborator);
         await _repository.SaveChangesAsync();
 
@@ -152,7 +174,7 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetByIdAsync(id);
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         _mapper.Map(request, collaborator);
         _repository.Update(collaborator);
@@ -168,7 +190,7 @@ public class CollaboratorService : ICollaboratorService
             q => q.Include(c => c.User));
 
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         return _mapper.Map<CollaboratorResponseDto>(collaborator);
     }
@@ -202,7 +224,7 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetByIdAsync(id);
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         collaborator.Status = CollaboratorStatus.Approved;
         collaborator.IsApproved = true;
@@ -216,7 +238,7 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetByIdAsync(id);
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         collaborator.Status = CollaboratorStatus.Rejected;
         collaborator.IsApproved = false;
@@ -231,7 +253,7 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetByIdAsync(id);
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         _repository.Delete(collaborator);
         await _repository.SaveChangesAsync();
@@ -241,7 +263,7 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetFirstAsync(c => c.Id == id && c.IsDeleted);
         if (collaborator == null)
-            throw new NotFoundException(_localizer["Collaborator_NotFound"]);
+            throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         _repository.Restore(collaborator);
         await _repository.SaveChangesAsync();

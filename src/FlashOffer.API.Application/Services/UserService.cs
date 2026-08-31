@@ -4,6 +4,8 @@ using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Shared.Common.Interfaces;
+using FlashOffer.API.Shared.Exceptions;
+using FlashOffer.API.Shared.Resources;
 using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.Infrastructure.Services;
@@ -13,21 +15,24 @@ public class UserService : IUserService
     private readonly IRepository<User> _userRepo;
     private readonly ICurrentUserService _currentUserService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IStringLocalizer<ExceptionMessages> _exceptionLocalizer;
 
     public UserService(
         IRepository<User> userRepo,
         ICurrentUserService currentUserService,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IStringLocalizer<ExceptionMessages> exceptionLocalizer)
     {
         _userRepo = userRepo;
         _currentUserService = currentUserService;
         _localizer = localizer;
+        _exceptionLocalizer = exceptionLocalizer;
     }
 
     public async Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null)
     {
         if (string.IsNullOrWhiteSpace(phone))
-            throw new ArgumentException(_localizer["User_PhoneRequired"]);
+            throw UserException.PhoneRequired(_exceptionLocalizer);
 
         var existing = await _userRepo.GetFirstAsync(u =>
             u.Phone == phone ||
@@ -37,9 +42,7 @@ public class UserService : IUserService
         if (existing != null)
         {
             if (existing.IsDeleted)
-            {
-                throw new InvalidOperationException(_localizer["User_PhoneAlreadyExists"]);
-            }
+                throw UserException.PhoneAlreadyExists(_exceptionLocalizer, phone);
 
             existing.FullName = fullName;
             if (!string.IsNullOrEmpty(email))
