@@ -629,4 +629,10 @@
   <data name="SocialComment_ContentMaxLength">
     <value>Nội dung bình luận không được vượt quá 1000 ký tự</value>
   </data>
+  <data name="User_PhoneRequired">
+    <value>Số điện thoại là bắt buộc</value>
+  </data>
+  <data name="User_PhoneAlreadyExists">
+    <value>Số điện thoại đã tồn tại trong hệ thống</value>
+  </data>
 </root>
