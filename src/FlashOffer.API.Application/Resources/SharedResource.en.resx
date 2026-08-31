@@ -699,4 +699,10 @@
   <data name="SocialComment_ContentMaxLength">
     <value>Comment content cannot exceed 1000 characters</value>
   </data>
+  <data name="User_PhoneRequired">
+    <value>Phone number is required</value>
+  </data>
+  <data name="User_PhoneAlreadyExists">
+    <value>Phone number already exists in the system</value>
+  </data>
 </root>
