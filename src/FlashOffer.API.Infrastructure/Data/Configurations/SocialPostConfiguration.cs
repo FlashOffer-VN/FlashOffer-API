@@ -1,6 +1,7 @@
 ﻿using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FlashOffer.API.Infrastructure.Data.Configurations;
@@ -39,7 +40,12 @@ public class SocialPostConfiguration : IEntityTypeConfiguration<SocialPost>
             .HasConversion(
                 v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
                 v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>()
-            );
+            )
+            .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                (c1, c2) => c1.SequenceEqual(c2),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList()
+            ));
 
         // Relationship với User
         builder.HasOne(x => x.Author)
