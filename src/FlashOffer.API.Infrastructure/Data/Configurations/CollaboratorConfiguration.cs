@@ -45,10 +45,6 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
         builder.Property(c => c.Experience)
             .HasMaxLength(1000);
 
-        // 👇 THÊM MỚI: Business Field
-        builder.Property(c => c.BusinessField)
-            .HasMaxLength(200);
-
         builder.Property(c => c.ReferralCode)
             .HasMaxLength(50);
 
@@ -70,6 +66,9 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
 
         builder.Property(c => c.Level)
             .HasDefaultValue(1);
+
+        builder.Property(c => c.BusinessFieldName)
+            .HasMaxLength(200);
 
         // Indexes
         builder.HasIndex(c => c.UserId)
@@ -96,5 +95,8 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentCollaboratorId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(c => c.BusinessFieldId)
+          .HasColumnType("uuid");
     }
 }

@@ -42,47 +42,110 @@ public class CollaboratorService : ICollaboratorService
 
     public async Task<CollaboratorResponseDto> CreateAsync(CreateCollaboratorDto request)
     {
-        // 1. Lấy UserId (tạo mới hoặc lấy existing)
+        // 1. Lấy UserId
         Guid userGuid;
         var userId = _currentUserService.UserId;
 
-        if (string.IsNullOrEmpty(userId))
+        if (!string.IsNullOrEmpty(userId))
         {
-            // GetOrCreateUserAsync - đã có logic kiểm tra phone/email
+            userGuid = Guid.Parse(userId);
+        }
+        else
+        {
+            // 1a. Kiểm tra Email/Phone đã tồn tại trong User
+            if (!string.IsNullOrEmpty(request.Email))
+            {
+                var existingByEmail = await _userRepo.GetFirstAsync(u => u.Email == request.Email);
+                if (existingByEmail != null)
+                    throw new BadRequestException(_localizer["Collaborator_EmailAlreadyExists"]);
+            }
+
+            if (!string.IsNullOrEmpty(request.Phone))
+            {
+                var existingByPhone = await _userRepo.GetFirstAsync(u => u.Phone == request.Phone);
+                if (existingByPhone != null)
+                    throw new BadRequestException(_localizer["Collaborator_PhoneAlreadyExists"]);
+            }
+
             userGuid = await _userService.GetOrCreateUserAsync(
                 request.FullName,
                 request.Phone,
                 request.Email
             );
         }
-        else
-        {
-            userGuid = Guid.Parse(userId);
-        }
 
-        // 2. Map và tạo Collaborator
+        // 2. Kiểm tra User đã là Collaborator chưa
+        var existingCollaborator = await _repository.GetFirstAsync(c => c.UserId == userGuid);
+        if (existingCollaborator != null)
+            throw new BadRequestException(_localizer["Collaborator_UserAlreadyExists"]);
+
+        // 3. Tạo Collaborator
         var collaborator = _mapper.Map<Collaborator>(request);
         collaborator.UserId = userGuid;
-        collaborator.ReferralCode = GenerateReferralCode();
+        collaborator.ReferralCode = await GenerateUniqueReferralCodeAsync();
         collaborator.Status = CollaboratorStatus.Pending;
         collaborator.IsApproved = false;
         collaborator.Level = 1;
 
-        // 3. Tính Level nếu có Parent
+        // 4. Xử lý Parent
         if (request.ParentCollaboratorId.HasValue)
         {
-            var parent = await _repository.GetByIdAsync(request.ParentCollaboratorId.Value);
-            if (parent != null)
-            {
-                collaborator.Level = parent.Level + 1;
-            }
+            var parent = await _repository.GetFirstAsync(c =>
+                c.Id == request.ParentCollaboratorId.Value && !c.IsDeleted);
+
+            if (parent == null)
+                throw new NotFoundException(_localizer["Collaborator_ParentNotFound"]);
+
+            if (!parent.IsApproved)
+                throw new BadRequestException(_localizer["Collaborator_ParentNotApproved"]);
+
+            if (parent.Level >= 10)
+                throw new BadRequestException(_localizer["Collaborator_LevelExceeded"]);
+
+            if (await IsCircularReferenceAsync(request.ParentCollaboratorId.Value, userGuid))
+                throw new BadRequestException(_localizer["Collaborator_CircularReference"]);
+
+            collaborator.Level = parent.Level + 1;
         }
 
-        // 4. Lưu Collaborator
+        // 5. Lưu
         await _repository.AddAsync(collaborator);
         await _repository.SaveChangesAsync();
 
         return _mapper.Map<CollaboratorResponseDto>(collaborator);
+    }
+
+    private async Task<string> GenerateUniqueReferralCodeAsync()
+    {
+        string code;
+        bool exists;
+        do
+        {
+            code = $"CTV{DateTime.Now.Ticks:X8}{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
+            exists = await _repository.AnyAsync(c => c.ReferralCode == code);
+        } while (exists);
+        return code;
+    }
+
+    private async Task<bool> IsCircularReferenceAsync(Guid parentId, Guid userId)
+    {
+        var currentId = parentId;
+        var visitedIds = new HashSet<Guid>();
+
+        while (currentId != Guid.Empty)
+        {
+            if (visitedIds.Contains(currentId))
+                return true;
+
+            visitedIds.Add(currentId);
+
+            var parent = await _repository.GetFirstAsync(c => c.Id == currentId && !c.IsDeleted);
+            if (parent == null || parent.UserId == userId)
+                return parent?.UserId == userId;
+
+            currentId = parent.ParentCollaboratorId ?? Guid.Empty;
+        }
+        return false;
     }
 
     public async Task<CollaboratorResponseDto> UpdateAsync(Guid id, UpdateCollaboratorDto request)
@@ -182,10 +245,5 @@ public class CollaboratorService : ICollaboratorService
 
         _repository.Restore(collaborator);
         await _repository.SaveChangesAsync();
-    }
-
-    private string GenerateReferralCode()
-    {
-        return $"CTV{DateTime.Now.Ticks:X8}{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
     }
 }

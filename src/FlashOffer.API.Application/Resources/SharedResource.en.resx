@@ -699,6 +699,31 @@
   <data name="SocialComment_ContentMaxLength">
     <value>Comment content cannot exceed 1000 characters</value>
   </data>
+  <!-- Collaborator - Validation & Business Rules -->
+  <data name="Collaborator_UserAlreadyExists">
+    <value>This user is already a collaborator</value>
+  </data>
+  <data name="Collaborator_EmailAlreadyExists">
+    <value>This email has been registered by another user</value>
+  </data>
+  <data name="Collaborator_PhoneAlreadyExists">
+    <value>This phone number has been registered by another user</value>
+  </data>
+  <data name="Collaborator_ParentNotFound">
+    <value>Parent collaborator not found</value>
+  </data>
+  <data name="Collaborator_ParentNotApproved">
+    <value>Parent collaborator has not been approved</value>
+  </data>
+  <data name="Collaborator_CircularReference">
+    <value>Cannot create circular reference in hierarchy</value>
+  </data>
+  <data name="Collaborator_LevelExceeded">
+    <value>Collaborator level exceeds the maximum allowed</value>
+  </data>
+  <data name="Collaborator_CreateSuccess">
+    <value>Collaborator created successfully</value>
+  </data>
   <data name="User_PhoneRequired">
     <value>Phone number is required</value>
   </data>
