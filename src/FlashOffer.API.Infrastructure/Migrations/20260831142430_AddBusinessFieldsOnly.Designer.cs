@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlashOffer.API.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260826151423_AddBusinessFieldRelations")]
-    partial class AddBusinessFieldRelations
+    [Migration("20260831142430_AddBusinessFieldsOnly")]
+    partial class AddBusinessFieldsOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
