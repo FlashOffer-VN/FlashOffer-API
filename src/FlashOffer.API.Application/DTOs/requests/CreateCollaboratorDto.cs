@@ -25,7 +25,7 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
 
     // Thông tin doanh nghiệp (thêm)
     public string? BusinessName { get; set; }
-    public string? BusinessField { get; set; }
+    public string? BusinessFieldName { get; set; }
     public int? BusinessSize { get; set; }
     public string? Address { get; set; }
     public string? Website { get; set; }
@@ -33,9 +33,8 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
     public Guid? ParentCollaboratorId { get; set; }
 
     public void Mapping(Profile profile)
-    => profile.CreateMap<CreateCollaboratorDto, Collaborator>()
-         .ForMember(dest => dest.BusinessFieldName, opt => opt.MapFrom(src => src.BusinessField))
-        .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => false))  
-        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CollaboratorStatus.Pending))
-        .ForMember(dest => dest.Level, opt => opt.MapFrom(src => 1));  
+      => profile.CreateMap<CreateCollaboratorDto, Collaborator>()
+          .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => false))
+          .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CollaboratorStatus.Pending))
+          .ForMember(dest => dest.Level, opt => opt.MapFrom(src => 1));
 }

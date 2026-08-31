@@ -81,9 +81,9 @@ public class CollaboratorService : ICollaboratorService
         collaborator.Level = 1;
 
         // 4. Xử lý BusinessField (find or create)
-        if (!string.IsNullOrEmpty(request.BusinessField))
+        if (!string.IsNullOrEmpty(request.BusinessFieldName))
         {
-            var normalizedName = request.BusinessField.Trim().ToLowerInvariant();
+            var normalizedName = request.BusinessFieldName.Trim().ToLowerInvariant();
             var existingField = await _businessFieldRepo.GetFirstAsync(
                 b => b.NormalizedName == normalizedName
             );
@@ -91,21 +91,21 @@ public class CollaboratorService : ICollaboratorService
             if (existingField != null)
             {
                 collaborator.BusinessFieldId = existingField.Id;
-                collaborator.BusinessFieldName = request.BusinessField.Trim();
+                collaborator.BusinessFieldName = request.BusinessFieldName.Trim();
             }
             else
             {
                 var newField = new BusinessField
                 {
                     Id = Guid.NewGuid(),
-                    Name = request.BusinessField.Trim(),
+                    Name = request.BusinessFieldName.Trim(),
                     NormalizedName = normalizedName,
                     IsActive = true
                 };
                 await _businessFieldRepo.AddAsync(newField);
                 await _businessFieldRepo.SaveChangesAsync();
                 collaborator.BusinessFieldId = newField.Id;
-                collaborator.BusinessFieldName = request.BusinessField.Trim();
+                collaborator.BusinessFieldName = request.BusinessFieldName.Trim();
             }
         }
 

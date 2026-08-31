@@ -58,11 +58,12 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
 
         // Cấu hình Status (dùng field _status)
         builder.Property(c => c.Status)
-          .HasField("_status")
-          .UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction)
-          .HasConversion<int>()
-          .HasDefaultValue(CollaboratorStatus.Pending)
-          .HasColumnName("Status");
+            .HasField("_status")
+            .UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction)
+            .HasConversion<int>()
+            .HasDefaultValue(CollaboratorStatus.Pending)
+            .HasSentinel(CollaboratorStatus.Pending) 
+            .HasColumnName("Status");
 
         builder.Property(c => c.Level)
             .HasDefaultValue(1);
