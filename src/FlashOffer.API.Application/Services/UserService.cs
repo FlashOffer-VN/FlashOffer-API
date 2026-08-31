@@ -1,8 +1,10 @@
 ﻿using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Shared.Common.Interfaces;
+using Microsoft.Extensions.Localization;
 
 namespace FlashOffer.API.Infrastructure.Services;
 
@@ -10,17 +12,22 @@ public class UserService : IUserService
 {
     private readonly IRepository<User> _userRepo;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public UserService(IRepository<User> userRepo, ICurrentUserService currentUserService)
+    public UserService(
+        IRepository<User> userRepo,
+        ICurrentUserService currentUserService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _userRepo = userRepo;
         _currentUserService = currentUserService;
+        _localizer = localizer;
     }
 
     public async Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null)
     {
         if (string.IsNullOrWhiteSpace(phone))
-            throw new ArgumentException("Phone is required", nameof(phone));
+            throw new ArgumentException(_localizer["User_PhoneRequired"]);
 
         var existing = await _userRepo.GetFirstAsync(u =>
             u.Phone == phone ||
@@ -29,10 +36,13 @@ public class UserService : IUserService
 
         if (existing != null)
         {
-            if (existing.FullName != fullName)
-                existing.FullName = fullName;
+            if (existing.IsDeleted)
+            {
+                throw new InvalidOperationException(_localizer["User_PhoneAlreadyExists"]);
+            }
 
-            if (!string.IsNullOrEmpty(email) && existing.Email != email)
+            existing.FullName = fullName;
+            if (!string.IsNullOrEmpty(email))
                 existing.Email = email;
 
             _userRepo.Update(existing);

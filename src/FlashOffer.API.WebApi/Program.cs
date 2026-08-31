@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.TelegramBot;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 try
@@ -131,12 +133,20 @@ static void ConfigureServices(WebApplicationBuilder builder)
 
     // Serilog
     Log.Information("📝 Configuring Serilog...");
+    var seqUrl = builder.Configuration["Serilog:Seq:ServerUrl"] ?? "http://localhost:5341";
+    var seqApiKey = builder.Configuration["Serilog:Seq:ApiKey"];
+    var telegramToken = builder.Configuration["TELEGRAM_BOT_TOKEN"] ?? "8804056478:AAF66vUU6fA-JS19_rtsigk1MiGJ5jY3aEc";
+    var chatId = builder.Configuration["TELEGRAM_CHAT_ID"] ?? "1820330587";
+
     Log.Logger = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
         .Enrich.FromLogContext()
+        .Enrich.WithProperty("Application", "FlashOffer.API")
+        .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
         .WriteTo.Console()
         .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
-        .CreateLogger();
+        .WriteTo.Seq(seqUrl, apiKey: seqApiKey)
+        .WriteTo.TelegramBot(telegramToken, chatId, restrictedToMinimumLevel: LogEventLevel.Error).CreateLogger();
 
     builder.Host.UseSerilog();
 
