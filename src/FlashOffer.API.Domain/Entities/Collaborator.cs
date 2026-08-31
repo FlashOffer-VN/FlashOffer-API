@@ -19,7 +19,8 @@ public class Collaborator : BaseEntity
     public string? Experience { get; set; }
     public string? Address { get; set; }
     public bool AgreeTerms { get; set; }
-    public string? BusinessField { get; set; }
+    public string? BusinessFieldName { get; set; } 
+    public Guid? BusinessFieldId { get; set; } 
     // Hỗ trợ đa cấp
     public Guid? ParentCollaboratorId { get; set; }
     public int Level { get; set; } = 1;
@@ -46,4 +47,5 @@ public class Collaborator : BaseEntity
     public virtual Collaborator? ParentCollaborator { get; set; }
     public virtual ICollection<Collaborator> Children { get; set; } = new List<Collaborator>();
     public virtual ICollection<Partner> Partners { get; set; } = new List<Partner>();
+    public virtual BusinessField? BusinessField { get; set; } 
 }

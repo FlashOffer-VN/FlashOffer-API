@@ -2,17 +2,18 @@
 using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Domain.Entities;
+
 public class PurchaseRequest : BaseEntity
 {
     public Guid UserId { get; set; }
     public string ProductName { get; set; } = string.Empty;
-    public string? ProductCategory { get; set; } 
+    public string? ProductCategory { get; set; }
     public int Quantity { get; set; }
-    public string Unit { get; set; } = string.Empty; 
+    public string Unit { get; set; } = string.Empty;
     public decimal? ExpectedPrice { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
-    public string? Zalo { get; set; } 
+    public string? Zalo { get; set; }
     public string? Email { get; set; }
     public string? Note { get; set; }
     public PurchaseRequestStatus Status { get; set; } = PurchaseRequestStatus.Pending;
@@ -21,5 +22,9 @@ public class PurchaseRequest : BaseEntity
     public DateTime? ResolvedAt { get; set; }
     public string? Source { get; set; }
 
+    public Guid? BusinessFieldId { get; set; }
+
+    // Navigation
     public virtual User User { get; set; } = null!;
+    public virtual BusinessField? BusinessField { get; set; }
 }

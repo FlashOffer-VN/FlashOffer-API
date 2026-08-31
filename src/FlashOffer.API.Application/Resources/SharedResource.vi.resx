@@ -629,6 +629,31 @@
   <data name="SocialComment_ContentMaxLength">
     <value>Nội dung bình luận không được vượt quá 1000 ký tự</value>
   </data>
+  <!-- Collaborator - Validation & Business Rules -->
+  <data name="Collaborator_UserAlreadyExists">
+    <value>Người dùng này đã là cộng tác viên</value>
+  </data>
+  <data name="Collaborator_EmailAlreadyExists">
+    <value>Email này đã được đăng ký bởi người dùng khác</value>
+  </data>
+  <data name="Collaborator_PhoneAlreadyExists">
+    <value>Số điện thoại này đã được đăng ký bởi người dùng khác</value>
+  </data>
+  <data name="Collaborator_ParentNotFound">
+    <value>Không tìm thấy cộng tác viên cấp trên</value>
+  </data>
+  <data name="Collaborator_ParentNotApproved">
+    <value>Cộng tác viên cấp trên chưa được duyệt</value>
+  </data>
+  <data name="Collaborator_CircularReference">
+    <value>Không thể tham chiếu vòng lặp trong hệ thống cấp bậc</value>
+  </data>
+  <data name="Collaborator_LevelExceeded">
+    <value>Cấp bậc cộng tác viên vượt quá giới hạn cho phép</value>
+  </data>
+  <data name="Collaborator_CreateSuccess">
+    <value>Tạo cộng tác viên thành công</value>
+  </data>
   <data name="User_PhoneRequired">
     <value>Số điện thoại là bắt buộc</value>
   </data>
