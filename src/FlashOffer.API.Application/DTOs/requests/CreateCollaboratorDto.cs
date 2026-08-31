@@ -11,10 +11,10 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
     public string Phone { get; set; } = string.Empty;
     public string? Zalo { get; set; }
     public string? Email { get; set; }
-    public string? Username { get; set; }          // Thêm
-    public string? Password { get; set; }          // Thêm
-    public string? ConfirmPassword { get; set; }   // Thêm
-    public string? Role { get; set; }              // Thêm
+    public string? Username { get; set; }      
+    public string? Password { get; set; }         
+    public string? ConfirmPassword { get; set; }  
+    public string? Role { get; set; }            
     public string? Position { get; set; }
     public string? Skills { get; set; }
     public string? Interests { get; set; }
@@ -34,6 +34,8 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
 
     public void Mapping(Profile profile)
     => profile.CreateMap<CreateCollaboratorDto, Collaborator>()
+        .ForMember(dest => dest.BusinessFieldName,
+            opt => opt.MapFrom(src => src.BusinessField)) // Map BusinessField → BusinessFieldName
         .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => false))  
         .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CollaboratorStatus.Pending))
         .ForMember(dest => dest.Level, opt => opt.MapFrom(src => 1));  

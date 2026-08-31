@@ -28,6 +28,8 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public DateTime? RejectedAt { get; set; }
     public string? RejectionReason { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? BusinessFieldName { get; set; } 
+    public Guid? BusinessFieldId { get; set; }   
 
     public void Mapping(Profile profile)
         => profile.CreateMap<Collaborator, CollaboratorResponseDto>();

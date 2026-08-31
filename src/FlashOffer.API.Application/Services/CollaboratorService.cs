@@ -23,6 +23,7 @@ public class CollaboratorService : ICollaboratorService
     private readonly IUserService _userService;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IRepository<User> _userRepo;
+    private readonly IRepository<BusinessField> _businessFieldRepo;
 
     public CollaboratorService(
         IRepository<Collaborator> repository,
@@ -30,7 +31,8 @@ public class CollaboratorService : ICollaboratorService
         ICurrentUserService currentUserService,
         IUserService userService,
         IStringLocalizer<SharedResource> localizer,
-        IRepository<User> userRepo)
+        IRepository<User> userRepo,
+        IRepository<BusinessField> businessFieldRepo)
     {
         _repository = repository;
         _mapper = mapper;
@@ -38,6 +40,7 @@ public class CollaboratorService : ICollaboratorService
         _userService = userService;
         _localizer = localizer;
         _userRepo = userRepo;
+        _businessFieldRepo = businessFieldRepo;
     }
 
     public async Task<CollaboratorResponseDto> CreateAsync(CreateCollaboratorDto request)
@@ -86,6 +89,33 @@ public class CollaboratorService : ICollaboratorService
         collaborator.Status = CollaboratorStatus.Pending;
         collaborator.IsApproved = false;
         collaborator.Level = 1;
+
+        // Xử lý BusinessField (find or create)
+        if (!string.IsNullOrEmpty(request.BusinessField))
+        {
+            var normalizedName = request.BusinessField.Trim().ToLowerInvariant();
+            var existingField = await _businessFieldRepo.GetFirstAsync(
+                b => b.NormalizedName == normalizedName
+            );
+
+            if (existingField != null)
+            {
+                collaborator.BusinessFieldId = existingField.Id;
+            }
+            else
+            {
+                var newField = new BusinessField
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.BusinessField.Trim(),
+                    NormalizedName = normalizedName,
+                    IsActive = true
+                };
+                await _businessFieldRepo.AddAsync(newField);
+                await _businessFieldRepo.SaveChangesAsync();
+                collaborator.BusinessFieldId = newField.Id;
+            }
+        }
 
         // 4. Xử lý Parent
         if (request.ParentCollaboratorId.HasValue)
