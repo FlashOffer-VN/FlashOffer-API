@@ -34,6 +34,7 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
 
     public void Mapping(Profile profile)
     => profile.CreateMap<CreateCollaboratorDto, Collaborator>()
+         .ForMember(dest => dest.BusinessFieldName, opt => opt.MapFrom(src => src.BusinessField))
         .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => false))  
         .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CollaboratorStatus.Pending))
         .ForMember(dest => dest.Level, opt => opt.MapFrom(src => 1));  
