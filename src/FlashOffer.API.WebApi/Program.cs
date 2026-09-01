@@ -135,8 +135,15 @@ static void ConfigureServices(WebApplicationBuilder builder)
     Log.Information("📝 Configuring Serilog...");
     var seqUrl = builder.Configuration["Serilog:Seq:ServerUrl"] ?? "http://localhost:5341";
     var seqApiKey = builder.Configuration["Serilog:Seq:ApiKey"];
-    var telegramToken = builder.Configuration["TELEGRAM_BOT_TOKEN"] ?? "8804056478:AAF66vUU6fA-JS19_rtsigk1MiGJ5jY3aEc";
-    var chatId = builder.Configuration["TELEGRAM_CHAT_ID"] ?? "1820330587";
+
+    // Đọc từ appsettings trước, fallback sang env variable
+    var telegramToken = builder.Configuration["Telegram:ErrorBot:BotToken"]
+                        ?? builder.Configuration["TELEGRAM_BOT_TOKEN"]
+                        ?? throw new Exception("Telegram ErrorBot Token is required");
+
+    var chatId = builder.Configuration["Telegram:ErrorBot:ChatId"]
+                 ?? builder.Configuration["TELEGRAM_CHAT_ID"]
+                 ?? throw new Exception("Telegram ErrorBot ChatId is required");
 
     Log.Logger = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
@@ -146,7 +153,8 @@ static void ConfigureServices(WebApplicationBuilder builder)
         .WriteTo.Console()
         .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
         .WriteTo.Seq(seqUrl, apiKey: seqApiKey)
-        .WriteTo.TelegramBot(telegramToken, chatId, restrictedToMinimumLevel: LogEventLevel.Error).CreateLogger();
+        .WriteTo.TelegramBot(telegramToken, chatId, restrictedToMinimumLevel: LogEventLevel.Error)
+        .CreateLogger();
 
     builder.Host.UseSerilog();
 
