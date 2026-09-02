@@ -11,4 +11,8 @@ public interface ISocialService
     Task<PostResponse> CreatePostAsync(CreatePostRequest request);
     Task<PostResponse> UpdatePostAsync(Guid id, UpdatePostRequest request);
     Task<bool> DeletePostAsync(Guid id);
+
+    Task<PagedList<PostResponse>> GetPendingPostsAsync(int pageNumber, int pageSize);
+    Task<PostResponse> ApprovePostAsync(Guid id);
+    Task<PostResponse> RejectPostAsync(Guid id, string? reason = null);
 }

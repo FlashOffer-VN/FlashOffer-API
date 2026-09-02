@@ -90,4 +90,39 @@ public class SocialController : ApiControllerBase
         await _socialService.DeletePostAsync(id);
         return Ok(_stringLocalizer["Social_DeleteSuccess"]);
     }
+
+    /// <summary>
+    /// Admin: Lấy danh sách bài viết cần duyệt
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpGet("posts/pending")]
+    public async Task<IActionResult> GetPendingPosts(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        var result = await _socialService.GetPendingPostsAsync(pageNumber, pageSize);
+        return OkPaged(result, _stringLocalizer["Social_GetPendingSuccess"]);
+    }
+
+    /// <summary>
+    /// Admin: Duyệt bài viết
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("posts/{id}/approve")]
+    public async Task<IActionResult> ApprovePost(Guid id)
+    {
+        var result = await _socialService.ApprovePostAsync(id);
+        return Ok(result, _stringLocalizer["Social_ApproveSuccess"]);
+    }
+
+    /// <summary>
+    /// Admin: Từ chối bài viết
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("posts/{id}/reject")]
+    public async Task<IActionResult> RejectPost(Guid id, [FromBody] string? reason = null)
+    {
+        var result = await _socialService.RejectPostAsync(id, reason);
+        return Ok(result, _stringLocalizer["Social_RejectSuccess"]);
+    }
 }

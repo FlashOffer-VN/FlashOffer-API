@@ -13,6 +13,7 @@ using FlashOffer.API.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Linq.Expressions;
+using FlashOffer.API.Shared.Extensions;
 
 namespace FlashOffer.API.Application.Services;
 
@@ -207,8 +208,7 @@ public class SocialService : ISocialService
 
         var post = _mapper.Map<SocialPost>(request);
         post.AuthorId = user.Id;
-
-        post.IsApproved = false;
+        post.IsApproved = false; // Chờ duyệt
 
         // Xử lý Tags
         if (request.Tags != null && request.Tags.Any())
@@ -237,6 +237,10 @@ public class SocialService : ISocialService
         await _postRepository.AddAsync(post);
         await _postRepository.SaveChangesAsync();
 
+        // Log để Admin biết
+        _logger.LogInformation("📝 New post waiting for approval: PostId={PostId}, AuthorId={AuthorId}, Title={Title}",
+            post.Id, post.AuthorId, post.Title ?? "Untitled");
+
         var createdPost = await _postRepository.GetFirstWithIncludesAsync(
             p => p.Id == post.Id,
             includes: q => q
@@ -247,6 +251,10 @@ public class SocialService : ISocialService
 
         var response = _mapper.Map<PostResponse>(createdPost);
         response.Author = _mapper.Map<AuthorDto>(createdPost.Author);
+
+        // ✅ Thêm message chờ duyệt
+        response.Message = _localizer["Social_PendingApproval"];
+
         return response;
     }
 
@@ -366,6 +374,99 @@ public class SocialService : ISocialService
         await _postRepository.SaveChangesAsync();
         return true;
     }
+
+    public async Task<PagedList<PostResponse>> GetPendingPostsAsync(int pageNumber, int pageSize)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        Expression<Func<SocialPost, bool>>? predicate = null;
+        predicate = predicate.And(p => p.IsApproved == false);
+        predicate = predicate.And(p => p.Privacy == PrivacyType.Public);
+
+        var posts = await _postRepository.GetPagedWithIncludesAsync(
+            pageNumber,
+            pageSize,
+            includes: q => q
+                .Include(p => p.Author)
+                .Include(p => p.PostTags)
+                    .ThenInclude(pt => pt.Tag),
+            predicate: predicate ?? (p => true),
+            orderBy: p => p.CreatedAt,
+            isDescending: true
+        );
+
+        var postResponses = _mapper.Map<List<PostResponse>>(posts.Items);
+        foreach (var response in postResponses)
+        {
+            var post = posts.Items.First(p => p.Id == response.Id);
+            response.Author = _mapper.Map<AuthorDto>(post.Author);
+        }
+
+        return new PagedList<PostResponse>(
+            postResponses,
+            posts.TotalCount,
+            pageNumber,
+            pageSize
+        );
+    }
+
+    public async Task<PostResponse> ApprovePostAsync(Guid id)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        var post = await _postRepository.GetFirstWithIncludesAsync(
+            p => p.Id == id,
+            includes: q => q.Include(p => p.Author)
+        );
+
+        if (post == null)
+            throw new NotFoundException(_localizer["Social_NotFound"]);
+
+        if (post.IsApproved)
+            throw new InvalidOperationException(_localizer["Social_AlreadyApproved"]);
+
+        post.IsApproved = true;
+
+        _postRepository.Update(post);
+        await _postRepository.SaveChangesAsync();
+
+        var response = _mapper.Map<PostResponse>(post);
+        response.Author = _mapper.Map<AuthorDto>(post.Author);
+        return response;
+    }
+
+    public async Task<PostResponse> RejectPostAsync(Guid id, string? reason = null)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        var post = await _postRepository.GetFirstWithIncludesAsync(
+            p => p.Id == id,
+            includes: q => q.Include(p => p.Author)
+        );
+
+        if (post == null)
+            throw new NotFoundException(_localizer["Social_NotFound"]);
+
+        if (post.IsApproved)
+            throw new InvalidOperationException(_localizer["Social_AlreadyApproved"]);
+
+        post.IsApproved = false;
+        // Có thể thêm field RejectionReason nếu muốn
+
+        _postRepository.Update(post);
+        await _postRepository.SaveChangesAsync();
+
+        var response = _mapper.Map<PostResponse>(post);
+        response.Author = _mapper.Map<AuthorDto>(post.Author);
+        return response;
+    }
+
     private async Task<List<Guid>> GetFriendIdsAsync(Guid userId)
     {
         //var friends = await _friendRepository.FindAsync(f =>

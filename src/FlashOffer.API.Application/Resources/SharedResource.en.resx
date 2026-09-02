@@ -730,4 +730,21 @@
   <data name="User_PhoneAlreadyExists">
     <value>Phone number already exists in the system</value>
   </data>
+  <!-- Social - Get Pending Posts -->
+  <data name="Social_GetPendingSuccess">
+    <value>Get pending posts successfully</value>
+  </data>
+
+  <!-- Social - Approve Post -->
+  <data name="Social_ApproveSuccess">
+    <value>Post approved successfully</value>
+  </data>
+  <data name="Social_AlreadyApproved">
+    <value>Post has already been approved</value>
+  </data>
+
+  <!-- Social - Reject Post -->
+  <data name="Social_RejectSuccess">
+    <value>Post rejected successfully</value>
+  </data>
 </root>
