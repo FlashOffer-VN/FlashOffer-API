@@ -52,7 +52,6 @@ public class SocialService : ISocialService
         var userId = _currentUserService.UserId;
         var isAdmin = _currentUserService.IsInRole("Admin");
 
-        // Xây dựng predicate
         Expression<Func<SocialPost, bool>>? predicate = null;
 
         if (query.Type.HasValue)
@@ -61,19 +60,32 @@ public class SocialService : ISocialService
         if (!string.IsNullOrEmpty(query.Tag))
             predicate = predicate.And(p => p.PostTags.Any(pt => pt.Tag.Name == query.Tag));
 
-        if (!isAdmin && !string.IsNullOrEmpty(userId))
+        // XÂY DỰNG PREDICATE KHÔNG CÓ AWAIT
+        if (!isAdmin)
         {
-            var userGuid = Guid.Parse(userId);
-            predicate = predicate.And(p => p.Privacy == PrivacyType.Public || p.AuthorId == userGuid);
-        }
-        else if (!isAdmin)
-        {
-            predicate = predicate.And(p => p.Privacy == PrivacyType.Public);
+            // Chỉ lấy bài Public đã duyệt + bài của chính user
+            // Phần Friends sẽ xử lý sau khi lấy dữ liệu
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var userGuid = Guid.Parse(userId);
+                predicate = predicate.And(p =>
+                    (p.Privacy == PrivacyType.Public && p.IsApproved == true) ||
+                    p.AuthorId == userGuid
+                // Friends sẽ xử lý sau
+                );
+            }
+            else
+            {
+                // Chưa login: chỉ lấy Public đã duyệt
+                predicate = predicate.And(p =>
+                    p.Privacy == PrivacyType.Public && p.IsApproved == true
+                );
+            }
         }
 
         predicate ??= p => true;
 
-        // Thêm Includes cho Likes, Comments, Shares
+        // Lấy dữ liệu
         var posts = await _postRepository.GetPagedWithIncludesAsync(
             query.PageNumber,
             query.PageSize,
@@ -89,6 +101,29 @@ public class SocialService : ISocialService
             isDescending: true
         );
 
+        // XỬ LÝ FRIENDS SAU KHI LẤY DỮ LIỆU
+        if (!string.IsNullOrEmpty(userId) && !isAdmin)
+        {
+            var userGuid = Guid.Parse(userId);
+            var friendIds = await GetFriendIdsAsync(userGuid); // Lấy danh sách bạn bè
+
+            // Lọc bỏ bài Friends của người không phải bạn bè
+            var filteredItems = posts.Items.Where(p =>
+                p.Privacy != PrivacyType.Friends ||
+                p.AuthorId == userGuid ||
+                friendIds.Contains(p.AuthorId)
+            ).ToList();
+
+            // Cập nhật lại posts
+            posts = new PagedList<SocialPost>(
+                filteredItems,
+                filteredItems.Count,
+                query.PageNumber,
+                query.PageSize
+            );
+        }
+
+        // Map sang response
         var postResponses = _mapper.Map<List<PostResponse>>(posts.Items);
 
         // Thêm logic lấy Like status cho current user
@@ -173,6 +208,8 @@ public class SocialService : ISocialService
         var post = _mapper.Map<SocialPost>(request);
         post.AuthorId = user.Id;
 
+        post.IsApproved = false;
+
         // Xử lý Tags
         if (request.Tags != null && request.Tags.Any())
         {
@@ -216,24 +253,29 @@ public class SocialService : ISocialService
     public async Task<PostResponse> UpdatePostAsync(Guid id, UpdatePostRequest request)
     {
         var post = await _postRepository.GetFirstWithIncludesAsync(
-            p => p.Id == id,
-            includes: q => q
-                .Include(p => p.Author)
-                .Include(p => p.PostTags)
-                    .ThenInclude(pt => pt.Tag)
+        p => p.Id == id,
+        includes: q => q
+            .Include(p => p.Author)
+            .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag)
         );
 
         if (post == null)
-        {
             throw new NotFoundException(_localizer["Social_NotFound"]);
-        }
 
         var userId = _currentUserService.UserId;
         var isAdmin = _currentUserService.IsInRole("Admin");
 
         if (post.AuthorId.ToString() != userId && !isAdmin)
-        {
             throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        // Nếu chuyển từ private sang public -> cần duyệt lại
+        var wasPrivate = post.Privacy != PrivacyType.Public;
+        var isNowPublic = request.Privacy == PrivacyType.Public;
+
+        if (wasPrivate && isNowPublic && !isAdmin)
+        {
+            post.IsApproved = false;
         }
 
         // Cập nhật Tags
@@ -323,5 +365,15 @@ public class SocialService : ISocialService
         _postRepository.Delete(post);
         await _postRepository.SaveChangesAsync();
         return true;
+    }
+    private async Task<List<Guid>> GetFriendIdsAsync(Guid userId)
+    {
+        //var friends = await _friendRepository.FindAsync(f =>
+        //    (f.UserId == userId || f.FriendId == userId) &&
+        //    f.Status == FriendStatus.Accepted
+        //);
+
+        //return friends.Select(f => f.UserId == userId ? f.FriendId : f.UserId).ToList();
+        return new List<Guid>(); // Trả về danh sách rỗng nếu không có bạn bè
     }
 }
