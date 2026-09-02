@@ -208,7 +208,11 @@ public class SocialService : ISocialService
 
         var post = _mapper.Map<SocialPost>(request);
         post.AuthorId = user.Id;
-        post.IsApproved = false; // Chờ duyệt
+
+        // If author is Admin, mark post as approved immediately
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        post.IsApproved = isAdmin ? true : false;
+        // No ApprovedAt field on SocialPost entity currently; only mark IsApproved
 
         // Xử lý Tags
         if (request.Tags != null && request.Tags.Any())
