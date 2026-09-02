@@ -237,10 +237,6 @@ public class SocialService : ISocialService
         await _postRepository.AddAsync(post);
         await _postRepository.SaveChangesAsync();
 
-        // Log để Admin biết
-        _logger.LogInformation("📝 New post waiting for approval: PostId={PostId}, AuthorId={AuthorId}, Title={Title}",
-            post.Id, post.AuthorId, post.Title ?? "Untitled");
-
         var createdPost = await _postRepository.GetFirstWithIncludesAsync(
             p => p.Id == post.Id,
             includes: q => q
@@ -252,7 +248,7 @@ public class SocialService : ISocialService
         var response = _mapper.Map<PostResponse>(createdPost);
         response.Author = _mapper.Map<AuthorDto>(createdPost.Author);
 
-        // ✅ Thêm message chờ duyệt
+        // Thêm message chờ duyệt
         response.Message = _localizer["Social_PendingApproval"];
 
         return response;
