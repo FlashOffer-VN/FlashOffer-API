@@ -43,4 +43,6 @@ public class SocialPost : BaseEntity
     // Announcement
     public PriorityType Priority { get; set; } = PriorityType.Normal;
     public DateTime? PinnedUntil { get; set; }
+
+    public bool IsApproved { get; set; } = false;
 }

@@ -32,42 +32,49 @@ public class AuthService : IAuthService
 		_logger = logger;
 	}
 
-	public async Task<LoginResponse?> LoginAsync(LoginRequest request)
-	{
-		var users = await _userRepository.FindAsync(u => u.Username == request.Username && !u.IsDeleted);
-		var user = users.FirstOrDefault();
+    public async Task<LoginResponse?> LoginAsync(LoginRequest request)
+    {
+        // Tìm user theo username, email, hoặc phone
+        var users = await _userRepository.FindAsync(u =>
+            !u.IsDeleted && (
+                u.Username == request.Username ||
+                u.Email == request.Username ||
+                u.Phone == request.Username
+            )
+        );
+        var user = users.FirstOrDefault();
 
-		if (user == null || !PasswordHasher.Verify(request.Password, user.PasswordHash ?? string.Empty))
-		{
-			_logger.LogWarning($"Login failed for user: {request.Username}");
-			return null;
-		}
+        if (user == null || !PasswordHasher.Verify(request.Password, user.PasswordHash ?? string.Empty))
+        {
+            _logger.LogWarning($"Login failed for user: {request.Username}");
+            return null;
+        }
 
-		if (!user.IsActive)
-		{
-			_logger.LogWarning($"Inactive user attempted login: {request.Username}");
-			return null;
-		}
+        if (!user.IsActive)
+        {
+            _logger.LogWarning($"Inactive user attempted login: {request.Username}");
+            return null;
+        }
 
-		var roles = GetRoles(user.Role);
-		var token = _jwtService.GenerateToken(user.Id.ToString(), user.Username, roles);
+        var roles = GetRoles(user.Role);
+        var token = _jwtService.GenerateToken(user.Id.ToString(), user.Username, roles);
 
-		user.LastLoginAt = DateTime.UtcNow;
-		await _userRepository.SaveChangesAsync();
+        user.LastLoginAt = DateTime.UtcNow;
+        await _userRepository.SaveChangesAsync();
 
-		_logger.LogInformation($"User logged in successfully: {user.Username}");
+        _logger.LogInformation($"User logged in successfully: {user.Username} (ID: {user.Id})");
 
-		return new LoginResponse
-		{
-			Token = token,
-			ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
-			Username = user.Username,
-			FullName = user.FullName,
-			Role = user.Role.ToString()
-		};
-	}
+        return new LoginResponse
+        {
+            Token = token,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+            Username = user.Username,
+            FullName = user.FullName,
+            Role = user.Role.ToString()
+        };
+    }
 
-	public async Task LogoutAsync(string token)
+    public async Task LogoutAsync(string token)
 	{
 		_jwtService.BlacklistToken(token);
 		_logger.LogInformation("User logged out");

@@ -35,6 +35,7 @@ public class PostResponse : IMapFrom<SocialPost>
     // For Announcement
     public PriorityType? Priority { get; set; }
     public DateTime? PinnedUntil { get; set; }
+    public string Message { get; set; } = string.Empty;
 
     public void Mapping(Profile profile)
     {

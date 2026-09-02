@@ -69,6 +69,46 @@ public class UserService : IUserService
         return user.Id;
     }
 
+    public async Task<Guid> GetOrCreateUserWithPhonePasswordAsync(string fullName, string phone, string? email = null)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            throw UserException.PhoneRequired(_exceptionLocalizer);
+
+        var existing = await _userRepo.GetFirstAsync(u =>
+            u.Phone == phone ||
+            (!string.IsNullOrEmpty(email) && u.Email == email)
+        );
+
+        if (existing != null)
+        {
+            if (existing.IsDeleted)
+                throw UserException.PhoneAlreadyExists(_exceptionLocalizer, phone);
+
+            existing.FullName = fullName;
+            if (!string.IsNullOrEmpty(email))
+                existing.Email = email;
+
+            _userRepo.Update(existing);
+            await _userRepo.SaveChangesAsync();
+            return existing.Id;
+        }
+
+        var user = new User
+        {
+            FullName = fullName,
+            Phone = phone,
+            Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
+            Username = GenerateUniqueUsername(),
+            PasswordHash = HashPassword(phone), // Password = số điện thoại
+            Role = UserRole.Customer,
+            IsActive = true
+        };
+
+        await _userRepo.AddAsync(user);
+        await _userRepo.SaveChangesAsync();
+        return user.Id;
+    }
+
     public async Task<User?> GetCurrentUserAsync()
     {
         var userId = _currentUserService.UserId;

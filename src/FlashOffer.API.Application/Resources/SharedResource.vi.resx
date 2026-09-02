@@ -660,4 +660,29 @@
   <data name="User_PhoneAlreadyExists">
     <value>Số điện thoại đã tồn tại trong hệ thống</value>
   </data>
+  <!-- Social - Get Pending Posts -->
+  <data name="Social_GetPendingSuccess">
+    <value>Lấy danh sách bài viết chờ duyệt thành công</value>
+  </data>
+
+  <!-- Social - Approve Post -->
+  <data name="Social_ApproveSuccess">
+    <value>Duyệt bài viết thành công</value>
+  </data>
+  <data name="Social_AlreadyApproved">
+    <value>Bài viết đã được duyệt trước đó</value>
+  </data>
+
+  <!-- Social - Reject Post -->
+  <data name="Social_RejectSuccess">
+    <value>Từ chối bài viết thành công</value>
+  </data>
+  <!-- SharedResource.vi.resx -->
+  <data name="Social_PendingApproval">
+    <value>Bài viết của bạn đã được gửi và đang chờ duyệt. Bạn sẽ nhận được thông báo khi được duyệt!</value>
+  </data>
+  <!-- SharedResource.en.resx -->
+  <data name="Social_PendingApproval">
+    <value>Your post has been submitted and is pending approval. You will be notified when approved!</value>
+  </data>
 </root>
