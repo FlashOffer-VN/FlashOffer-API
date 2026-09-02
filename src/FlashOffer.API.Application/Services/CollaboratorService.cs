@@ -49,7 +49,7 @@ public class CollaboratorService : ICollaboratorService
 
     public async Task<CollaboratorResponseDto> CreateAsync(CreateCollaboratorDto request)
     {
-        // 1. Lấy hoặc tạo User (dùng UserService)
+        // Lấy hoặc tạo User (dùng UserService)
         Guid userGuid;
         var userId = _currentUserService.UserId;
 
@@ -60,19 +60,14 @@ public class CollaboratorService : ICollaboratorService
         else
         {
             // UserService sẽ tự kiểm tra phone/email và throw exception nếu trùng
-            userGuid = await _userService.GetOrCreateUserAsync(
+            userGuid = await _userService.GetOrCreateUserWithPhonePasswordAsync(
                 request.FullName,
                 request.Phone,
                 request.Email
             );
         }
 
-        // 2. Kiểm tra User đã là Collaborator chưa
-        var existingCollaborator = await _repository.GetFirstAsync(c => c.UserId == userGuid);
-        if (existingCollaborator != null)
-            throw CollaboratorException.UserAlreadyExists(_exceptionLocalizer, userGuid);
-
-        // 3. Tạo Collaborator
+        //  Tạo Collaborator
         var collaborator = _mapper.Map<Collaborator>(request);
         collaborator.UserId = userGuid;
         collaborator.ReferralCode = await GenerateUniqueReferralCodeAsync();
@@ -80,7 +75,7 @@ public class CollaboratorService : ICollaboratorService
         collaborator.IsApproved = false;
         collaborator.Level = 1;
 
-        // 4. Xử lý BusinessField (find or create)
+        //  Xử lý BusinessField (find or create)
         if (!string.IsNullOrEmpty(request.BusinessFieldName))
         {
             var normalizedName = request.BusinessFieldName.Trim().ToLowerInvariant();
@@ -109,7 +104,7 @@ public class CollaboratorService : ICollaboratorService
             }
         }
 
-        // 5. Xử lý Parent
+        //  Xử lý Parent
         if (request.ParentCollaboratorId.HasValue)
         {
             var parent = await _repository.GetFirstAsync(c =>
@@ -130,7 +125,7 @@ public class CollaboratorService : ICollaboratorService
             collaborator.Level = parent.Level + 1;
         }
 
-        // 6. Lưu
+        //  Lưu
         await _repository.AddAsync(collaborator);
         await _repository.SaveChangesAsync();
 

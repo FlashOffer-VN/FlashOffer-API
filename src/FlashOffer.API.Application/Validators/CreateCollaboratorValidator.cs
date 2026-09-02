@@ -23,21 +23,21 @@ public class CreateCollaboratorValidator : AbstractValidator<CreateCollaboratorD
             .EmailAddress().When(x => !string.IsNullOrEmpty(x.Email))
             .WithMessage(localizer["Collaborator_EmailInvalid"]);
 
-        RuleFor(x => x.Username)
-            .NotEmpty().WithMessage(localizer["Collaborator_UsernameRequired"])
-            .MinimumLength(3).WithMessage(localizer["Collaborator_UsernameMinLength"])
-            .MaximumLength(50).WithMessage(localizer["Collaborator_UsernameMaxLength"]);
+        //RuleFor(x => x.Username)
+        //    .NotEmpty().WithMessage(localizer["Collaborator_UsernameRequired"])
+        //    .MinimumLength(3).WithMessage(localizer["Collaborator_UsernameMinLength"])
+        //    .MaximumLength(50).WithMessage(localizer["Collaborator_UsernameMaxLength"]);
 
-        RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(localizer["Collaborator_PasswordRequired"])
-            .MinimumLength(6).WithMessage(localizer["Collaborator_PasswordMinLength"])
-            .MaximumLength(100).WithMessage(localizer["Collaborator_PasswordMaxLength"])
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$")
-            .WithMessage(localizer["Collaborator_PasswordComplexity"]);
+        //RuleFor(x => x.Password)
+        //    .NotEmpty().WithMessage(localizer["Collaborator_PasswordRequired"])
+        //    .MinimumLength(6).WithMessage(localizer["Collaborator_PasswordMinLength"])
+        //    .MaximumLength(100).WithMessage(localizer["Collaborator_PasswordMaxLength"])
+        //    .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$")
+        //    .WithMessage(localizer["Collaborator_PasswordComplexity"]);
 
-        RuleFor(x => x.ConfirmPassword)
-            .Equal(x => x.Password).WithMessage(localizer["Collaborator_PasswordMismatch"])
-            .When(x => !string.IsNullOrEmpty(x.ConfirmPassword));
+        //RuleFor(x => x.ConfirmPassword)
+        //    .Equal(x => x.Password).WithMessage(localizer["Collaborator_PasswordMismatch"])
+        //    .When(x => !string.IsNullOrEmpty(x.ConfirmPassword));
 
         RuleFor(x => x.AgreeTerms)
             .Must(x => x == true).WithMessage(localizer["Collaborator_AgreeTermsRequired"]);
