@@ -125,4 +125,26 @@ public class SocialController : ApiControllerBase
         var result = await _socialService.RejectPostAsync(id, reason);
         return Ok(result, _stringLocalizer["Social_RejectSuccess"]);
     }
+
+    /// <summary>
+    /// Admin: Ghim bài viết lên đầu trang feed
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("posts/{id}/pin")]
+    public async Task<IActionResult> PinPost(Guid id)
+    {
+        var result = await _socialService.PinPostAsync(id);
+        return Ok(result, _stringLocalizer["Social_PinSuccess"]);
+    }
+
+    /// <summary>
+    /// Admin: Hủy ghim bài viết
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("posts/{id}/unpin")]
+    public async Task<IActionResult> UnpinPost(Guid id)
+    {
+        var result = await _socialService.UnpinPostAsync(id);
+        return Ok(result, _stringLocalizer["Social_UnpinSuccess"]);
+    }
 }

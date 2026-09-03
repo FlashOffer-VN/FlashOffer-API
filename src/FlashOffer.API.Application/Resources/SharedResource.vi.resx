@@ -685,4 +685,17 @@
   <data name="Social_PendingApproval">
     <value>Your post has been submitted and is pending approval. You will be notified when approved!</value>
   </data>
+  <!-- Social - Pin Post -->
+  <data name="Social_PinSuccess">
+    <value>Ghim bài viết thành công</value>
+  </data>
+  <data name="Social_AlreadyPinned">
+    <value>Bài viết đã được ghim trước đó</value>
+  </data>
+  <data name="Social_UnpinSuccess">
+    <value>Hủy ghim bài viết thành công</value>
+  </data>
+  <data name="Social_NotPinned">
+    <value>Bài viết chưa được ghim</value>
+  </data>
 </root>

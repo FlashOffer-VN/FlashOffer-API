@@ -20,6 +20,7 @@ public class PostResponse : IMapFrom<SocialPost>
     public int SharesCount { get; set; }
     public bool IsLiked { get; set; }
     public bool IsSaved { get; set; }
+    public bool IsPinned { get; set; }
     public DateTime CreatedAt { get; set; }
 
     // For Question

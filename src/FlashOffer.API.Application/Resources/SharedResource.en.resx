@@ -747,4 +747,17 @@
   <data name="Social_RejectSuccess">
     <value>Post rejected successfully</value>
   </data>
+  <!-- Social - Pin Post -->
+  <data name="Social_PinSuccess">
+    <value>Post pinned successfully</value>
+  </data>
+  <data name="Social_AlreadyPinned">
+    <value>Post has already been pinned</value>
+  </data>
+  <data name="Social_UnpinSuccess">
+    <value>Post unpinned successfully</value>
+  </data>
+  <data name="Social_NotPinned">
+    <value>Post is not pinned</value>
+  </data>
 </root>
