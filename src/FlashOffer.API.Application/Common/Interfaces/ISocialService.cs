@@ -15,4 +15,7 @@ public interface ISocialService
     Task<PagedList<PostResponse>> GetPendingPostsAsync(int pageNumber, int pageSize);
     Task<PostResponse> ApprovePostAsync(Guid id);
     Task<PostResponse> RejectPostAsync(Guid id, string? reason = null);
+
+    Task<PostResponse> PinPostAsync(Guid id);
+    Task<PostResponse> UnpinPostAsync(Guid id);
 }

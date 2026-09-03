@@ -45,4 +45,7 @@ public class SocialPost : BaseEntity
     public DateTime? PinnedUntil { get; set; }
 
     public bool IsApproved { get; set; } = false;
+
+    // Pin (Admin ghim để hiện đầu feed)
+    public bool IsPinned { get; set; } = false;
 }

@@ -87,20 +87,20 @@ public class SocialService : ISocialService
         predicate ??= p => true;
 
         // Lấy dữ liệu
-        var posts = await _postRepository.GetPagedWithIncludesAsync(
-            query.PageNumber,
-            query.PageSize,
-            includes: q => q
-                .Include(p => p.Author)
-                .Include(p => p.Likes)
-                .Include(p => p.Comments)
-                .Include(p => p.Shares)
-                .Include(p => p.PostTags)
-                    .ThenInclude(pt => pt.Tag),
-            predicate: predicate,
-            orderBy: p => p.CreatedAt,
-            isDescending: true
-        );
+        // Ghim (IsPinned) sempre primește în feed; apoi CreatedAt desc
+        // Repository-ul suportă doar un singel orderBy — construim query manual pentru 2 sort keys în SQL
+        IQueryable<SocialPost> dbQuery = await _postRepository.GetQueryableAsync();
+        dbQuery = dbQuery
+            .Include(p => p.Author)
+            .Include(p => p.Likes)
+            .Include(p => p.Comments)
+            .Include(p => p.Shares)
+            .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag);
+        if (predicate != null) dbQuery = dbQuery.Where(predicate);
+        dbQuery = dbQuery.OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
+
+        var posts = await PagedList<SocialPost>.CreateAsync(dbQuery, query.PageNumber, query.PageSize);
 
         // XỬ LÝ FRIENDS SAU KHI LẤY DỮ LIỆU
         if (!string.IsNullOrEmpty(userId) && !isAdmin)
@@ -458,6 +458,60 @@ public class SocialService : ISocialService
 
         post.IsApproved = false;
         // Có thể thêm field RejectionReason nếu muốn
+
+        _postRepository.Update(post);
+        await _postRepository.SaveChangesAsync();
+
+        var response = _mapper.Map<PostResponse>(post);
+        response.Author = _mapper.Map<AuthorDto>(post.Author);
+        return response;
+    }
+
+    public async Task<PostResponse> PinPostAsync(Guid id)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        var post = await _postRepository.GetFirstWithIncludesAsync(
+            p => p.Id == id,
+            includes: q => q.Include(p => p.Author)
+        );
+
+        if (post == null)
+            throw new NotFoundException(_localizer["Social_NotFound"]);
+
+        if (post.IsPinned)
+            throw new InvalidOperationException(_localizer["Social_AlreadyPinned"]);
+
+        post.IsPinned = true;
+
+        _postRepository.Update(post);
+        await _postRepository.SaveChangesAsync();
+
+        var response = _mapper.Map<PostResponse>(post);
+        response.Author = _mapper.Map<AuthorDto>(post.Author);
+        return response;
+    }
+
+    public async Task<PostResponse> UnpinPostAsync(Guid id)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        var post = await _postRepository.GetFirstWithIncludesAsync(
+            p => p.Id == id,
+            includes: q => q.Include(p => p.Author)
+        );
+
+        if (post == null)
+            throw new NotFoundException(_localizer["Social_NotFound"]);
+
+        if (!post.IsPinned)
+            throw new InvalidOperationException(_localizer["Social_NotPinned"]);
+
+        post.IsPinned = false;
 
         _postRepository.Update(post);
         await _postRepository.SaveChangesAsync();
