@@ -63,7 +63,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 		// 📝 Audit log: capture TRƯỚC khi soft-delete / gán CreatedBy/UpdatedBy
 		// để bắt đúng action Delete (Deleted) và snapshot dữ liệu gốc.
 		var auditLogs = AuditLogHelper.CreateAuditLogs(
-			ChangeTracker, currentUserId, currentUserName, _currentUserService.IpAddress);
+			ChangeTracker, currentUserId, currentUserName,
+			_currentUserService.IpAddress, _currentUserService.UserAgent);
 
 		var entries = ChangeTracker.Entries<BaseEntity>();
 

@@ -1,5 +1,6 @@
 using FlashOffer.API.Domain.Attributes;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Shared.Common.Helpers;
 using FlashOffer.API.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -28,9 +29,13 @@ public static class AuditLogHelper
         ChangeTracker changeTracker,
         string? actorId,
         string? actorName,
-        string? ipAddress)
+        string? ipAddress,
+        string? userAgent)
     {
         var auditLogs = new List<AuditLog>();
+
+        // Parse thông tin thiết bị một lần cho toàn bộ request
+        var deviceInfo = UserAgentParser.Parse(userAgent);
 
         var entries = changeTracker.Entries<object>()
             .Where(e => e.State != EntityState.Unchanged
@@ -41,7 +46,7 @@ public static class AuditLogHelper
         {
             try
             {
-                var auditLog = CreateAuditLog(entry, actorId, actorName, ipAddress);
+                var auditLog = CreateAuditLog(entry, actorId, actorName, ipAddress, deviceInfo);
                 if (auditLog != null)
                     auditLogs.Add(auditLog);
             }
@@ -58,7 +63,8 @@ public static class AuditLogHelper
         EntityEntry entry,
         string? actorId,
         string? actorName,
-        string? ipAddress)
+        string? ipAddress,
+        UserAgentInfo deviceInfo)
     {
         var entityType = entry.Metadata.ClrType;
 
@@ -169,6 +175,9 @@ public static class AuditLogHelper
             ActorId = actorId,
             ActorName = actorName,
             IpAddress = ipAddress,
+            OperatingSystem = deviceInfo.OperatingSystem,
+            BrowserName = deviceInfo.BrowserName,
+            DeviceType = deviceInfo.DeviceType,
             Timestamp = DateTime.UtcNow,
             NewValues = Serialize(newValues),
             OldValues = Serialize(oldValues)

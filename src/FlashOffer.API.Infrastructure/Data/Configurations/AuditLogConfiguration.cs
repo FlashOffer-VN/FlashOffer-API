@@ -29,6 +29,15 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(x => x.IpAddress)
             .HasMaxLength(50);
 
+        builder.Property(x => x.OperatingSystem)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.BrowserName)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.DeviceType)
+            .HasMaxLength(50);
+
         builder.Property(x => x.OldValues)
             .HasColumnType("text");
 

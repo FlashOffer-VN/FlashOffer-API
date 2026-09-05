@@ -13,6 +13,9 @@ public class AuditLog
     public string? ActorId { get; set; }
     public string? ActorName { get; set; }
     public string? IpAddress { get; set; }
+    public string? OperatingSystem { get; set; }
+    public string? BrowserName { get; set; }
+    public string? DeviceType { get; set; }
     public DateTime Timestamp { get; set; }
     public string? OldValues { get; set; }
     public string? NewValues { get; set; }
