@@ -715,4 +715,21 @@
   <data name="Report_MembersSuccess">
     <value>Lấy báo cáo thành viên thành công</value>
   </data>
+
+  <!-- Audit Logs -->
+  <data name="AuditLogs_EntityListSuccess">
+    <value>Lấy danh sách audit log entity thành công</value>
+  </data>
+  <data name="AuditLogs_EntityDetailSuccess">
+    <value>Lấy chi tiết audit log entity thành công</value>
+  </data>
+  <data name="AuditLogs_AuthListSuccess">
+    <value>Lấy danh sách audit log đăng nhập/đăng ký thành công</value>
+  </data>
+  <data name="AuditLogs_AuthDetailSuccess">
+    <value>Lấy chi tiết audit log đăng nhập/đăng ký thành công</value>
+  </data>
+  <data name="AuditLogs_NotFound">
+    <value>Không tìm thấy audit log</value>
+  </data>
 </root>

@@ -60,6 +60,8 @@ public static class DependencyInjection
         services.AddScoped<ICollaboratorService, CollaboratorService>();
         services.AddScoped<ISocialInteractionService, SocialInteractionService>();
         services.AddScoped<IBusinessFieldService, BusinessFieldService>();
+        services.AddScoped<IAuthAuditService, AuthAuditService>();
+        services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
 
         return services;
 	}

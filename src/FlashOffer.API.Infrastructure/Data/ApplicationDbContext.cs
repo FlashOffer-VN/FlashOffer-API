@@ -30,6 +30,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Tag> Tags { get; set; }
     public DbSet<PostTag> PostTags { get; set; }
     public DbSet<BusinessField> BusinessFields { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<AuthAuditLog> AuthAuditLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -55,9 +57,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
 	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
-		var entries = ChangeTracker.Entries<BaseEntity>();
 		var currentUserId = _currentUserService.UserId;
 		var currentUserName = _currentUserService.UserName;
+
+		// 📝 Audit log: capture TRƯỚC khi soft-delete / gán CreatedBy/UpdatedBy
+		// để bắt đúng action Delete (Deleted) và snapshot dữ liệu gốc.
+		var auditLogs = AuditLogHelper.CreateAuditLogs(
+			ChangeTracker, currentUserId, currentUserName, _currentUserService.IpAddress);
+
+		var entries = ChangeTracker.Entries<BaseEntity>();
 
 		foreach (var entry in entries)
 		{
@@ -83,6 +91,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 				entry.Entity.UpdatedBy = currentUserName ?? currentUserId ?? "System";
 			}
 		}
+
+		if (auditLogs.Count > 0)
+			AuditLogs.AddRange(auditLogs);
 
 		return await base.SaveChangesAsync(cancellationToken);
 	}

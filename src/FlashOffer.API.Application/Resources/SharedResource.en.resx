@@ -777,4 +777,21 @@
   <data name="Report_MembersSuccess">
     <value>Members report retrieved successfully</value>
   </data>
+
+  <!-- Audit Logs -->
+  <data name="AuditLogs_EntityListSuccess">
+    <value>Entity audit logs retrieved successfully</value>
+  </data>
+  <data name="AuditLogs_EntityDetailSuccess">
+    <value>Entity audit log retrieved successfully</value>
+  </data>
+  <data name="AuditLogs_AuthListSuccess">
+    <value>Auth audit logs retrieved successfully</value>
+  </data>
+  <data name="AuditLogs_AuthDetailSuccess">
+    <value>Auth audit log retrieved successfully</value>
+  </data>
+  <data name="AuditLogs_NotFound">
+    <value>Audit log not found</value>
+  </data>
 </root>
