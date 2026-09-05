@@ -1,9 +1,11 @@
-﻿using FlashOffer.API.Application.Common.Interfaces;
+﻿using FlashOffer.API.Application.Common.Helpers;
+using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Shared.Common.Interfaces;
+using FlashOffer.API.Shared.Constants;
 using FlashOffer.API.Shared.Exceptions;
 using FlashOffer.API.Shared.Resources;
 using Microsoft.Extensions.Localization;
@@ -16,17 +18,20 @@ public class UserService : IUserService
     private readonly ICurrentUserService _currentUserService;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IStringLocalizer<ExceptionMessages> _exceptionLocalizer;
+    private readonly IAuthAuditService _authAuditService;
 
     public UserService(
         IRepository<User> userRepo,
         ICurrentUserService currentUserService,
         IStringLocalizer<SharedResource> localizer,
-        IStringLocalizer<ExceptionMessages> exceptionLocalizer)
+        IStringLocalizer<ExceptionMessages> exceptionLocalizer,
+        IAuthAuditService authAuditService)
     {
         _userRepo = userRepo;
         _currentUserService = currentUserService;
         _localizer = localizer;
         _exceptionLocalizer = exceptionLocalizer;
+        _authAuditService = authAuditService;
     }
 
     public async Task<Guid> GetOrCreateUserAsync(string fullName, string phone, string? email = null)
@@ -55,6 +60,7 @@ public class UserService : IUserService
 
         var user = new User
         {
+            UserCode = CodeGenerator.Generate("USR"),
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
@@ -66,6 +72,8 @@ public class UserService : IUserService
 
         await _userRepo.AddAsync(user);
         await _userRepo.SaveChangesAsync();
+        await _authAuditService.LogAsync(user.Id, user.Username, AuditAction.Register, true,
+            $"Tạo tài khoản mới (SĐT: {phone})");
         return user.Id;
     }
 
@@ -95,6 +103,7 @@ public class UserService : IUserService
 
         var user = new User
         {
+            UserCode = CodeGenerator.Generate("USR"),
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
@@ -106,6 +115,8 @@ public class UserService : IUserService
 
         await _userRepo.AddAsync(user);
         await _userRepo.SaveChangesAsync();
+        await _authAuditService.LogAsync(user.Id, user.Username, AuditAction.Register, true,
+            $"Tạo tài khoản mới (SĐT: {phone})");
         return user.Id;
     }
 

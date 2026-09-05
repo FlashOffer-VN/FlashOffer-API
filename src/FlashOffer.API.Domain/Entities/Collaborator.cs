@@ -24,7 +24,7 @@ public class Collaborator : BaseEntity
     // Hỗ trợ đa cấp
     public Guid? ParentCollaboratorId { get; set; }
     public int Level { get; set; } = 1;
-    public string? ReferralCode { get; set; }
+    public string? CollaboratorCode { get; set; }
 
     public bool IsApproved { get; set; } = false;
     private CollaboratorStatus _status = CollaboratorStatus.Pending;

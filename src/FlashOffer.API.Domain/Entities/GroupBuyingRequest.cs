@@ -4,6 +4,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class GroupBuyingRequest : BaseEntity
 {
+    public string? GroupBuyingRequestCode { get; set; }
     public Guid UserId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string? ProductLink { get; set; }

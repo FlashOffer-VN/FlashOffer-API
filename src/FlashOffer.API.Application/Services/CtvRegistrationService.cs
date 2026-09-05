@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Domain.Models;
 using FlashOffer.API.Infrastructure.Services;
-using System.Linq.Expressions;
 
 namespace FlashOffer.API.Application.Services;
 
@@ -15,12 +17,18 @@ public class CtvRegistrationService : ICtvRegistrationService
 	private readonly IRepository<Collaborator> _repository;
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
+    private readonly IQueryService _queryService;
 
-	public CtvRegistrationService(IRepository<Collaborator> repository, IMapper mapper, IUserService userService)
+	public CtvRegistrationService(
+		IRepository<Collaborator> repository,
+		IMapper mapper,
+		IUserService userService,
+		IQueryService queryService)
 	{
 		_repository = repository;
 		_mapper = mapper;
 		_userService = userService;
+		_queryService = queryService;
 	}
 
     public async Task<CtvRegistrationResponseDto> CreateAsync(CreateCtvRegistrationDto dto)
@@ -35,6 +43,7 @@ public class CtvRegistrationService : ICtvRegistrationService
         // 2. Map và gán UserId
         var entity = _mapper.Map<Collaborator>(dto);
         entity.UserId = userId;
+        entity.CollaboratorCode = CodeGenerator.Generate("CTV");
         entity.IsApproved = false;
         entity.CreatedAt = DateTime.UtcNow.AddHours(7);
 
@@ -46,24 +55,16 @@ public class CtvRegistrationService : ICtvRegistrationService
 
     public async Task<PagedList<CtvRegistrationResponseDto>> GetPagedAsync(CtvRegistrationQueryDto query)
 	{
-		var predicate = BuildPredicate(query.IsApproved);
+		var q = _queryService.GetQueryableNoTracking<Collaborator>()
+			.WhereIf(query.IsApproved.HasValue, x => x.IsApproved == query.IsApproved!.Value);
 
-		var pagedEntities = await _repository.GetPagedWithOrderAsync(
-			query.Page,
-			query.PageSize,
-			predicate,
-			x => x.CreatedAt,
-			true
+		var pagedEntities = await q.ToPagedListAsync(
+			query.Page, query.PageSize,
+			query.SortBy, query.SortOrder,
+			defaultSortBy: "CreatedAt"
 		);
 
-		var items = _mapper.Map<List<CtvRegistrationResponseDto>>(pagedEntities.Items);
-		return new PagedList<CtvRegistrationResponseDto>(items, pagedEntities.TotalCount, query.Page, query.PageSize);
-	}
-
-	private static Expression<Func<Collaborator, bool>>? BuildPredicate(bool? isApproved)
-	{
-		if (!isApproved.HasValue) return null;
-		return x => x.IsApproved == isApproved.Value;
+		return _mapper.MapPagedList<Collaborator, CtvRegistrationResponseDto>(pagedEntities);
 	}
 
 	public async Task<CtvRegistrationResponseDto> ApproveAsync(Guid id)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
@@ -13,7 +14,6 @@ using FlashOffer.API.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Linq.Expressions;
-using FlashOffer.API.Shared.Extensions;
 
 namespace FlashOffer.API.Application.Services;
 
@@ -207,6 +207,7 @@ public class SocialService : ISocialService
         }
 
         var post = _mapper.Map<SocialPost>(request);
+        post.SocialPostCode = CodeGenerator.Generate("SOC");
         post.AuthorId = user.Id;
 
         // If author is Admin, mark post as approved immediately
@@ -222,7 +223,7 @@ public class SocialService : ISocialService
                 var tag = await _tagRepository.GetFirstAsync(t => t.Name == tagName);
                 if (tag == null)
                 {
-                    tag = new Tag { Name = tagName, UsageCount = 0 };
+                    tag = new Tag { TagCode = CodeGenerator.Generate("TAG"), Name = tagName, UsageCount = 0 };
                     await _tagRepository.AddAsync(tag);
                     await _tagRepository.SaveChangesAsync();
                 }
@@ -306,7 +307,7 @@ public class SocialService : ISocialService
                 var tag = await _tagRepository.GetFirstAsync(t => t.Name == tagName);
                 if (tag == null)
                 {
-                    tag = new Tag { Name = tagName, UsageCount = 0 };
+                    tag = new Tag { TagCode = CodeGenerator.Generate("TAG"), Name = tagName, UsageCount = 0 };
                     await _tagRepository.AddAsync(tag);
                     await _tagRepository.SaveChangesAsync();
                 }

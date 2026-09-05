@@ -1,3 +1,4 @@
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Shared.Common.Helpers;
@@ -16,6 +17,7 @@ public static class DatabaseSeeder
 
 		var admin = new User
 		{
+			UserCode = CodeGenerator.Generate("USR"),
 			Username = "admin",
 			PasswordHash = PasswordHasher.Hash("Admin@123"),
 			FullName = "Administrator",

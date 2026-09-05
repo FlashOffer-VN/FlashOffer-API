@@ -30,5 +30,12 @@ public class BusinessFieldConfiguration : IEntityTypeConfiguration<BusinessField
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);
+
+        builder.Property(x => x.BusinessFieldCode)
+            .HasMaxLength(30);
+
+        builder.HasIndex(x => x.BusinessFieldCode)
+            .IsUnique()
+            .HasFilter("[BusinessFieldCode] IS NOT NULL");
     }
 }

@@ -18,6 +18,9 @@ public class PartnerCommissionConfiguration : IEntityTypeConfiguration<PartnerCo
         builder.Property(x => x.SpecialConditions).HasMaxLength(500);
         builder.Property(x => x.Type).HasConversion<int>();
 
+        builder.Property(x => x.PartnerCommissionCode).HasMaxLength(30);
+        builder.HasIndex(x => x.PartnerCommissionCode).IsUnique().HasFilter("[PartnerCommissionCode] IS NOT NULL");
+
         builder.HasOne(x => x.Partner)
             .WithOne(x => x.Commission)
             .HasForeignKey<PartnerCommission>(x => x.PartnerId)

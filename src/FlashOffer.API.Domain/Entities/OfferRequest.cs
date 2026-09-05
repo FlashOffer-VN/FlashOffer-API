@@ -4,6 +4,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class OfferRequest : BaseEntity
 {
+    public string? OfferRequestCode { get; set; }
     public Guid UserId { get; set; }
 
     // Product information

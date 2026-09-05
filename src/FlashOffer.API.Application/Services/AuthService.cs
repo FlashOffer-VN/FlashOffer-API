@@ -7,6 +7,7 @@ using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Shared.Common.Helpers;
 using FlashOffer.API.Shared.Common.Interfaces;
+using FlashOffer.API.Shared.Constants;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -19,17 +20,20 @@ public class AuthService : IAuthService
 	private readonly IJwtService _jwtService;
 	private readonly JwtSettings _jwtSettings;
 	private readonly ILogger<AuthService> _logger;
+	private readonly IAuthAuditService _authAuditService;
 
 	public AuthService(
 		IRepository<User> userRepository,
 		IJwtService jwtService,
 		IOptions<JwtSettings> jwtSettings,
-		ILogger<AuthService> logger)
+		ILogger<AuthService> logger,
+		IAuthAuditService authAuditService)
 	{
 		_userRepository = userRepository;
 		_jwtService = jwtService;
 		_jwtSettings = jwtSettings.Value;
 		_logger = logger;
+		_authAuditService = authAuditService;
 	}
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request)
@@ -47,12 +51,16 @@ public class AuthService : IAuthService
         if (user == null || !PasswordHasher.Verify(request.Password, user.PasswordHash ?? string.Empty))
         {
             _logger.LogWarning($"Login failed for user: {request.Username}");
+            await _authAuditService.LogAsync(null, request.Username, AuditAction.Login, false,
+                "Sai tên đăng nhập hoặc mật khẩu");
             return null;
         }
 
         if (!user.IsActive)
         {
             _logger.LogWarning($"Inactive user attempted login: {request.Username}");
+            await _authAuditService.LogAsync(user.Id, user.Username, AuditAction.Login, false,
+                "Tài khoản đã bị vô hiệu hóa");
             return null;
         }
 
@@ -63,6 +71,7 @@ public class AuthService : IAuthService
         await _userRepository.SaveChangesAsync();
 
         _logger.LogInformation($"User logged in successfully: {user.Username} (ID: {user.Id})");
+        await _authAuditService.LogAsync(user.Id, user.Username, AuditAction.Login, true);
 
         return new LoginResponse
         {
@@ -76,17 +85,35 @@ public class AuthService : IAuthService
 
     public async Task LogoutAsync(string token)
 	{
+		var principal = _jwtService.ValidateToken(token);
+		var username = principal?.FindFirst(ClaimTypes.Name)?.Value;
+		var userId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
 		_jwtService.BlacklistToken(token);
 		_logger.LogInformation("User logged out");
-		await Task.CompletedTask;
+		await _authAuditService.LogAsync(
+			Guid.TryParse(userId, out var id) ? id : null,
+			username,
+			AuditAction.Logout,
+			true);
 	}
 
 	public async Task<LoginResponse?> RefreshTokenAsync(string token)
 	{
+		// Lấy thông tin user từ token cũ (trước khi refresh) để ghi audit
+		var oldPrincipal = _jwtService.ValidateToken(token);
+		var oldUsername = oldPrincipal?.FindFirst(ClaimTypes.Name)?.Value;
+		var oldUserId = oldPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
 		var newToken = await _jwtService.RefreshTokenAsync(token);
 		if (string.IsNullOrEmpty(newToken))
 		{
 			_logger.LogWarning("Refresh token failed");
+			await _authAuditService.LogAsync(
+				Guid.TryParse(oldUserId, out var oldId) ? oldId : null,
+				oldUsername,
+				AuditAction.RefreshToken,
+				false, "Token hết hạn hoặc không hợp lệ");
 			return null;
 		}
 
@@ -97,11 +124,18 @@ public class AuthService : IAuthService
 
 		if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(userId))
 		{
+			await _authAuditService.LogAsync(null, username ?? oldUsername, AuditAction.RefreshToken, false);
 			return null;
 		}
 
 		var users = await _userRepository.FindAsync(u => u.Id == Guid.Parse(userId) && !u.IsDeleted);
 		var user = users.FirstOrDefault();
+
+		await _authAuditService.LogAsync(
+			Guid.TryParse(userId, out var id) ? id : null,
+			username,
+			AuditAction.RefreshToken,
+			true);
 
 		return new LoginResponse
 		{
@@ -118,6 +152,8 @@ public class AuthService : IAuthService
 		if (request.NewPassword != request.ConfirmNewPassword)
 		{
 			_logger.LogWarning("Password confirmation mismatch");
+			await _authAuditService.LogAsync(userId, null, AuditAction.ChangePassword, false,
+				"Mật khẩu xác nhận không khớp");
 			return false;
 		}
 
@@ -127,12 +163,16 @@ public class AuthService : IAuthService
 		if (user == null)
 		{
 			_logger.LogWarning($"User not found: {userId}");
+			await _authAuditService.LogAsync(userId, null, AuditAction.ChangePassword, false,
+				"Không tìm thấy người dùng");
 			return false;
 		}
 
 		if (!PasswordHasher.Verify(request.CurrentPassword, user.PasswordHash ?? string.Empty))
 		{
 			_logger.LogWarning($"Invalid current password for user: {userId}");
+			await _authAuditService.LogAsync(userId, user.Username, AuditAction.ChangePassword, false,
+				"Mật khẩu hiện tại không đúng");
 			return false;
 		}
 
@@ -140,6 +180,7 @@ public class AuthService : IAuthService
 		await _userRepository.SaveChangesAsync();
 
 		_logger.LogInformation($"Password changed for user: {userId}");
+		await _authAuditService.LogAsync(userId, user.Username, AuditAction.ChangePassword, true);
 		return true;
 	}
 
@@ -147,7 +188,8 @@ public class AuthService : IAuthService
 	{
 		// TODO: Send reset password email with token
 		_logger.LogInformation($"Password reset requested for email: {request.Email}");
-		await Task.CompletedTask;
+		await _authAuditService.LogAsync(null, request.Email, AuditAction.ResetPassword, true,
+			"Yêu cầu gửi link đặt lại mật khẩu");
 	}
 
 	public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request)
@@ -155,6 +197,8 @@ public class AuthService : IAuthService
 		if (request.NewPassword != request.ConfirmPassword)
 		{
 			_logger.LogWarning("Password confirmation mismatch");
+			await _authAuditService.LogAsync(null, request.Email, AuditAction.ResetPassword, false,
+				"Mật khẩu xác nhận không khớp");
 			return false;
 		}
 
@@ -165,6 +209,8 @@ public class AuthService : IAuthService
 		if (user == null)
 		{
 			_logger.LogWarning($"User not found for password reset: {request.Email}");
+			await _authAuditService.LogAsync(null, request.Email, AuditAction.ResetPassword, false,
+				"Không tìm thấy người dùng");
 			return false;
 		}
 
@@ -172,6 +218,7 @@ public class AuthService : IAuthService
 		await _userRepository.SaveChangesAsync();
 
 		_logger.LogInformation($"Password reset for user: {request.Email}");
+		await _authAuditService.LogAsync(user.Id, user.Username, AuditAction.ResetPassword, true);
 		return true;
 	}
 
@@ -185,6 +232,7 @@ public class AuthService : IAuthService
 		return new UserInfoResponse
 		{
 			Id = user.Id,
+			UserCode = user.UserCode,
 			Username = user.Username,
 			FullName = user.FullName,
 			Email = user.Email,

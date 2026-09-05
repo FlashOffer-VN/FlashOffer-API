@@ -5,6 +5,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class SocialComment : BaseEntity
 {
+    public string? SocialCommentCode { get; set; }
     public Guid PostId { get; set; }
     public Guid UserId { get; set; }
     public string Content { get; set; } = string.Empty;

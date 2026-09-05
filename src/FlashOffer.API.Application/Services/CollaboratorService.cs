@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.Requests;
 using FlashOffer.API.Application.DTOs.Responses;
@@ -70,7 +71,7 @@ public class CollaboratorService : ICollaboratorService
         //  Tạo Collaborator
         var collaborator = _mapper.Map<Collaborator>(request);
         collaborator.UserId = userGuid;
-        collaborator.ReferralCode = await GenerateUniqueReferralCodeAsync();
+        collaborator.CollaboratorCode = await GenerateUniqueCollaboratorCodeAsync();
         collaborator.Status = CollaboratorStatus.Pending;
         collaborator.IsApproved = false;
         collaborator.Level = 1;
@@ -132,14 +133,14 @@ public class CollaboratorService : ICollaboratorService
         return _mapper.Map<CollaboratorResponseDto>(collaborator);
     }
 
-    private async Task<string> GenerateUniqueReferralCodeAsync()
+    private async Task<string> GenerateUniqueCollaboratorCodeAsync()
     {
         string code;
         bool exists;
         do
         {
-            code = $"CTV{DateTime.Now.Ticks:X8}{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
-            exists = await _repository.AnyAsync(c => c.ReferralCode == code);
+            code = CodeGenerator.Generate("CTV");
+            exists = await _repository.AnyAsync(c => c.CollaboratorCode == code);
         } while (exists);
         return code;
     }

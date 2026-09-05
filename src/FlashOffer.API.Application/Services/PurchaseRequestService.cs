@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Resources;
@@ -17,17 +20,24 @@ public class PurchaseRequestService : IPurchaseRequestService
 	private readonly IRepository<PurchaseRequest> _repository;
 	private readonly IMapper _mapper;
 	private readonly IStringLocalizer<SharedResource> _localizer;
+	private readonly IQueryService _queryService;
 
-	public PurchaseRequestService(IRepository<PurchaseRequest> repository, IMapper mapper, IStringLocalizer<SharedResource> stringLocalizer)
+	public PurchaseRequestService(
+		IRepository<PurchaseRequest> repository,
+		IMapper mapper,
+		IStringLocalizer<SharedResource> stringLocalizer,
+		IQueryService queryService)
 	{
 		_repository = repository;
 		_mapper = mapper;
 		_localizer = stringLocalizer;
+		_queryService = queryService;
 	}
 
 	public async Task<PurchaseRequestResponseDto> CreateAsync(CreatePurchaseRequestDto request)
 	{
 		var entity = _mapper.Map<PurchaseRequest>(request);
+		entity.PurchaseRequestCode = CodeGenerator.Generate("PRQ");
 		entity.Status = PurchaseRequestStatus.Pending;
 
 		await _repository.AddAsync(entity);
@@ -38,31 +48,18 @@ public class PurchaseRequestService : IPurchaseRequestService
 
 	public async Task<PagedList<PurchaseRequestResponseDto>> GetPagedAsync(PurchaseRequestQueryDto query)
 	{
-		var predicate = BuildPredicate(query);
-		var pagedEntities = await _repository.GetPagedWithOrderAsync(
-			pageNumber: query.Page,
-			pageSize: query.PageSize,
-			predicate: predicate,
-			orderBy: x => x.CreatedAt,
-			isDescending: true
-		);
+		var q = _queryService.GetAllNoTracking<PurchaseRequest>()
+			.WhereIf(query.Status.HasValue, x => x.Status == query.Status!.Value);
 
-		var items = _mapper.Map<List<PurchaseRequestResponseDto>>(pagedEntities.Items);
-		return new PagedList<PurchaseRequestResponseDto>(
-			items,
-			pagedEntities.TotalCount,
+		var pagedEntities = await q.ToPagedListAsync(
 			query.Page,
-			query.PageSize
+			query.PageSize,
+			query.SortBy,
+			query.SortOrder,
+			defaultSortBy: "CreatedAt"
 		);
-	}
 
-	private System.Linq.Expressions.Expression<Func<PurchaseRequest, bool>>? BuildPredicate(PurchaseRequestQueryDto query)
-	{
-		if (query.Status.HasValue)
-		{
-			return x => x.Status == query.Status.Value;
-		}
-		return null;
+		return _mapper.MapPagedList<PurchaseRequest, PurchaseRequestResponseDto>(pagedEntities);
 	}
 
 	public async Task<PurchaseRequestStatusResponseDto> UpdateStatusAsync(

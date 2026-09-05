@@ -52,6 +52,13 @@ public class PurchaseRequestConfiguration : IEntityTypeConfiguration<PurchaseReq
         builder.Property(x => x.Source)
             .HasMaxLength(50);
 
+        builder.Property(x => x.PurchaseRequestCode)
+            .HasMaxLength(30);
+
+        builder.HasIndex(x => x.PurchaseRequestCode)
+            .IsUnique()
+            .HasFilter("[PurchaseRequestCode] IS NOT NULL");
+
         builder.Property(x => x.Status)
             .HasConversion<int>()
             .HasDefaultValue(Domain.Enums.PurchaseRequestStatus.Pending);

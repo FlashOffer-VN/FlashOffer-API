@@ -5,6 +5,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class PartnerCommission : BaseEntity
 {
+    public string? PartnerCommissionCode { get; set; }
     public Guid PartnerId { get; set; }
     public CommissionType Type { get; set; }
     public decimal Rate { get; set; }

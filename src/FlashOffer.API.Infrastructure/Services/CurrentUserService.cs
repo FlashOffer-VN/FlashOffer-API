@@ -22,4 +22,22 @@ public class CurrentUserService : ICurrentUserService
     {
         return _httpContextAccessor.HttpContext?.User?.IsInRole(role) ?? false;
     }
+
+    public string? IpAddress
+    {
+        get
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null) return null;
+
+            var forwardedFor = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(forwardedFor))
+                return forwardedFor.Split(',')[0].Trim();
+
+            return httpContext.Connection.RemoteIpAddress?.ToString();
+        }
+    }
+
+    public string? UserAgent
+        => _httpContextAccessor.HttpContext?.Request?.Headers.UserAgent.ToString();
 }

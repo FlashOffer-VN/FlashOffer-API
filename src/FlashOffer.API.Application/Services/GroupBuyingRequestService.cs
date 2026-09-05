@@ -1,6 +1,9 @@
 ﻿// src/FlashOffer.API.Application/Services/GroupBuyingRequestService.cs
 using AutoMapper;
+using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
@@ -17,17 +20,20 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserService _userService;
+    private readonly IQueryService _queryService;
 
     public GroupBuyingRequestService(
         IRepository<GroupBuyingRequest> repository,
         IMapper mapper,
         ICurrentUserService currentUserService,
-        IUserService userService)
+        IUserService userService,
+        IQueryService queryService)
     {
         _repository = repository;
         _mapper = mapper;
         _currentUserService = currentUserService;
         _userService = userService;
+        _queryService = queryService;
     }
 
     public async Task<GroupBuyingRequestResponseDto> CreateAsync(CreateGroupBuyingRequestDto request)
@@ -49,6 +55,7 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
 
         // 3. Map và gán UserId
         var entity = _mapper.Map<GroupBuyingRequest>(request);
+        entity.GroupBuyingRequestCode = CodeGenerator.Generate("GBR");
         entity.UserId = Guid.Parse(userId);
         entity.CurrentPeopleCount = 1;
         entity.Status = GroupBuyingStatus.Pending;
@@ -61,25 +68,22 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
 
     public async Task<PagedList<GroupBuyingRequestResponseDto>> GetPagedAsync(GetGroupBuyingRequestsQueryDto query)
     {
-        // Admin - lấy tất cả
-        if (_currentUserService.IsInRole("Admin"))
-        {
-            var result = await _repository.GetPagedAsync(query.Page, query.PageSize);
-            var sortedItems = result.Items.OrderByDescending(x => x.CreatedAt).ToList();
-            var items = _mapper.Map<List<GroupBuyingRequestResponseDto>>(sortedItems);
-            return new PagedList<GroupBuyingRequestResponseDto>(items, result.TotalCount, query.Page, query.PageSize);
-        }
-        // User - chỉ lấy của mình
-        else
-        {
-            var userId = _currentUserService.UserId;
-            if (string.IsNullOrEmpty(userId))
-                return new PagedList<GroupBuyingRequestResponseDto>(new List<GroupBuyingRequestResponseDto>(), 0, query.Page, query.PageSize);
+        // Admin - lấy tất cả; User - chỉ lấy của mình
+        var userId = _currentUserService.IsInRole("Admin")
+            ? null
+            : _currentUserService.UserId;
 
-            var result = await _repository.GetPagedAsync(query.Page, query.PageSize, x => x.UserId == Guid.Parse(userId));
-            var sortedItems = result.Items.OrderByDescending(x => x.CreatedAt).ToList();
-            var items = _mapper.Map<List<GroupBuyingRequestResponseDto>>(sortedItems);
-            return new PagedList<GroupBuyingRequestResponseDto>(items, result.TotalCount, query.Page, query.PageSize);
-        }
+        if (!_currentUserService.IsInRole("Admin") && string.IsNullOrEmpty(userId))
+            return new PagedList<GroupBuyingRequestResponseDto>(new List<GroupBuyingRequestResponseDto>(), 0, query.Page, query.PageSize);
+
+        var q = _queryService.GetQueryableNoTracking<GroupBuyingRequest>()
+            .WhereIf(userId != null, x => x.UserId == Guid.Parse(userId!));
+
+        var result = await q.ToPagedListAsync(
+            query.Page, query.PageSize,
+            query.SortBy, query.SortOrder,
+            defaultSortBy: "CreatedAt");
+
+        return _mapper.MapPagedList<GroupBuyingRequest, GroupBuyingRequestResponseDto>(result);
     }
 }

@@ -53,4 +53,6 @@ public class DesignTimeCurrentUserService : ICurrentUserService
 	public string? UserName => "DevLocal_Migration";
 	public bool IsAuthenticated => false;
     public bool IsInRole(string role) => false;
+    public string? IpAddress => "127.0.0.1";
+    public string? UserAgent => "EFCore-DesignTime";
 }

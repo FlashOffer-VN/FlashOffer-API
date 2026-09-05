@@ -10,5 +10,8 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(50).IsRequired();
         builder.HasIndex(x => x.Name).IsUnique();
+
+        builder.Property(x => x.TagCode).HasMaxLength(30);
+        builder.HasIndex(x => x.TagCode).IsUnique().HasFilter("[TagCode] IS NOT NULL");
     }
 }

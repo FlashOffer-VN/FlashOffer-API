@@ -153,7 +153,11 @@ static void ConfigureServices(WebApplicationBuilder builder)
         .WriteTo.Console()
         .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
         .WriteTo.Seq(seqUrl, apiKey: seqApiKey)
-        .WriteTo.TelegramBot(telegramToken, chatId, restrictedToMinimumLevel: LogEventLevel.Error)
+        .WriteTo.TelegramBot(telegramToken, chatId,
+            applicationName: "FlashOffer.API",
+            renderMessageImplementation: TelegramMessageFormatter.Build,
+            restrictedToMinimumLevel: LogEventLevel.Error,
+            parseMode: ParseMode.HTML)
         .CreateLogger();
 
     builder.Host.UseSerilog();

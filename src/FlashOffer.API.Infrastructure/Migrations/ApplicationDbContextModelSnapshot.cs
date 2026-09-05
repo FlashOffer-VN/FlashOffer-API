@@ -22,6 +22,137 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ActorId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ActorName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BrowserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ChangedProperties")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OldValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("EntityId");
+
+                    b.HasIndex("EntityName");
+
+                    b.HasIndex("Timestamp");
+
+                    b.ToTable("AuditLogs", (string)null);
+                });
+
+            modelBuilder.Entity("FlashOffer.API.Domain.Entities.AuthAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BrowserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Username");
+
+                    b.ToTable("AuthAuditLogs", (string)null);
+                });
+
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.BusinessField", b =>
                 {
                     b.Property<Guid>("Id")
@@ -31,6 +162,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<string>("Aliases")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BusinessFieldCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -64,6 +199,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessFieldCode")
+                        .IsUnique()
+                        .HasFilter("[BusinessFieldCode] IS NOT NULL");
+
                     b.HasIndex("NormalizedName")
                         .IsUnique()
                         .HasDatabaseName("IX_BusinessFields_NormalizedName");
@@ -92,6 +231,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<string>("BusinessFieldName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("CollaboratorCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -145,10 +288,6 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("ReferralCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<DateTime?>("RejectedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -186,6 +325,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("BusinessFieldId");
 
+                    b.HasIndex("CollaboratorCode")
+                        .IsUnique()
+                        .HasFilter("[CollaboratorCode] IS NOT NULL");
+
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasFilter("[Email] IS NOT NULL");
@@ -194,10 +337,6 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("Phone")
                         .IsUnique();
-
-                    b.HasIndex("ReferralCode")
-                        .IsUnique()
-                        .HasFilter("[ReferralCode] IS NOT NULL");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -230,6 +369,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("GroupBuyingRequestCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -273,9 +416,13 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("BusinessFieldId");
 
+                    b.HasIndex("GroupBuyingRequestCode")
+                        .IsUnique()
+                        .HasFilter("[GroupBuyingRequestCode] IS NOT NULL");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("GroupBuyingRequests");
+                    b.ToTable("GroupBuyingRequests", (string)null);
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.OfferRequest", b =>
@@ -322,6 +469,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("OfferRequestCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -365,6 +516,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessFieldId");
+
+                    b.HasIndex("OfferRequestCode")
+                        .IsUnique()
+                        .HasFilter("[OfferRequestCode] IS NOT NULL");
 
                     b.HasIndex("UserId");
 
@@ -508,6 +663,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<string>("PartnerCommissionCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<Guid>("PartnerId")
                         .HasColumnType("uuid");
 
@@ -529,6 +688,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PartnerCommissionCode")
+                        .IsUnique()
+                        .HasFilter("[PartnerCommissionCode] IS NOT NULL");
 
                     b.HasIndex("PartnerId")
                         .IsUnique();
@@ -572,6 +735,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<Guid>("PartnerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PartnerProductCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<decimal>("RetailPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -591,6 +758,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.HasIndex("BusinessFieldId");
 
                     b.HasIndex("PartnerId");
+
+                    b.HasIndex("PartnerProductCode")
+                        .IsUnique()
+                        .HasFilter("[PartnerProductCode] IS NOT NULL");
 
                     b.ToTable("PartnerProducts", (string)null);
                 });
@@ -684,6 +855,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("PurchaseRequestCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -721,6 +896,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("BusinessFieldId");
 
+                    b.HasIndex("PurchaseRequestCode")
+                        .IsUnique()
+                        .HasFilter("[PurchaseRequestCode] IS NOT NULL");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("PurchaseRequests", (string)null);
@@ -751,6 +930,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("SocialCommentCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -766,9 +949,13 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
+                    b.HasIndex("SocialCommentCode")
+                        .IsUnique()
+                        .HasFilter("[SocialCommentCode] IS NOT NULL");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("SocialComment");
+                    b.ToTable("SocialComment", (string)null);
                 });
 
             modelBuilder.Entity("FlashOffer.API.Domain.Entities.SocialLike", b =>
@@ -883,6 +1070,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<int>("SharesCount")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SocialPostCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Title")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -907,6 +1098,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("Privacy");
+
+                    b.HasIndex("SocialPostCode")
+                        .IsUnique()
+                        .HasFilter("[SocialPostCode] IS NOT NULL");
 
                     b.HasIndex("Type");
 
@@ -975,6 +1170,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("TagCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -988,6 +1187,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("TagCode")
+                        .IsUnique()
+                        .HasFilter("[TagCode] IS NOT NULL");
 
                     b.ToTable("Tags", (string)null);
                 });
@@ -1044,6 +1247,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("UserCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1057,6 +1264,10 @@ namespace FlashOffer.API.Infrastructure.Migrations
                     b.HasIndex("Phone")
                         .IsUnique()
                         .HasDatabaseName("IX_Users_Phone_Unique");
+
+                    b.HasIndex("UserCode")
+                        .IsUnique()
+                        .HasFilter("[UserCode] IS NOT NULL");
 
                     b.HasIndex("Username")
                         .IsUnique();

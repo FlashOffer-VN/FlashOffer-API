@@ -9,6 +9,7 @@ public class CtvResponseDto : IMapFrom<Collaborator>
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
+    public string? CollaboratorCode { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string? Zalo { get; set; }
@@ -41,6 +42,7 @@ public class CtvDetailResponseDto : CtvResponseDto
 public class UserInfoDto : IMapFrom<User>
 {
     public Guid Id { get; set; }
+    public string? UserCode { get; set; }
     public string? Username { get; set; }
     public string Email { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
