@@ -1,6 +1,7 @@
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Shared.Common.Helpers;
 using FlashOffer.API.Shared.Common.Interfaces;
 
 namespace FlashOffer.API.Application.Services;
@@ -26,6 +27,9 @@ public class AuthAuditService : IAuthAuditService
         string? detail = null,
         CancellationToken cancellationToken = default)
     {
+        // Parse User-Agent ra thông tin thiết bị ngay lúc ghi log
+        var deviceInfo = UserAgentParser.Parse(_currentUser.UserAgent);
+
         var entry = new AuthAuditLog
         {
             Id = Guid.NewGuid(),
@@ -36,6 +40,9 @@ public class AuthAuditService : IAuthAuditService
             Detail = detail,
             IpAddress = _currentUser.IpAddress,
             UserAgent = _currentUser.UserAgent,
+            OperatingSystem = deviceInfo.OperatingSystem,
+            BrowserName = deviceInfo.BrowserName,
+            DeviceType = deviceInfo.DeviceType,
             Timestamp = DateTime.UtcNow
         };
 

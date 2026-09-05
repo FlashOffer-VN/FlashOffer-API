@@ -25,6 +25,15 @@ public class AuthAuditLogConfiguration : IEntityTypeConfiguration<AuthAuditLog>
         builder.Property(x => x.UserAgent)
             .HasMaxLength(500);
 
+        builder.Property(x => x.OperatingSystem)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.BrowserName)
+            .HasMaxLength(100);
+
+        builder.Property(x => x.DeviceType)
+            .HasMaxLength(50);
+
         builder.Property(x => x.Detail)
             .HasMaxLength(1000);
 
