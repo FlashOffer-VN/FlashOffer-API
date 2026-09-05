@@ -760,4 +760,21 @@
   <data name="Social_NotPinned">
     <value>Post is not pinned</value>
   </data>
+
+  <!-- Report -->
+  <data name="Report_OverviewSuccess">
+    <value>Overview report retrieved successfully</value>
+  </data>
+  <data name="Report_TrendSuccess">
+    <value>Trend report retrieved successfully</value>
+  </data>
+  <data name="Report_RequestsSuccess">
+    <value>Request report retrieved successfully</value>
+  </data>
+  <data name="Report_SocialSuccess">
+    <value>Social report retrieved successfully</value>
+  </data>
+  <data name="Report_MembersSuccess">
+    <value>Members report retrieved successfully</value>
+  </data>
 </root>

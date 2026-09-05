@@ -698,4 +698,21 @@
   <data name="Social_NotPinned">
     <value>Bài viết chưa được ghim</value>
   </data>
+
+  <!-- Report -->
+  <data name="Report_OverviewSuccess">
+    <value>Lấy báo cáo tổng quan thành công</value>
+  </data>
+  <data name="Report_TrendSuccess">
+    <value>Lấy báo cáo xu hướng thành công</value>
+  </data>
+  <data name="Report_RequestsSuccess">
+    <value>Lấy báo cáo yêu cầu thành công</value>
+  </data>
+  <data name="Report_SocialSuccess">
+    <value>Lấy báo cáo mạng xã hội thành công</value>
+  </data>
+  <data name="Report_MembersSuccess">
+    <value>Lấy báo cáo thành viên thành công</value>
+  </data>
 </root>
