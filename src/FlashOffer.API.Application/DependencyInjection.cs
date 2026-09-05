@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IBusinessFieldService, BusinessFieldService>();
         services.AddScoped<IAuthAuditService, AuthAuditService>();
         services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
+        services.AddScoped<IQueryService, QueryService>();
 
         return services;
 	}

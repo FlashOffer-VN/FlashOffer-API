@@ -1,28 +1,26 @@
 using AutoMapper;
+using FlashOffer.API.Application.Common.Extensions;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Domain.Entities;
-using FlashOffer.API.Domain.Interfaces;
 using FlashOffer.API.Domain.Models;
 using FlashOffer.API.Shared.Common.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashOffer.API.Application.Services;
 
 public class AuditLogQueryService : IAuditLogQueryService
 {
-    private readonly IRepository<AuditLog> _auditLogRepository;
-    private readonly IRepository<AuthAuditLog> _authAuditLogRepository;
+    private readonly IQueryService _queryService;
     private readonly IMapper _mapper;
 
     public AuditLogQueryService(
-        IRepository<AuditLog> auditLogRepository,
-        IRepository<AuthAuditLog> authAuditLogRepository,
+        IQueryService queryService,
         IMapper mapper)
     {
-        _auditLogRepository = auditLogRepository;
-        _authAuditLogRepository = authAuditLogRepository;
+        _queryService = queryService;
         _mapper = mapper;
     }
 
@@ -30,17 +28,17 @@ public class AuditLogQueryService : IAuditLogQueryService
         AuditLogQueryDto query,
         CancellationToken cancellationToken = default)
     {
-        var result = await _auditLogRepository.GetPagedWithOrderAsync(
-            query.PageNumber,
-            query.PageSize,
-            x =>
-                (string.IsNullOrEmpty(query.EntityName) || x.EntityName.Contains(query.EntityName)) &&
-                (string.IsNullOrEmpty(query.Action) || x.Action == query.Action) &&
-                (string.IsNullOrEmpty(query.ActorId) || x.ActorId == query.ActorId) &&
-                (!query.FromDate.HasValue || x.Timestamp >= query.FromDate.Value.ToUniversalTime()) &&
-                (!query.ToDate.HasValue || x.Timestamp <= query.ToDate.Value.ToUniversalTime()),
-            x => x.Timestamp,
-            true,
+        var q = _queryService.GetQueryableNoTracking<AuditLog>()
+            .WhereIf(!string.IsNullOrEmpty(query.EntityName), x => x.EntityName.Contains(query.EntityName!))
+            .WhereIf(!string.IsNullOrEmpty(query.Action), x => x.Action == query.Action)
+            .WhereIf(!string.IsNullOrEmpty(query.ActorId), x => x.ActorId == query.ActorId)
+            .WhereIf(query.FromDate.HasValue, x => x.Timestamp >= query.FromDate!.Value.ToUniversalTime())
+            .WhereIf(query.ToDate.HasValue, x => x.Timestamp <= query.ToDate!.Value.ToUniversalTime());
+
+        var result = await q.ToPagedListAsync(
+            query.PageNumber, query.PageSize,
+            query.SortBy, query.SortOrder,
+            defaultSortBy: "Timestamp",
             cancellationToken);
 
         return _mapper.MapPagedList<AuditLog, AuditLogDto>(result);
@@ -48,7 +46,9 @@ public class AuditLogQueryService : IAuditLogQueryService
 
     public async Task<AuditLogDto?> GetEntityLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await _auditLogRepository.GetByIdAsync(id, cancellationToken);
+        var entity = await _queryService.GetQueryableNoTracking<AuditLog>()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
         return entity == null ? null : _mapper.Map<AuditLogDto>(entity);
     }
 
@@ -56,19 +56,19 @@ public class AuditLogQueryService : IAuditLogQueryService
         AuthAuditLogQueryDto query,
         CancellationToken cancellationToken = default)
     {
-        var result = await _authAuditLogRepository.GetPagedWithOrderAsync(
-            query.PageNumber,
-            query.PageSize,
-            x =>
-                (string.IsNullOrEmpty(query.Username) || x.Username!.Contains(query.Username)) &&
-                (string.IsNullOrEmpty(query.Action) || x.Action == query.Action) &&
-                (!query.IsSuccess.HasValue || x.IsSuccess == query.IsSuccess) &&
-                (string.IsNullOrEmpty(query.OperatingSystem) || x.OperatingSystem == query.OperatingSystem) &&
-                (string.IsNullOrEmpty(query.DeviceType) || x.DeviceType == query.DeviceType) &&
-                (!query.FromDate.HasValue || x.Timestamp >= query.FromDate.Value.ToUniversalTime()) &&
-                (!query.ToDate.HasValue || x.Timestamp <= query.ToDate.Value.ToUniversalTime()),
-            x => x.Timestamp,
-            true,
+        var q = _queryService.GetQueryableNoTracking<AuthAuditLog>()
+            .WhereIf(!string.IsNullOrEmpty(query.Username), x => x.Username!.Contains(query.Username!))
+            .WhereIf(!string.IsNullOrEmpty(query.Action), x => x.Action == query.Action)
+            .WhereIf(!string.IsNullOrEmpty(query.OperatingSystem), x => x.OperatingSystem == query.OperatingSystem)
+            .WhereIf(!string.IsNullOrEmpty(query.DeviceType), x => x.DeviceType == query.DeviceType)
+            .WhereIf(query.IsSuccess.HasValue, x => x.IsSuccess == query.IsSuccess!.Value)
+            .WhereIf(query.FromDate.HasValue, x => x.Timestamp >= query.FromDate!.Value.ToUniversalTime())
+            .WhereIf(query.ToDate.HasValue, x => x.Timestamp <= query.ToDate!.Value.ToUniversalTime());
+
+        var result = await q.ToPagedListAsync(
+            query.PageNumber, query.PageSize,
+            query.SortBy, query.SortOrder,
+            defaultSortBy: "Timestamp",
             cancellationToken);
 
         var paged = _mapper.MapPagedList<AuthAuditLog, AuthAuditLogDto>(result);
@@ -80,7 +80,9 @@ public class AuditLogQueryService : IAuditLogQueryService
 
     public async Task<AuthAuditLogDto?> GetAuthLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await _authAuditLogRepository.GetByIdAsync(id, cancellationToken);
+        var entity = await _queryService.GetQueryableNoTracking<AuthAuditLog>()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
         if (entity == null) return null;
 
         var dto = _mapper.Map<AuthAuditLogDto>(entity);
@@ -94,9 +96,9 @@ public class AuditLogQueryService : IAuditLogQueryService
     /// </summary>
     private static void FillDeviceInfoIfMissing(AuthAuditLogDto dto)
     {
-        if (!string.IsNullOrEmpty(dto.OperatingSystem)
-            && !string.IsNullOrEmpty(dto.BrowserName)
-            && !string.IsNullOrEmpty(dto.DeviceType))
+        if (!string.IsNullOrWhiteSpace(dto.OperatingSystem)
+            && !string.IsNullOrWhiteSpace(dto.BrowserName)
+            && !string.IsNullOrWhiteSpace(dto.DeviceType))
             return;
 
         var info = UserAgentParser.Parse(dto.UserAgent);

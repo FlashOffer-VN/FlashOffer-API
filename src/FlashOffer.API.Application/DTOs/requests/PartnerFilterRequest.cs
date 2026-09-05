@@ -8,4 +8,6 @@ public class PartnerFilterRequest
     public int PageSize { get; set; } = 10;
     public string? Search { get; set; }
     public PartnerStatus? Status { get; set; }
+    public string? SortBy { get; set; }    // VD: "CreatedAt"
+    public string? SortOrder { get; set; } // "asc" | "desc"
 }

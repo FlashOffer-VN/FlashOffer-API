@@ -1,9 +1,9 @@
+using FlashOffer.API.Application.Common.Models;
+
 namespace FlashOffer.API.Application.DTOs.requests;
 
-public class AuditLogQueryDto
+public class AuditLogQueryDto : SortableQueryRequest
 {
-    public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 20;
     public string? EntityName { get; set; }
     public string? Action { get; set; }
     public string? ActorId { get; set; }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Exceptions;
+using FlashOffer.API.Application.Common.Extensions;
 using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.Requests;
 using FlashOffer.API.Application.DTOs.Responses;
 using FlashOffer.API.Application.Resources;
@@ -12,19 +14,18 @@ using FlashOffer.API.Shared.Common.Interfaces;
 using FlashOffer.API.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using System.Linq.Expressions;
-using FlashOffer.API.Shared.Extensions;
 
 namespace FlashOffer.API.Application.Services;
 
 public class PartnerService : IPartnerService
 {
-    private readonly IRepository<Partner> _partnerRepo; 
+    private readonly IRepository<Partner> _partnerRepo;
     private readonly IUserService _userService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IRepository<User> _userRepo;
+    private readonly IQueryService _queryService;
 
     public PartnerService(
         IRepository<Partner> partnerRepo,
@@ -32,7 +33,8 @@ public class PartnerService : IPartnerService
         IUserService userService,
         ICurrentUserService currentUserService,
         IMapper mapper,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IQueryService queryService)
     {
         _partnerRepo = partnerRepo;
         _userRepo = userRepo;
@@ -40,6 +42,7 @@ public class PartnerService : IPartnerService
         _currentUserService = currentUserService;
         _mapper = mapper;
         _localizer = localizer;
+        _queryService = queryService;
     }
 
     public async Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request)
@@ -106,38 +109,26 @@ public class PartnerService : IPartnerService
 
     public async Task<PagedList<PartnerResponseDto>> GetPagedAsync(PartnerFilterRequest filter)
     {
-        Expression<Func<Partner, bool>> predicate = x => true;
+        var q = _queryService.GetAllNoTracking<Partner>()
+            // Search filter
+            .WhereIf(!string.IsNullOrEmpty(filter.Search), x =>
+                x.FullName.Contains(filter.Search!) ||
+                x.Email.Contains(filter.Search!) ||
+                x.Phone.Contains(filter.Search!) ||
+                x.CompanyName.Contains(filter.Search!) ||
+                x.CompanyTax.Contains(filter.Search!))
+            // Status filter
+            .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value);
 
-        // Search filter
-        if (!string.IsNullOrEmpty(filter.Search))
-        {
-            predicate = predicate.And(x =>
-                x.FullName.Contains(filter.Search) ||
-                x.Email.Contains(filter.Search) ||
-                x.Phone.Contains(filter.Search) ||
-                x.CompanyName.Contains(filter.Search) ||
-                x.CompanyTax.Contains(filter.Search));
-        }
-
-        // Status filter
-        if (filter.Status.HasValue)
-        {
-            predicate = predicate.And(x => x.Status == filter.Status.Value);
-        }
-
-        var result = await _partnerRepo.GetPagedWithOrderAsync(
+        var result = await q.ToPagedListAsync(
             filter.PageNumber,
             filter.PageSize,
-            predicate,
-            x => x.CreatedAt,
-            true);
+            filter.SortBy,
+            filter.SortOrder,
+            defaultSortBy: "CreatedAt"
+        );
 
-        var items = _mapper.Map<List<PartnerResponseDto>>(result.Items);
-        return new PagedList<PartnerResponseDto>(
-            items,
-            result.TotalCount,
-            result.PageNumber,
-            result.PageSize);
+        return _mapper.MapPagedList<Partner, PartnerResponseDto>(result);
     }
 
     public async Task<PartnerDetailResponseDto?> GetDetailAsync(Guid id)
