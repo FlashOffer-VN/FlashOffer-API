@@ -18,6 +18,9 @@ public class PartnerProductConfiguration : IEntityTypeConfiguration<PartnerProdu
         builder.Property(x => x.WholesalePrice).HasPrecision(18, 2);
         builder.Property(x => x.Category).HasConversion<int>();
 
+        builder.Property(x => x.PartnerProductCode).HasMaxLength(30);
+        builder.HasIndex(x => x.PartnerProductCode).IsUnique().HasFilter("[PartnerProductCode] IS NOT NULL");
+
         builder.HasOne(x => x.Partner)
             .WithMany(x => x.Products)
             .HasForeignKey(x => x.PartnerId)

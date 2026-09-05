@@ -21,7 +21,7 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public string? Experience { get; set; }
     public string? Address { get; set; }
     public int Level { get; set; }
-    public string? ReferralCode { get; set; }
+    public string? CollaboratorCode { get; set; }
     public CollaboratorStatus Status { get; set; }
     public bool IsApproved { get; set; }
     public DateTime? ApprovedAt { get; set; }

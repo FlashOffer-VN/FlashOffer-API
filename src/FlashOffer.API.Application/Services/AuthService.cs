@@ -232,6 +232,7 @@ public class AuthService : IAuthService
 		return new UserInfoResponse
 		{
 			Id = user.Id,
+			UserCode = user.UserCode,
 			Username = user.Username,
 			FullName = user.FullName,
 			Email = user.Email,

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
@@ -36,6 +37,7 @@ public class PurchaseRequestService : IPurchaseRequestService
 	public async Task<PurchaseRequestResponseDto> CreateAsync(CreatePurchaseRequestDto request)
 	{
 		var entity = _mapper.Map<PurchaseRequest>(request);
+		entity.PurchaseRequestCode = CodeGenerator.Generate("PRQ");
 		entity.Status = PurchaseRequestStatus.Pending;
 
 		await _repository.AddAsync(entity);

@@ -8,6 +8,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class PurchaseRequestResponseDto : IMapFrom<PurchaseRequest>
 {
     public Guid Id { get; set; }
+    public string? PurchaseRequestCode { get; set; }
     public Guid UserId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string? ProductCategory { get; set; } 

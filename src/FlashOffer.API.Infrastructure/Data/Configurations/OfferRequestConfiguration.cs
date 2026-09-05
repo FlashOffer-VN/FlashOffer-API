@@ -59,6 +59,13 @@ public class OfferRequestConfiguration : IEntityTypeConfiguration<OfferRequest>
         builder.Property(x => x.IsOfferSent)
             .HasDefaultValue(false);
 
+        builder.Property(x => x.OfferRequestCode)
+            .HasMaxLength(30);
+
+        builder.HasIndex(x => x.OfferRequestCode)
+            .IsUnique()
+            .HasFilter("[OfferRequestCode] IS NOT NULL");
+
         // Relationships
         builder.HasOne(x => x.User)
             .WithMany()

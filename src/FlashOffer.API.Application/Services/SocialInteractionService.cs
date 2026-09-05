@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
@@ -89,6 +90,7 @@ public class SocialInteractionService : ISocialInteractionService
 
         var comment = new SocialComment
         {
+            SocialCommentCode = CodeGenerator.Generate("SCM"),
             PostId = postId,
             UserId = userId,
             Content = content,

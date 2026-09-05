@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Exceptions;
 using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.Requests;
@@ -78,12 +79,14 @@ public class PartnerService : IPartnerService
         foreach (var product in products)
         {
             product.PartnerId = partner.Id;
+            product.PartnerProductCode = CodeGenerator.Generate("PRDP");
         }
         partner.Products = products;
 
         // 5. Map commission và gán PartnerId
         partner.Commission = _mapper.Map<PartnerCommission>(request);
         partner.Commission.PartnerId = partner.Id;
+        partner.Commission.PartnerCommissionCode = CodeGenerator.Generate("PCM");
 
         // 6. Lưu vào DB
         await _partnerRepo.AddAsync(partner);

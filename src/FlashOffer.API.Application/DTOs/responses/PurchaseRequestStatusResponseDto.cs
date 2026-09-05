@@ -9,6 +9,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class PurchaseRequestStatusResponseDto : IMapFrom<PurchaseRequest>
 {
 	public Guid Id { get; set; }
+	public string? PurchaseRequestCode { get; set; }
 	public PurchaseRequestStatus Status { get; set; }
 	public DateTime UpdatedAt { get; set; }
 

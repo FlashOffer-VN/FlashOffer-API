@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Features.PurchaseRequests.Commands;
@@ -50,6 +51,7 @@ public class CreatePurchaseRequestHandler : IRequestHandler<CreatePurchaseReques
 
         // 3. Tạo entity và gán UserId
         var entity = _mapper.Map<PurchaseRequest>(request);
+        entity.PurchaseRequestCode = CodeGenerator.Generate("PRQ");
         entity.UserId = userId;
         entity.Status = PurchaseRequestStatus.Pending;
 

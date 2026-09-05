@@ -48,5 +48,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
 		builder.Property(x => x.IsActive)
 			.HasDefaultValue(true);
+
+		builder.Property(x => x.UserCode)
+			.HasMaxLength(30);
+
+		builder.HasIndex(x => x.UserCode)
+			.IsUnique()
+			.HasFilter("[UserCode] IS NOT NULL");
 	}
 }

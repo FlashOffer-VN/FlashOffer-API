@@ -9,6 +9,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class GroupBuyingRequestResponseDto : IMapFrom<GroupBuyingRequest>
 {
     public Guid Id { get; set; }
+    public string? GroupBuyingRequestCode { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string? ProductLink { get; set; }             
     public int TargetPeopleCount { get; set; }

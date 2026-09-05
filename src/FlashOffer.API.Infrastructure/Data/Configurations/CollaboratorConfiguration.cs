@@ -45,8 +45,8 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
         builder.Property(c => c.Experience)
             .HasMaxLength(1000);
 
-        builder.Property(c => c.ReferralCode)
-            .HasMaxLength(50);
+        builder.Property(c => c.CollaboratorCode)
+            .HasMaxLength(30);
 
         builder.Property(c => c.RejectionReason)
             .HasMaxLength(500);
@@ -82,9 +82,9 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
             .IsUnique()
             .HasFilter("[Email] IS NOT NULL");
 
-        builder.HasIndex(c => c.ReferralCode)
+        builder.HasIndex(c => c.CollaboratorCode)
             .IsUnique()
-            .HasFilter("[ReferralCode] IS NOT NULL");
+            .HasFilter("[CollaboratorCode] IS NOT NULL");
 
         // Relationships
         builder.HasOne(c => c.User)

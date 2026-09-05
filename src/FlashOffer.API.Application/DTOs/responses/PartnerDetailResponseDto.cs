@@ -47,6 +47,7 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
 public class UserBriefDto
 {
     public Guid Id { get; set; }
+    public string? UserCode { get; set; }
     public string Username { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -56,6 +57,7 @@ public class UserBriefDto
 public class PartnerCommissionDto
 {
     public Guid Id { get; set; }
+    public string? PartnerCommissionCode { get; set; }
     public CommissionType Type { get; set; }
     public decimal Rate { get; set; }
     public decimal? MinOrderValue { get; set; }
@@ -66,6 +68,7 @@ public class PartnerCommissionDto
 public class PartnerProductDto
 {
     public Guid Id { get; set; }
+    public string? PartnerProductCode { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ProductCategory Category { get; set; }

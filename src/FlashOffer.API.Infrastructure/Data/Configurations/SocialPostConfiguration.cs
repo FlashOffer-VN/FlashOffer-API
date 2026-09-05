@@ -59,6 +59,13 @@ public class SocialPostConfiguration : IEntityTypeConfiguration<SocialPost>
         .HasForeignKey(pt => pt.PostId)
         .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Property(x => x.SocialPostCode)
+            .HasMaxLength(30);
+
+        builder.HasIndex(x => x.SocialPostCode)
+            .IsUnique()
+            .HasFilter("[SocialPostCode] IS NOT NULL");
+
         // Index cho tối ưu query
         builder.HasIndex(x => x.AuthorId);
         builder.HasIndex(x => x.Type);

@@ -4,6 +4,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class PartnerProduct : BaseEntity
 {
+    public string? PartnerProductCode { get; set; }
     public Guid PartnerId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }

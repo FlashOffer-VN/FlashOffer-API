@@ -7,6 +7,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class AuthorDto : IMapFrom<User>
 {
     public Guid Id { get; set; }
+    public string? UserCode { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string? Avatar { get; set; }

@@ -8,6 +8,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class PostResponse : IMapFrom<SocialPost>
 {
     public Guid Id { get; set; }
+    public string? SocialPostCode { get; set; }
     public AuthorDto Author { get; set; } = null!;
     public string? Title { get; set; }
     public string Content { get; set; } = string.Empty;

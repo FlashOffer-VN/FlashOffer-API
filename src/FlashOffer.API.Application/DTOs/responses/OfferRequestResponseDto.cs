@@ -7,6 +7,7 @@ namespace FlashOffer.API.Application.DTOs.responses;
 public class OfferRequestResponseDto : IMapFrom<OfferRequest>
 {
 	public Guid Id { get; set; }
+	public string? OfferRequestCode { get; set; }
 	public string SelectedOffer { get; set; } = string.Empty;
 	public string FullName { get; set; } = string.Empty;
 	public string Phone { get; set; } = string.Empty;

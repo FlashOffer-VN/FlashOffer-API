@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Application.Common.Interfaces;
+﻿using FlashOffer.API.Application.Common.Helpers;
+using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.Responses;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Interfaces;
@@ -41,6 +42,7 @@ public class BusinessFieldService : IBusinessFieldService
         // 3. Tạo mới
         var field = new BusinessField
         {
+            BusinessFieldCode = CodeGenerator.Generate("BSF"),
             Name = name.Trim(),
             NormalizedName = normalized,
             IsActive = true

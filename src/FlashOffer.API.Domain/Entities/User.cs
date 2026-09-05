@@ -5,6 +5,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class User : BaseEntity
 {
+	public string? UserCode { get; set; }
 	public string Username { get; set; } = string.Empty;
 	[AuditIgnore]
 	public string? PasswordHash { get; set; } // Cho phép null

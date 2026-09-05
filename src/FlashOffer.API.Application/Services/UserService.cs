@@ -1,4 +1,5 @@
-﻿using FlashOffer.API.Application.Common.Interfaces;
+﻿using FlashOffer.API.Application.Common.Helpers;
+using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Enums;
@@ -59,6 +60,7 @@ public class UserService : IUserService
 
         var user = new User
         {
+            UserCode = CodeGenerator.Generate("USR"),
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
@@ -101,6 +103,7 @@ public class UserService : IUserService
 
         var user = new User
         {
+            UserCode = CodeGenerator.Generate("USR"),
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,

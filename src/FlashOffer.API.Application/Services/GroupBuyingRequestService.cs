@@ -1,6 +1,7 @@
 ﻿// src/FlashOffer.API.Application/Services/GroupBuyingRequestService.cs
 using AutoMapper;
 using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
@@ -54,6 +55,7 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
 
         // 3. Map và gán UserId
         var entity = _mapper.Map<GroupBuyingRequest>(request);
+        entity.GroupBuyingRequestCode = CodeGenerator.Generate("GBR");
         entity.UserId = Guid.Parse(userId);
         entity.CurrentPeopleCount = 1;
         entity.Status = GroupBuyingStatus.Pending;

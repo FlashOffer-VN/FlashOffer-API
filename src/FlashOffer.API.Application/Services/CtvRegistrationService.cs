@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FlashOffer.API.Application.Common.Extensions;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Application.DTOs.requests;
@@ -42,6 +43,7 @@ public class CtvRegistrationService : ICtvRegistrationService
         // 2. Map và gán UserId
         var entity = _mapper.Map<Collaborator>(dto);
         entity.UserId = userId;
+        entity.CollaboratorCode = CodeGenerator.Generate("CTV");
         entity.IsApproved = false;
         entity.CreatedAt = DateTime.UtcNow.AddHours(7);
 

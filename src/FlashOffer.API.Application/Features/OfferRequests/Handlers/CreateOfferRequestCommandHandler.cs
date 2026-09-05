@@ -1,5 +1,6 @@
 ﻿// src/FlashOffer.API.Application/Features/OfferRequests/Commands/CreateOfferRequestCommandHandler.cs
 using AutoMapper;
+using FlashOffer.API.Application.Common.Helpers;
 using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.DTOs.responses;
 using FlashOffer.API.Application.Resources;
@@ -48,6 +49,7 @@ public class CreateOfferRequestCommandHandler : IRequestHandler<CreateOfferReque
 
         // 2. Map to entity
         var entity = _mapper.Map<OfferRequest>(request);
+        entity.OfferRequestCode = CodeGenerator.Generate("OFR");
         entity.UserId = Guid.Parse(userId);
         entity.Status = OfferStatus.Pending;
 

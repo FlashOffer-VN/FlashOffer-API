@@ -5,6 +5,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class PurchaseRequest : BaseEntity
 {
+    public string? PurchaseRequestCode { get; set; }
     public Guid UserId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string? ProductCategory { get; set; }

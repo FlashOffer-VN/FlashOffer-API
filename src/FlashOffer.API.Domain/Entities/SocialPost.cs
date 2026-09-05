@@ -4,6 +4,7 @@ namespace FlashOffer.API.Domain.Entities;
 
 public class SocialPost : BaseEntity
 {
+    public string? SocialPostCode { get; set; }
     public string? Title { get; set; }
     public string Content { get; set; } = string.Empty;
     public PostType Type { get; set; } = PostType.Post;
