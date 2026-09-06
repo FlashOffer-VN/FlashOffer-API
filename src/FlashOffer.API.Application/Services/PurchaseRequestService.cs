@@ -57,7 +57,9 @@ public class PurchaseRequestService : IPurchaseRequestService
 				x.ProductName.Contains(search!) ||
 				x.FullName.Contains(search!) ||
 				x.Phone.Contains(search!) ||
-				(x.Email != null && x.Email.Contains(search!)));
+				(x.Email != null && x.Email.Contains(search!)))
+			.WhereIf(query.FromDate.HasValue, x => x.CreatedAt >= query.FromDate!.Value.Date.ToUniversalTime())
+			.WhereIf(query.ToDate.HasValue, x => x.CreatedAt < query.ToDate!.Value.Date.AddDays(1).ToUniversalTime());
 
 		var pagedEntities = await q.ToPagedListAsync(
 			query.Page,

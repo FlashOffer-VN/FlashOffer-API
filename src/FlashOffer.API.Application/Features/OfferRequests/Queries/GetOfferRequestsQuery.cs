@@ -18,4 +18,8 @@ public class GetOfferRequestsQuery : IRequest<PagedList<OfferRequestResponseDto>
 
 	/// <summary>Lọc danh sách đã xóa (soft-delete, admin xem tab "Đã xóa").</summary>
 	public bool? IncludeDeleted { get; set; }
+
+	/// <summary>Lọc theo khoảng ngày tạo.</summary>
+	public DateTime? FromDate { get; set; }
+	public DateTime? ToDate { get; set; }
 }

@@ -22,6 +22,7 @@ public class PostResponse : IMapFrom<SocialPost>
     public bool IsLiked { get; set; }
     public bool IsSaved { get; set; }
     public bool IsPinned { get; set; }
+    public bool IsApproved { get; set; }
     public DateTime CreatedAt { get; set; }
 
     // For Question

@@ -42,7 +42,9 @@ public class CtvService : ICtvService
               x.Email.Contains(filter.Search) ||
               x.Phone.Contains(filter.Search) ||
               (x.CollaboratorCode != null && x.CollaboratorCode.Contains(filter.Search))) &&
-             (!filter.Status.HasValue || x.Status == filter.Status.Value),
+             (!filter.Status.HasValue || x.Status == filter.Status.Value) &&
+             (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime()) &&
+             (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime()),
         x => x.CreatedAt,
         true);
 

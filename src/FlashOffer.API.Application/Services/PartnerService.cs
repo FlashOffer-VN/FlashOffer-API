@@ -123,7 +123,10 @@ public class PartnerService : IPartnerService
                 x.PartnerCode.Contains(filter.Search!) ||
                 (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)))
             // Status filter
-            .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value);
+            .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value)
+            // Date range filter
+            .WhereIf(filter.FromDate.HasValue, x => x.CreatedAt >= filter.FromDate!.Value.Date.ToUniversalTime())
+            .WhereIf(filter.ToDate.HasValue, x => x.CreatedAt < filter.ToDate!.Value.Date.AddDays(1).ToUniversalTime());
 
         var result = await q.ToPagedListAsync(
             filter.PageNumber,

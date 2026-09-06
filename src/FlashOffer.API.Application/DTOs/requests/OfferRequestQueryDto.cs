@@ -17,6 +17,8 @@ public class OfferRequestQueryDto : IMapFrom<GetOfferRequestsQuery>
 	public string? SortBy { get; set; }
 	public string? SortOrder { get; set; }
 	public bool? IncludeDeleted { get; set; }
+	public DateTime? FromDate { get; set; }
+	public DateTime? ToDate { get; set; }
 
 	public void Mapping(Profile profile)
 	{
