@@ -13,6 +13,10 @@ public interface ISocialService
     Task<bool> DeletePostAsync(Guid id);
 
     Task<PagedList<PostResponse>> GetPendingPostsAsync(int pageNumber, int pageSize);
+    Task<PagedList<PostResponse>> GetAdminPostsAsync(string? status, int pageNumber, int pageSize);
+
+    Task<PostResponse> RestorePostAsync(Guid id);
+
     Task<PostResponse> ApprovePostAsync(Guid id);
     Task<PostResponse> RejectPostAsync(Guid id, string? reason = null);
 

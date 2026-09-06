@@ -15,4 +15,7 @@ public class GetOfferRequestsQuery : IRequest<PagedList<OfferRequestResponseDto>
 	public string? Search { get; set; }
 	public string? SortBy { get; set; }
 	public string? SortOrder { get; set; }
+
+	/// <summary>Lọc danh sách đã xóa (soft-delete, admin xem tab "Đã xóa").</summary>
+	public bool? IncludeDeleted { get; set; }
 }

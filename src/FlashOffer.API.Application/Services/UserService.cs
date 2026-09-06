@@ -64,7 +64,7 @@ public class UserService : IUserService
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
-            Username = GenerateUniqueUsername(),
+            Username = GenerateUniqueUsername(phone),
             PasswordHash = HashPassword(GenerateRandomPassword()),
             Role = UserRole.Customer,
             IsActive = true
@@ -107,7 +107,7 @@ public class UserService : IUserService
             FullName = fullName,
             Phone = phone,
             Email = string.IsNullOrEmpty(email) ? $"{phone}@temp.com" : email,
-            Username = GenerateUniqueUsername(),
+            Username = GenerateUniqueUsername(phone),
             PasswordHash = HashPassword(phone), // Password = số điện thoại
             Role = UserRole.Customer,
             IsActive = true
@@ -128,9 +128,19 @@ public class UserService : IUserService
         return await _userRepo.GetByIdAsync(Guid.Parse(userId));
     }
 
-    private string GenerateUniqueUsername()
+    private string GenerateUniqueUsername(string phone)
     {
-        return $"user_{Guid.NewGuid():N}".Substring(0, 12);
+        // Username gắn với SĐT cho dễ đọc (vd: user0912345678); fallback random khi không có SĐT.
+        var normalized = string.Concat((phone ?? string.Empty).Where(char.IsDigit));
+        var baseUsername = string.IsNullOrEmpty(normalized)
+            ? $"user{Guid.NewGuid():N}"[..50]
+            : $"user{normalized}";
+
+        // Đảm bảo không trùng username đã có.
+        var exists = _userRepo.GetQueryable().Any(u => u.Username == baseUsername);
+        if (!exists) return baseUsername;
+
+        return $"{baseUsername}_{Guid.NewGuid():N}"[..50];
     }
 
     private string GenerateRandomPassword()

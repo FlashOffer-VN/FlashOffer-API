@@ -8,6 +8,8 @@ using FlashOffer.API.Application.Features.OfferRequests.Queries;
 using FlashOffer.API.Domain.Entities;
 using FlashOffer.API.Domain.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace FlashOffer.API.Application.Features.OfferRequests.Handlers;
 
@@ -25,10 +27,15 @@ public class GetOfferRequestsHandler : IRequestHandler<GetOfferRequestsQuery, Pa
 	public async Task<PagedList<OfferRequestResponseDto>> Handle(GetOfferRequestsQuery request, CancellationToken cancellationToken)
 	{
 		var search = request.Search?.Trim();
+		var includeDeleted = request.IncludeDeleted == true;
 
-		var q = _queryService.GetAllNoTracking<OfferRequest>()
-			.WhereIf(request.IsOfferSent.HasValue, x => x.IsOfferSent == request.IsOfferSent!.Value)
-			.WhereIf(request.Status.HasValue, x => x.Status == request.Status!.Value)
+		IQueryable<OfferRequest> source = includeDeleted
+			? _queryService.GetQueryableNoTracking<OfferRequest>().IgnoreQueryFilters().Where(x => x.IsDeleted)
+			: _queryService.GetAllNoTracking<OfferRequest>();
+
+		var q = source
+			.WhereIf(request.IsOfferSent.HasValue && !includeDeleted, x => x.IsOfferSent == request.IsOfferSent!.Value)
+			.WhereIf(request.Status.HasValue && !includeDeleted, x => x.Status == request.Status!.Value)
 			.WhereIf(!string.IsNullOrEmpty(search), x =>
 				x.ProductName.Contains(search!) ||
 				x.FullName.Contains(search!) ||

@@ -16,6 +16,7 @@ public class OfferRequestQueryDto : IMapFrom<GetOfferRequestsQuery>
 	public string? Search { get; set; }
 	public string? SortBy { get; set; }
 	public string? SortOrder { get; set; }
+	public bool? IncludeDeleted { get; set; }
 
 	public void Mapping(Profile profile)
 	{

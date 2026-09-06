@@ -328,6 +328,10 @@ static void ConfigureMiddleware(WebApplication app)
     app.UseSerilogRequestLogging();
     Log.Information("✅ Serilog request logging configured");
 
+    // Phục vụ file tĩnh (ảnh upload): wwwroot
+    app.UseStaticFiles();
+    Log.Information("✅ Static files (wwwroot) configured");
+
     ConfigureCorsMiddleware(app);
 
     app.UseMiddleware<FlashOffer.API.WebApi.Middlewares.GlobalExceptionMiddleware>();

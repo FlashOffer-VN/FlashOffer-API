@@ -57,6 +57,15 @@
 	<data name="UpdateStatusSuccess" xml:space="preserve">
     <value>Cập nhật trạng thái thành công</value>
   </data>
+	<data name="RestoreSuccess" xml:space="preserve">
+    <value>Khôi phục thành công</value>
+  </data>
+	<data name="FileEmpty" xml:space="preserve">
+    <value>File không được rỗng</value>
+  </data>
+	<data name="FileUploadSuccess" xml:space="preserve">
+    <value>Upload thành công</value>
+  </data>
 
 	<!-- Purchase Request Status -->
 	<data name="PurchaseRequestStatus_Pending" xml:space="preserve">
