@@ -119,7 +119,9 @@ public class PartnerService : IPartnerService
                 x.Email.Contains(filter.Search!) ||
                 x.Phone.Contains(filter.Search!) ||
                 x.CompanyName.Contains(filter.Search!) ||
-                x.CompanyTax.Contains(filter.Search!))
+                x.CompanyTax.Contains(filter.Search!) ||
+                x.PartnerCode.Contains(filter.Search!) ||
+                (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)))
             // Status filter
             .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value);
 

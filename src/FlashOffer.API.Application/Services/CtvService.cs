@@ -40,7 +40,8 @@ public class CtvService : ICtvService
         x => (string.IsNullOrEmpty(filter.Search) ||
               x.FullName.Contains(filter.Search) ||
               x.Email.Contains(filter.Search) ||
-              x.Phone.Contains(filter.Search)) &&
+              x.Phone.Contains(filter.Search) ||
+              (x.CollaboratorCode != null && x.CollaboratorCode.Contains(filter.Search))) &&
              (!filter.Status.HasValue || x.Status == filter.Status.Value),
         x => x.CreatedAt,
         true);

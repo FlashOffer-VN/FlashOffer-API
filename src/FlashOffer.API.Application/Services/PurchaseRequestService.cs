@@ -48,8 +48,16 @@ public class PurchaseRequestService : IPurchaseRequestService
 
 	public async Task<PagedList<PurchaseRequestResponseDto>> GetPagedAsync(PurchaseRequestQueryDto query)
 	{
+		var search = query.Search?.Trim();
+
 		var q = _queryService.GetAllNoTracking<PurchaseRequest>()
-			.WhereIf(query.Status.HasValue, x => x.Status == query.Status!.Value);
+			.WhereIf(query.Status.HasValue, x => x.Status == query.Status!.Value)
+			.WhereIf(!string.IsNullOrEmpty(search), x =>
+				(x.PurchaseRequestCode != null && x.PurchaseRequestCode.Contains(search!)) ||
+				x.ProductName.Contains(search!) ||
+				x.FullName.Contains(search!) ||
+				x.Phone.Contains(search!) ||
+				(x.Email != null && x.Email.Contains(search!)));
 
 		var pagedEntities = await q.ToPagedListAsync(
 			query.Page,

@@ -137,6 +137,9 @@
 	<data name="OfferRequestListRetrievedSuccess" xml:space="preserve">
     <value>Offer request list retrieved successfully</value>
   </data>
+	<data name="OfferRequest_DeleteSuccess" xml:space="preserve">
+    <value>Offer request deleted successfully</value>
+  </data>
 	<data name="SelectedOfferRequired" xml:space="preserve">
     <value>Selected offer is required</value>
   </data>
