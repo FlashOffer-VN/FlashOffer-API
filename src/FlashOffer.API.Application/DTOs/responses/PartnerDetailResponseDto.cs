@@ -29,13 +29,23 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
     public UserBriefDto? User { get; set; }
     public PartnerCommissionDto? Commission { get; set; }
     public List<PartnerProductDto> Products { get; set; } = new();
+    public BusinessInfoDto? BusinessInfo { get; set; }
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Partner, PartnerDetailResponseDto>()
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
             .ForMember(dest => dest.Commission, opt => opt.MapFrom(src => src.Commission))
-            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
+            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products))
+            .ForMember(dest => dest.BusinessInfo, opt => opt.MapFrom(src => new BusinessInfoDto
+            {
+                CompanyName = src.CompanyName,
+                CompanyTax = src.CompanyTax,
+                CompanyAddress = src.CompanyAddress,
+                CompanyWebsite = src.CompanyWebsite,
+                BusinessType = src.BusinessType,
+                CompanySize = src.CompanySize
+            }));
 
         // ✅ Mapping cho các DTO con
         profile.CreateMap<User, UserBriefDto>();

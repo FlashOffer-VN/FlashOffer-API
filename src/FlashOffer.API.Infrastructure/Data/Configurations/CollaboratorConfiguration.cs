@@ -71,6 +71,12 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
         builder.Property(c => c.BusinessFieldName)
             .HasMaxLength(200);
 
+        builder.Property(c => c.BusinessName)
+            .HasMaxLength(200);
+
+        builder.Property(c => c.Website)
+            .HasMaxLength(300);
+
         // Indexes
         builder.HasIndex(c => c.UserId)
             .IsUnique();

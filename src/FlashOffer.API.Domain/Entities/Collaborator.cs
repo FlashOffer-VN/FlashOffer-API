@@ -19,8 +19,12 @@ public class Collaborator : BaseEntity
     public string? Experience { get; set; }
     public string? Address { get; set; }
     public bool AgreeTerms { get; set; }
-    public string? BusinessFieldName { get; set; } 
-    public Guid? BusinessFieldId { get; set; } 
+    public string? BusinessFieldName { get; set; }
+    public Guid? BusinessFieldId { get; set; }
+    // Thông tin doanh nghiệp (lấy từ form đăng ký CTV)
+    public string? BusinessName { get; set; }
+    public int? BusinessSize { get; set; }
+    public string? Website { get; set; }
     // Hỗ trợ đa cấp
     public Guid? ParentCollaboratorId { get; set; }
     public int Level { get; set; } = 1;

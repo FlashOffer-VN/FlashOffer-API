@@ -29,4 +29,11 @@ public class DashboardController : ApiControllerBase
 		var stats = await _mediator.Send(new GetDashboardQuery());
 		return Ok(stats, _localizer["DashboardSuccess"]);
 	}
+
+	[HttpGet("crm")]
+	public async Task<IActionResult> GetCrmDashboard()
+	{
+		var stats = await _mediator.Send(new GetCrmDashboardQuery());
+		return Ok(stats, _localizer["CrmDashboardSuccess"]);
+	}
 }
