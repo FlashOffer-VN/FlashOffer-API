@@ -228,30 +228,58 @@ builder.Property(x => x.Status)
 | Độ phức tạp | Thấp | Cao |
 
 #### 7.6 Repository Methods
+
+**Vị trí:**
+- Interface: `src/FlashOffer.API.Domain/Interfaces/IRepository.cs`
+- Implementation: `src/FlashOffer.API.Infrastructure/Repositories/GenericRepository.cs`
+- DI: `services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>))` trong `Infrastructure/DependencyInjection.cs`
+
+**QUAN TRỌNG - Cơ chế AUTO-SAVE:**
+`GenericRepository` hiện **tự động lưu DB** sau mỗi thao tác ghi (qua `IUnitOfWork`). `AddAsync` / `Update` / `Delete` / `Restore` / `AddRangeAsync`... đều gọi `SaveChangesAsync()` ngay bên trong → **KHÔNG gọi `SaveChangesAsync()` lại ở Service** (ghi 2 lần là thừa).
+
 | Method | Mô tả |
 |--------|-------|
-| `GetByIdAsync(Guid id)` | Lấy entity theo Id (tự động filter IsDeleted) |
-| `GetFirstAsync(predicate)` | Lấy entity đầu tiên thỏa điều kiện |
-| `GetAllAsync()` | Lấy tất cả entity (chưa xóa) |
-| `FindAsync(predicate)` | Lấy danh sách thỏa điều kiện |
-| `GetPagedAsync(page, size, predicate)` | Phân trang cơ bản |
-| `GetPagedWithOrderAsync(page, size, predicate, orderBy, isDescending)` | Phân trang + sắp xếp |
-| `GetPagedWithIncludesAsync(page, size, includes, predicate, orderBy, isDescending)` | Phân trang + Include navigation |
-| `GetFirstWithIncludesAsync(predicate, includes)` | Lấy 1 entity kèm Include |
-| `GetListWithIncludesAsync(includes, predicate, orderBy, isDescending)` | Lấy danh sách kèm Include (không phân trang) |
-| `CountAsync(predicate)` | Đếm số lượng bản ghi |
-| `AnyAsync(predicate)` | Kiểm tra tồn tại |
+| `GetByIdAsync(Guid id, ct)` | Lấy entity theo Id (global query filter tự lọc IsDeleted = false) |
+| `GetFirstAsync(predicate, ct)` | Lấy entity đầu tiên thỏa điều kiện |
+| `GetAllAsync(ct)` | Lấy tất cả entity (chưa xóa) |
+| `FindAsync(predicate, ct)` | Lấy danh sách thỏa điều kiện |
+| `GetQueryable()` / `GetQueryableAsync()` | Trả `IQueryable<T>` (có tracking) cho query tự do |
+| `GetPagedAsync(page, size, predicate, ct)` | Phân trang cơ bản |
+| `GetPagedWithOrderAsync(page, size, predicate, orderBy, isDescending, ct)` | Phân trang + sắp xếp |
+| `GetPagedWithIncludesAsync(page, size, includes, predicate, orderBy, isDescending, ct)` | Phân trang + Include navigation |
+| `GetFirstWithIncludesAsync(predicate, includes, ct)` | Lấy 1 entity kèm Include |
+| `GetListWithIncludesAsync(includes, predicate, orderBy, isDescending, ct)` | Lấy danh sách kèm Include (không phân trang) |
+| `CountAsync(predicate, ct)` | Đếm số lượng bản ghi |
+| `AnyAsync(predicate, ct)` | Kiểm tra tồn tại |
 | `FromSqlRawAsync(sql, parameters)` | Thực thi SQL raw (báo cáo phức tạp) |
-| `GetDeletedAsync()` | Lấy danh sách đã xóa mềm |
-| `AddAsync(entity)` | Thêm mới 1 entity |
-| `AddRangeAsync(entities)` | Thêm mới nhiều entity |
-| `Update(entity)` | Cập nhật 1 entity |
-| `UpdateRange(entities)` | Cập nhật nhiều entity |
-| `Delete(entity)` | Xóa mềm (set IsDeleted = true) |
-| `DeleteRange(entities)` | Xóa mềm nhiều entity |
-| `Restore(entity)` | Khôi phục soft delete |
-| `RestoreRange(entities)` | Khôi phục nhiều entity |
-| `SaveChangesAsync()` | Lưu thay đổi vào database |
+| `GetDeletedAsync(ct)` | Lấy danh sách đã xóa mềm |
+| `AddAsync(entity, ct)` | Thêm mới 1 entity — **tự save** |
+| `AddRangeAsync(entities, ct)` | Thêm mới nhiều entity — **tự save** |
+| `Update(entity)` | Cập nhật 1 entity — **tự save** |
+| `UpdateRange(entities)` | Cập nhật nhiều entity — **tự save** |
+| `Delete(entity)` | Xóa mềm (set IsDeleted = true) — **tự save** |
+| `DeleteRange(entities)` | Xóa mềm nhiều entity — **tự save** |
+| `Restore(entity)` | Khôi phục soft delete — **tự save** |
+| `RestoreRange(entities)` | Khôi phục nhiều entity — **tự save** |
+| `SaveChangesAsync(ct)` | Lưu thay đổi (chỉ cần khi gộp nhiều thay đổi trong 1 request) |
+
+**Bản Async mở rộng (chỉ có trên `GenericRepository`, không khai báo trong interface):**
+`AddAsync` đã có trong interface; thêm `UpdateAsync`, `UpdateRangeAsync`, `DeleteAsync`, `DeleteRangeAsync`, `RestoreAsync`, `RestoreRangeAsync`, `Add` (sync), `AddRange` (sync).
+
+**IUnitOfWork (`Domain/Interfaces/IUnitOfWork.cs`)** — dùng khi cần transaction:
+| Method | Mô tả |
+|--------|-------|
+| `SaveChangesAsync(ct)` | Lưu tất cả thay đổi |
+| `BeginTransactionAsync(ct)` | Bắt đầu transaction |
+| `CommitTransactionAsync(transaction, ct)` | Commit |
+| `RollbackTransactionAsync(transaction, ct)` | Rollback |
+
+**IApplicationDbContext (`Domain/Interfaces/IApplicationDbContext.cs`):**
+| Method | Mô tả |
+|--------|-------|
+| `Set<T>()` | Lấy `DbSet<T>` |
+| `SaveChangesAsync(ct)` | Lưu thay đổi |
+| `Database` | `DatabaseFacade` (transaction, SQL raw) |
 
 #### 7.7 Controller Return Type
 | Loại API | Kiểu trả về | Method dùng |
@@ -467,6 +495,180 @@ var posts = await _repository.GetPagedWithIncludesAsync(
 - **Không tạo method IncludeSocialDetails** cứng cho từng Entity - dùng generic để tái sử dụng
 - Thêm `using Microsoft.EntityFrameworkCore;` cho file extension
 
+#### 7.12.1 Queryable Extensions - Layer Application (Filter/Sort/Join) (BẮT BUỘC)
+
+**Vị trí:** `src/FlashOffer.API.Application/Common/Extensions/QueryableExtensions.cs`
+
+> ⚠️ **Khác với `Shared/Extensions/QueryableExtensions.cs`** (mục 7.12) — file này dành cho **filter tùy chọn, sort động, phân trang, left join**, còn file Shared chỉ chuyên Include navigation.
+
+| Method | Công dụng |
+|--------|-----------|
+| `.WhereIf(condition, predicate)` | Áp predicate khi condition đúng (filter tùy chọn từ query param) |
+| `.WhereIfNotNull(predicate?)` | Áp predicate nếu không null |
+| `.WhereIfNotNull(value, predicate)` | Áp predicate khi value khác null/default |
+| `.PageBy(pageNumber, pageSize)` | Skip/Take theo trang |
+| `.OrderByDynamic(sortBy, sortOrder, defaultSortBy)` | Sort động theo chuỗi (`"CreatedAt"` + `"desc"`). Tên cột được validate qua reflection, fallback nếu sai |
+| `.SortBy(keySelector, sortOrder)` | Sort theo expression cụ thể (vd `e => e.CreatedAt`, `"asc"/"desc"`) |
+| `.ApplySort(sortFunc)` | Sort tùy biến theo delegate (vd `o => o.OrderByDescending(x => x.CreatedAt)`) |
+| `.LeftJoin(inner, outerKey, innerKey, resultSelector)` | Left Join IQueryable (LINQ không có sẵn, EF Core dịch được) |
+
+**Sử dụng trong Service:**
+```csharp
+using FlashOffer.API.Application.Common.Extensions;
+
+// Filter tùy chọn gộp dần
+var query = _queryService.GetQueryableNoTracking<Partner>();
+query = query.WhereIf(startDate.HasValue, p => p.CreatedAt >= startDate);
+query = query.WhereIfNotNull(p => p.Status == Status.Active);
+query = query.WhereIfNotNull(request.CategoryId, p => p.CategoryId == request.CategoryId);
+
+// Sort động theo query-param
+var result = await query.ToPagedListAsync(1, 20, "CreatedAt", "desc", "Id", ct);
+
+// Sort định nghĩa cứng
+query = query.SortBy(e => e.CreatedAt, "desc");
+
+// Left Join
+var joined = partnerQuery.LeftJoin(
+    _queryService.GetQueryableNoTracking<Collaborator>(),
+    p => p.UserId,
+    c => c.UserId,
+    (p, c) => new { Partner = p, Collaborator = c });
+```
+
+**Quy tắc:**
+- Dùng `WhereIf`/`WhereIfNotNull` để viết filter tùy chọn gọn thay vì nhánh `if` rời
+- `OrderByDynamic` **bắt buộc** validate tên cột bằng reflection (đã có sẵn) để tránh SQL injection / lỗi runtime
+- `LeftJoin` chỉ dùng khi thật sự cần (JOIN ngầm qua navigation vẫn ưu tiên hơn)
+
+#### 7.12.2 PagingExtensions - Phân trang IQueryable (BẮT BUỘC)
+
+**Vị trí:** `src/FlashOffer.API.Application/Common/Extensions/PagingExtensions.cs`
+
+| Method | Công dụng |
+|--------|-----------|
+| `.ToPagedListAsync(page, size, ct)` | Phân trang đơn giản (count + PageBy + ToList) |
+| `.ToPagedListAsync(page, size, sortBy, sortOrder, defaultSortBy, ct)` | Phân trang + sort động theo chuỗi |
+| `.ToPagedListAsync(SortableQueryRequest, defaultSortBy, ct)` | Phân trang + sort động từ request DTO |
+| `.ToPagedListAsync(page, size, sortFunc, ct)` | Phân trang + sort tùy biến delegate |
+| `.ToPagedListAsync(page, size, sortBy: Expression<TKey>, sortOrder, ct)` | Phân trang + sort theo expression |
+
+```csharp
+using FlashOffer.API.Application.Common.Extensions;
+
+// Overload với SortableQueryRequest (chuẩn cho DTO query kế thừa)
+public class GetPartnersQuery : SortableQueryRequest { }
+
+public async Task<PagedList<Partner>> GetPartnersAsync(GetPartnersQuery query)
+{
+    var source = _queryService.GetQueryableNoTracking<Partner>();
+    return await source.ToPagedListAsync(query, defaultSortBy: "CreatedAt", ct);
+}
+```
+
+**`SortableQueryRequest`** (`Application/Common/Models/SortableQueryRequest.cs`):
+- `PageNumber = 1`, `PageSize = 20`, `SortBy` (string, vd `"CreatedAt"`), `SortOrder` (`"asc"|"desc"`)
+- DTO query mới có sort động nên kế thừa class này
+
+**Quy tắc:**
+- **Ưu tiên `GetQueryableAsync()`/`GetQueryable()` của repository + `ToPagedListAsync`** khi cần query linh hoạt không cứng nhắc
+- `PagedList<T>` trả về nằm ở `FlashOffer.API.Domain.Models` (dùng chung cho cả layer)
+
+#### 7.12.3 IQueryService / QueryService - Free-style query (BẮT BUỘC cho query phức tạp)
+
+**Vị trí:**
+- Interface: `Application/Common/Interfaces/IQueryService.cs`
+- Implementation: `Application/Services/QueryService.cs`
+- DI: `services.AddScoped<IQueryService, QueryService>()` trong `Application/DependencyInjection.cs`
+
+> Vì sao dùng: `IRepository<T>` chỉ phù hợp CRUD chuẩn. Khi cần JOIN, GroupBy, Ifoo-bar query tự do, dynamic sort, phân trang linh hoạt → dùng `IQueryService` trả về `IQueryable<T>` trực tiếp.
+
+| Method | Công dụng |
+|--------|-----------|
+| `GetQueryable<T>()` / `GetAll<T>()` | IQueryable **CÓ tracking** (dùng khi cần cập nhật entity sau query) |
+| `GetQueryableNoTracking<T>()` / `GetAllNoTracking<T>()` | IQueryable **KHÔNG tracking** (mặc định cho đọc, nhanh hơn) |
+| `GetByIdAsync<T>(id, ct)` | Lấy theo Id (no tracking) |
+| `GetListAsync<T>(predicate, ct)` | Danh sách theo predicate |
+| `GetFirstOrDefaultAsync<T>(predicate, ct)` | Phần tử đầu tiên theo predicate |
+| `GetFirstOrDefaultAsync<T>(predicate, sortFunc, ct)` | Phần tử đầu tiên sau sort tùy biến (vd lấy bản mới nhất) |
+| `GetLastOrDefaultAsync<T, TKey>(predicate, orderBy, descending, ct)` | Phần tử cuối theo orderBy |
+| `AnyAsync<T>(predicate, ct)` | Kiểm tra tồn tại |
+| `CountAsync<T>(predicate, ct)` | Đếm bản ghi |
+| `GetPagedListAsync<T>(page, size, predicate, ct)` | Phân trang đơn giản (no tracking) |
+| `GetPagedListAsync<T>(page, size, predicate, sortBy, sortOrder, defaultSortBy, ct)` | Phân trang + sort động theo chuỗi |
+| `GetPagedListAsync<T>(page, size, predicate, sortFunc, ct)` | Phân trang + sort tùy biến |
+
+**Sử dụng:**
+```csharp
+using FlashOffer.API.Application.Common.Extensions;
+
+// Query tự do kèm filter nối chuỗi
+var query = _queryService.GetQueryableNoTracking<SocialPost>()
+    .WhereIf(isAdmin == false, p => p.Privacy == PrivacyType.Public)
+    .WhereIfNotNull(request.Tag, p => p.PostTags.Any(pt => pt.Tag.Name == request.Tag));
+
+// Lấy mới nhất theo CreatedAt
+var latest = await _queryService.GetFirstOrDefaultAsync<Post>(
+    p => p.Type == PostType.News,
+    q => q.OrderByDescending(p => p.CreatedAt),
+    ct);
+
+// Phân trang + sort động
+var page = await _queryService.GetPagedListAsync<Post>(1, 20, null, "CreatedAt", "desc", "Id", ct);
+```
+
+**Quy tắc chọn `IRepository` vs `IQueryService`:**
+| Tiêu chí | IRepository | IQueryService |
+|----------|-------------|---------------|
+| CRUD chuẩn theo entity | ✅ | ❌ |
+| Query tùy biến (JOIN, sort động, group) | ❌ | ✅ |
+| Tracking/NoTracking linh hoạt | ❌ | ✅ |
+| Auto-save khi ghi | ✅ | ❌ (chỉ đọc) |
+
+#### 7.12.4 CommonExtensions - String/DateTime
+
+**Vị trí:** `src/FlashOffer.API.Shared/Extensions/CommonExtensions.cs`
+
+| Extension | Công dụng |
+|-----------|-----------|
+| `string.IsNullOrEmpty()` / `IsNullOrWhiteSpace()` | Kiểm tra string rỗng, gọn hơn `string.IsNullOrEmpty()` |
+| `DateTime.ToIsoString()` | Format `yyyy-MM-ddTHH:mm:ssZ` (ISO 8601) |
+| `DateTime.ToUnixTimestamp()` | Chuyển sang Unix timestamp (long) |
+
+#### 7.12.5 CodeGenerator - Sinh mã tham chiếu
+
+**Vị trí:** `src/FlashOffer.API.Application/Common/Helpers/CodeGenerator.cs`
+
+| Method | Công dụng |
+|--------|-----------|
+| `Generate(prefix, randomLength = 6)` | Sinh code `{PREFIX}-{XXXXXX}` in hoa, ≤ 30 ký tự |
+| `GenerateUniqueAsync<T>(queryService, prefix, codeExists, ct)` | Sinh code + kiểm tra unique (tối đa 5 lần thử, randomLength tăng lên 10 nếu trùng) |
+
+```csharp
+var code = CodeGenerator.Generate("USR");                        // VD: "USR-K3X9Z2"
+var userCode = await CodeGenerator.GenerateUniqueAsync<User>(
+    _queryService, "USR", u => u.UserCode == code, ct);          // VD: "USR-7QWKPA"
+```
+
+**Lưu ý:** Bộ ký tự bỏ `0/O/1/I` tránh nhầm lẫn. Entity như `User`, `Collaborator` dùng cột `UserCode`/`Code` chứa mã này.
+
+#### 7.12.6 UserAgentParser - Parse thông tin thiết bị
+
+**Vị trí:** `src/FlashOffer.API.Shared/Helpers/UserAgentParser.cs`
+
+| Method | Công dụng |
+|--------|-----------|
+| `Parse(string? userAgent)` | Trả về `UserAgentInfo` (OperatingSystem, BrowserName, DeviceType) |
+| `UserAgentInfo` | `OperatingSystem` (Windows/Android/iOS/...), `BrowserName` (Chrome/Edge/Firefox...), `DeviceType` (Mobile/Tablet/Desktop) |
+
+```csharp
+string? ua = Request.Headers["User-Agent"].ToString();
+var info = UserAgentParser.Parse(ua);
+// info.DeviceType = "Mobile", info.BrowserName = "Chrome", ...
+```
+
+**Lưu ý:** Dùng cho audit log thiết bị (`AddDeviceInfoToAuditLog`), thể loại thống kê. Không dùng thư viện ngoài — chỉ phù hợp hiển thị/thống kê, không dùng cho security quyết định.
+
 ### 8. Thêm API mới - Quy trình 10 bước
 | Bước | Hành động | Thư mục | Resource keys |
 |------|-----------|---------|---------------|
@@ -475,7 +677,7 @@ var posts = await _repository.GetPagedWithIncludesAsync(
 | 3 | Tạo DTOs + IMapFrom | `Application/DTOs/` | - |
 | 4 | Tạo Validator (+ IStringLocalizer) | `Application/Validators/` | - |
 | 5 | Thêm resource keys (CHỈ key mới) | `Application/Resources/` | **GỬI NGAY** en + vi |
-| 6 | Thêm DbSet | `Infrastructure/Data/AppDbContext.cs` | - |
+| 6 | Thêm DbSet | `Infrastructure/Data/ApplicationDbContext.cs` | - |
 | 7 | Tạo Service/Command + Handler | `Application/Services/` hoặc `Application/Features/` | - |
 | 8 | Đăng ký Service/MediatR trong DI | `Application/DependencyInjection.cs` | - |
 | 9 | Tạo Controller (dùng ApiControllerBase) | `WebApi/Controllers/` | - |
@@ -650,7 +852,7 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 | `IUserService` | `FlashOffer.API.Application.Common.Interfaces` |
 
 ### 13. Lưu ý quan trọng
-- `Repository.AddAsync` cần `SaveChangesAsync()` sau đó
+- **Repository AUTO-SAVE:** `AddAsync`/`AddRangeAsync`/`Update`/`Delete`/`Restore`... **tự gọi `SaveChangesAsync()`** bên trong (qua `IUnitOfWork`) → KHÔNG gọi `SaveChangesAsync()` lại ở Service (tránh lưu 2 lần). Chỉ gọi `SaveChangesAsync()` khi cần gộp nhiều thay đổi trong 1 transaction.
 - Logic nghiệp vụ đặt trong Service/Handler, không trong Controller
 - **BẮT BUỘC** cấu hình `SuppressModelStateInvalidFilter = true`
 - **Mọi message client** đều qua `IStringLocalizer`
@@ -661,8 +863,14 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 - **User handling:** Tuân theo quy tắc 12.2 khi tạo/lấy dữ liệu
 - **Soft Delete:** Luôn dùng xóa mềm, không xóa cứng dữ liệu. Sử dụng `Restore()` khi cần khôi phục.
 - **Global Query Filter:** Đã tự động filter `IsDeleted = false`, không cần thêm điều kiện trong repository methods.
-- **Expression Extensions:** Dùng `ExpressionExtensions.And()` để gộp predicate, không tự viết `CombinePredicates` trong Service.
-- **Queryable Extensions:** Dùng `IncludeMultiple()` hoặc `IncludeThen()` thay vì tạo method cứng cho từng Entity.
+- **Expression Extensions (Shared):** Dùng `ExpressionExtensions.And()` để gộp predicate, không tự viết `CombinePredicates` trong Service.
+- **Queryable Extensions (Shared):** Dùng `IncludeMultiple()` hoặc `IncludeThen()` thay vì tạo method cứng cho từng Entity.
+- **Queryable Extensions (Application):** Filter tùy chọn dùng `WhereIf`/`WhereIfNotNull`, sort động dùng `OrderByDynamic`/`SortBy`/`ApplySort`, left join dùng `LeftJoin` (mục 7.12.1).
+- **PagingExtensions:** Query bằng `IQueryable` luôn kết thúc bằng `ToPagedListAsync(...)` + `SortableQueryRequest` cho DTO query có sort (mục 7.12.2).
+- **Query phức tạp:** Dùng `IQueryService` (`GetQueryable`/`GetAllNoTracking`...) thay vì cố dùng `IRepository` (mục 7.12.3).
+- **Sinh mã tham chiếu:** Dùng `CodeGenerator.Generate()` / `GenerateUniqueAsync()` cho UserCode/mã đơn, không tự viết logic sinh random (mục 7.12.5).
+- **Audit log thiết bị:** Dùng `UserAgentParser.Parse()` khi ghi thông tin OS/Browser/DeviceType (mục 7.12.6).
+- **String/DateTime:** Dùng `CommonExtensions` (`IsNullOrEmpty`, `ToIsoString`, `ToUnixTimestamp`) thay vì viết lại (mục 7.12.4).
 
 ---
 
@@ -713,17 +921,3 @@ public async Task<IActionResult> CreateMyData([FromBody] CreateDto request)
 | 5 | Sử dụng `throw {Entity}Exception.Method(_exceptionLocalizer, params)` |
 
 ---
-
-## 🔄 CẬP NHẬT NHANH - ĐÃ HOÀN THÀNH
-
-**Các việc đã hoàn thành:**
-- ✅ Tạo `FlashOfferException.cs`
-- ✅ Tạo `CollaboratorException.cs` + `UserException.cs`
-- ✅ Tạo `ExceptionMessages.vi.resx` + `ExceptionMessages.en.resx`
-- ✅ Tạo `ExceptionHandlingMiddleware.cs`
-- ✅ Đăng ký middleware trong `Program.cs`
-- ✅ Sửa `UserService.cs` dùng `UserException`
-- ✅ Sửa `CollaboratorService.cs` dùng `CollaboratorException`
-- ✅ Phân biệt `_exceptionLocalizer` và `_localizer`
-
-**Cần làm tiếp theo:** Code Controller, chạy migration, test API. 🚀
