@@ -41,7 +41,9 @@ public class GetOfferRequestsHandler : IRequestHandler<GetOfferRequestsQuery, Pa
 				x.FullName.Contains(search!) ||
 				x.Phone.Contains(search!) ||
 				(x.Email != null && x.Email.Contains(search!)) ||
-				(x.OfferRequestCode != null && x.OfferRequestCode.Contains(search!)));
+				(x.OfferRequestCode != null && x.OfferRequestCode.Contains(search!)))
+			.WhereIf(request.FromDate.HasValue, x => x.CreatedAt >= request.FromDate!.Value.Date.ToUniversalTime())
+			.WhereIf(request.ToDate.HasValue, x => x.CreatedAt < request.ToDate!.Value.Date.AddDays(1).ToUniversalTime());
 
 		var pagedEntities = await q.ToPagedListAsync(
 			request.Page,

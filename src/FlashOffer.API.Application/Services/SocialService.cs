@@ -413,7 +413,13 @@ public class SocialService : ISocialService
         );
     }
 
-    public async Task<PagedList<PostResponse>> GetAdminPostsAsync(string? status, int pageNumber, int pageSize)
+    public async Task<PagedList<PostResponse>> GetAdminPostsAsync(
+        string? status,
+        string? search,
+        DateTime? fromDate,
+        DateTime? toDate,
+        int pageNumber,
+        int pageSize)
     {
         var isAdmin = _currentUserService.IsInRole("Admin");
         if (!isAdmin)
@@ -435,6 +441,23 @@ public class SocialService : ISocialService
             dbQuery = dbQuery.Where(p => !p.IsApproved && p.Privacy == PrivacyType.Public);
         }
         // status = null / "all" => mọi bài chưa xóa
+
+        // Lọc theo tác giả (họ tên / username / mã) hoặc tiêu đề
+        var keyword = search?.Trim();
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            dbQuery = dbQuery.Where(p =>
+                p.Author.FullName.Contains(keyword) ||
+                p.Author.Username.Contains(keyword) ||
+                (p.Author.UserCode != null && p.Author.UserCode.Contains(keyword)) ||
+                (p.Title != null && p.Title.Contains(keyword)));
+        }
+
+        // Lọc theo khoảng ngày tạo
+        if (fromDate.HasValue)
+            dbQuery = dbQuery.Where(p => p.CreatedAt >= fromDate.Value.Date.ToUniversalTime());
+        if (toDate.HasValue)
+            dbQuery = dbQuery.Where(p => p.CreatedAt < toDate.Value.Date.AddDays(1).ToUniversalTime());
 
         dbQuery = dbQuery
             .Include(p => p.Author)
@@ -530,9 +553,8 @@ public class SocialService : ISocialService
         if (post == null)
             throw new NotFoundException(_localizer["Social_NotFound"]);
 
-        if (post.IsApproved)
-            throw new InvalidOperationException(_localizer["Social_AlreadyApproved"]);
-
+        // Cho phép "hủy duyệt": unapprove bài đã duyệt (hoặc từ chối bài chưa duyệt).
+        // Không throw khi đã approved.
         post.IsApproved = false;
         // Có thể thêm field RejectionReason nếu muốn
 

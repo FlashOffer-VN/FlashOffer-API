@@ -98,10 +98,13 @@ public class SocialController : ApiControllerBase
     [HttpGet("posts/admin")]
     public async Task<IActionResult> GetAdminPosts(
         [FromQuery] string? status = null,
+        [FromQuery] string? search = null,
+        [FromQuery] DateTime? fromDate = null,
+        [FromQuery] DateTime? toDate = null,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10)
     {
-        var result = await _socialService.GetAdminPostsAsync(status, pageNumber, pageSize);
+        var result = await _socialService.GetAdminPostsAsync(status, search, fromDate, toDate, pageNumber, pageSize);
         return OkPaged(result, _stringLocalizer["Social_GetPostsSuccess"]);
     }
 

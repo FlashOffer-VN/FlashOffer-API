@@ -11,4 +11,6 @@ public class PurchaseRequestQueryDto
 	public string? Search { get; set; }
 	public string? SortBy { get; set; }    // VD: "CreatedAt"
 	public string? SortOrder { get; set; } // "asc" | "desc"
+	public DateTime? FromDate { get; set; }
+	public DateTime? ToDate { get; set; }
 }

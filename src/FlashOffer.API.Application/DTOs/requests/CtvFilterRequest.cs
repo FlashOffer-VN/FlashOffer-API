@@ -8,4 +8,6 @@ public class CtvFilterRequest
     public int PageSize { get; set; } = 10;
     public string? Search { get; set; }
     public CollaboratorStatus? Status { get; set; }
+    public DateTime? FromDate { get; set; }
+    public DateTime? ToDate { get; set; }
 }
