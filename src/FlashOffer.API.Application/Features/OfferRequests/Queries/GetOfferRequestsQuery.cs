@@ -1,5 +1,6 @@
-﻿// GetOfferRequestsQuery.cs
+// GetOfferRequestsQuery.cs
 using FlashOffer.API.Application.DTOs.responses;
+using FlashOffer.API.Domain.Enums;
 using FlashOffer.API.Domain.Models;
 using MediatR;
 
@@ -10,4 +11,8 @@ public class GetOfferRequestsQuery : IRequest<PagedList<OfferRequestResponseDto>
 	public int Page { get; set; } = 1;
 	public int PageSize { get; set; } = 20;
 	public bool? IsOfferSent { get; set; }
+	public OfferStatus? Status { get; set; }
+	public string? Search { get; set; }
+	public string? SortBy { get; set; }
+	public string? SortOrder { get; set; }
 }

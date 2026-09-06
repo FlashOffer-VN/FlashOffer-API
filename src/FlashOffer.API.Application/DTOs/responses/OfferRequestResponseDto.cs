@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FlashOffer.API.Application.Common.Mappings;
 using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
 
 namespace FlashOffer.API.Application.DTOs.responses;
 
@@ -8,13 +9,23 @@ public class OfferRequestResponseDto : IMapFrom<OfferRequest>
 {
 	public Guid Id { get; set; }
 	public string? OfferRequestCode { get; set; }
-	public string SelectedOffer { get; set; } = string.Empty;
+	public Guid UserId { get; set; }
+	public string ProductName { get; set; } = string.Empty;
+	public string? ProductLink { get; set; }
+	public decimal CurrentPrice { get; set; }
+	public decimal? ExpectedPrice { get; set; }
+	public int Quantity { get; set; }
+	public string Unit { get; set; } = string.Empty;
 	public string FullName { get; set; } = string.Empty;
 	public string Phone { get; set; } = string.Empty;
 	public string Zalo { get; set; } = string.Empty;
 	public string? Email { get; set; }
+	public string? Note { get; set; }
+	public OfferStatus Status { get; set; }
 	public bool IsOfferSent { get; set; }
+	public Guid? BusinessFieldId { get; set; }
 	public DateTime CreatedAt { get; set; }
+	public DateTime? UpdatedAt { get; set; }
 
 	public void Mapping(Profile profile)
 	{

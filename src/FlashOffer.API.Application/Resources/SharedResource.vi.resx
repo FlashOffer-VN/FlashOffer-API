@@ -134,6 +134,9 @@
 	<data name="OfferRequestListRetrievedSuccess" xml:space="preserve">
     <value>Lấy danh sách yêu cầu offer thành công</value>
   </data>
+	<data name="OfferRequest_DeleteSuccess" xml:space="preserve">
+    <value>Xóa yêu cầu offer thành công</value>
+  </data>
 	<data name="SelectedOfferRequired" xml:space="preserve">
     <value>Offer được chọn là bắt buộc</value>
   </data>

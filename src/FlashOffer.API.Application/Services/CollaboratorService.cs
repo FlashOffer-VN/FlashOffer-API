@@ -199,7 +199,8 @@ public class CollaboratorService : ICollaboratorService
         {
             predicate = c => c.FullName.Contains(search) ||
                              c.Phone.Contains(search) ||
-                             (c.Email != null && c.Email.Contains(search));
+                             (c.Email != null && c.Email.Contains(search)) ||
+                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search));
         }
 
         var paged = await _repository.GetPagedWithIncludesAsync(

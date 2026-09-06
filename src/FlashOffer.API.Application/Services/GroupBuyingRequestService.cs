@@ -76,8 +76,16 @@ public class GroupBuyingRequestService : IGroupBuyingRequestService
         if (!_currentUserService.IsInRole("Admin") && string.IsNullOrEmpty(userId))
             return new PagedList<GroupBuyingRequestResponseDto>(new List<GroupBuyingRequestResponseDto>(), 0, query.Page, query.PageSize);
 
+        var search = query.Search?.Trim();
+
         var q = _queryService.GetQueryableNoTracking<GroupBuyingRequest>()
-            .WhereIf(userId != null, x => x.UserId == Guid.Parse(userId!));
+            .WhereIf(userId != null, x => x.UserId == Guid.Parse(userId!))
+            .WhereIf(!string.IsNullOrEmpty(search), x =>
+                (x.GroupBuyingRequestCode != null && x.GroupBuyingRequestCode.Contains(search!)) ||
+                x.ProductName.Contains(search!) ||
+                x.FullName.Contains(search!) ||
+                x.Phone.Contains(search!) ||
+                (x.Email != null && x.Email.Contains(search!)));
 
         var result = await q.ToPagedListAsync(
             query.Page, query.PageSize,

@@ -1,4 +1,4 @@
-﻿// src/FlashOffer.API.WebApi/Controllers/OfferRequestsController.cs
+// src/FlashOffer.API.WebApi/Controllers/v1/OfferRequestsController.cs
 using AutoMapper;
 using FlashOffer.API.Application.DTOs.requests;
 using FlashOffer.API.Application.Features.OfferRequests.Commands;
@@ -34,7 +34,7 @@ public class OfferRequestsController : ApiControllerBase
     /// Tạo yêu cầu nhận offer (Public - không cần đăng nhập)
     /// </summary>
     [HttpPost]
-    [AllowAnonymous] 
+    [AllowAnonymous]
     public async Task<IActionResult> CreateAsync([FromBody] CreateOfferRequestDto request)
     {
         var command = _mapper.Map<CreateOfferRequestCommand>(request);
@@ -52,5 +52,47 @@ public class OfferRequestsController : ApiControllerBase
         var request = _mapper.Map<GetOfferRequestsQuery>(query);
         var result = await _mediator.Send(request);
         return OkPaged(result, _localizer["OfferRequestListRetrievedSuccess"]);
+    }
+
+    /// <summary>
+    /// Lấy chi tiết yêu cầu nhận offer theo ID (Chỉ Admin)
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var response = await _mediator.Send(new GetOfferRequestByIdQuery { Id = id });
+        if (response == null)
+        {
+            return NotFound(_localizer["NotFound"],
+                new List<string> { string.Format(_localizer["EntityNotFound"], "OfferRequest", id) });
+        }
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Cập nhật trạng thái yêu cầu nhận offer (Chỉ Admin)
+    /// </summary>
+    [HttpPatch("{id:guid}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateOfferRequestStatusDto dto)
+    {
+        var response = await _mediator.Send(new UpdateOfferRequestStatusCommand
+        {
+            Id = id,
+            Status = dto.Status
+        });
+        return Ok(response, _localizer["UpdateStatusSuccess"]);
+    }
+
+    /// <summary>
+    /// Xóa mềm yêu cầu nhận offer (Chỉ Admin)
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var response = await _mediator.Send(new DeleteOfferRequestCommand { Id = id });
+        return Ok(response, _localizer["OfferRequest_DeleteSuccess"]);
     }
 }
