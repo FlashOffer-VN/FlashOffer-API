@@ -29,8 +29,8 @@ public class RestoreOfferRequestCommandHandler : IRequestHandler<RestoreOfferReq
 
 	public async Task<OfferRequestResponseDto> Handle(RestoreOfferRequestCommand request, CancellationToken cancellationToken)
 	{
-		// FindAsync bypass global query filter → lấy được cả record đã xóa mềm.
-		var entity = await _repository.GetByIdAsync(request.Id, cancellationToken);
+		// GetByIdIncludingDeletedAsync bỏ qua global soft-delete filter → lấy được record đã xóa mềm.
+		var entity = await _repository.GetByIdIncludingDeletedAsync(request.Id, cancellationToken);
 		if (entity == null || !entity.IsDeleted)
 			throw new NotFoundException(_localizer["OfferRequestNotFound"]);
 

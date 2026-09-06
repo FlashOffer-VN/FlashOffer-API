@@ -8,6 +8,8 @@ public interface IRepository<T> where T : class
 {
     // ========== QUERY METHODS ==========
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>Lấy entity theo Id, BỎ QUA global soft-delete filter (để tìm record đã xóa mềm).</summary>
+    Task<T?> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken = default);
     Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
