@@ -30,12 +30,21 @@ public class CtvResponseDto : IMapFrom<Collaborator>
 public class CtvDetailResponseDto : CtvResponseDto
 {
     public UserInfoDto? User { get; set; }
+    public BusinessInfoDto? BusinessInfo { get; set; }
 
     public new void Mapping(Profile profile)
     {
         profile.CreateMap<Collaborator, CtvDetailResponseDto>()
             .IncludeBase<Collaborator, CtvResponseDto>()
-            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+            .ForMember(dest => dest.BusinessInfo, opt => opt.MapFrom(src => new BusinessInfoDto
+            {
+                CompanyName = src.BusinessName,
+                CompanyAddress = src.Address,
+                CompanyWebsite = src.Website,
+                BusinessField = src.BusinessFieldName,
+                CompanySize = src.BusinessSize.HasValue ? (CompanySize?)src.BusinessSize.Value : null
+            }));
     }
 }
 

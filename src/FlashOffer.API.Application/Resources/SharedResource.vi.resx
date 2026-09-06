@@ -251,6 +251,9 @@
 	<data name="DashboardSuccess" xml:space="preserve">
     <value>Lấy thống kê dashboard thành công</value>
   </data>
+	<data name="CrmDashboardSuccess" xml:space="preserve">
+    <value>Lấy thống kê CRM thành công</value>
+  </data>
 	<data name="UnauthorizedMessage" xml:space="preserve">
     <value>Không được phép - Token thiếu hoặc không hợp lệ</value>
   </data>

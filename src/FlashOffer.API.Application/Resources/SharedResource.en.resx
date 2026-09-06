@@ -257,6 +257,9 @@
 	<data name="DashboardSuccess" xml:space="preserve">
     <value>Dashboard statistics retrieved successfully</value>
   </data>
+	<data name="CrmDashboardSuccess" xml:space="preserve">
+    <value>CRM dashboard statistics retrieved successfully</value>
+  </data>
 	<data name="UnauthorizedMessage" xml:space="preserve">
     <value>Unauthorized - Token is missing or invalid</value>
   </data>
