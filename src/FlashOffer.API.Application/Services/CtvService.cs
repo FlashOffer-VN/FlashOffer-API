@@ -126,8 +126,8 @@ public class CtvService : ICtvService
 
     public async Task<CtvResponseDto> RestoreAsync(Guid id)
     {
-        // GetByIdAsync dùng FindAsync (bypass global filter) → tìm được record đã xóa
-        var entity = await _repository.GetByIdAsync(id);
+        // GetByIdIncludingDeletedAsync bỏ qua global soft-delete filter → tìm được record đã xóa
+        var entity = await _repository.GetByIdIncludingDeletedAsync(id);
         if (entity == null || !entity.IsDeleted)
             throw new KeyNotFoundException(_localizer["CTV_NotFound"]);
 

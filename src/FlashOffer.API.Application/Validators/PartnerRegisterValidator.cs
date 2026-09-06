@@ -1,4 +1,4 @@
-﻿// PartnerRegisterValidator.cs
+// PartnerRegisterValidator.cs
 using FlashOffer.API.Application.DTOs.Requests;
 using FlashOffer.API.Application.Resources;
 using FluentValidation;
@@ -34,27 +34,14 @@ public class PartnerRegisterValidator : AbstractValidator<PartnerRegisterRequest
             .NotEmpty().WithMessage(localizer["PartnerCompanyNameRequired"])
             .MinimumLength(2).WithMessage(localizer["PartnerCompanyNameMinLength"]);
 
-        RuleFor(x => x.CompanyTax)
-            .NotEmpty().WithMessage(localizer["PartnerCompanyTaxRequired"])
-            .Must(tax => System.Text.RegularExpressions.Regex.IsMatch(tax, @"^[0-9]{10,14}$"))
-            .WithMessage(localizer["PartnerCompanyTaxInvalid"]);
-
         RuleFor(x => x.CompanyAddress)
             .NotEmpty().WithMessage(localizer["PartnerCompanyAddressRequired"])
             .MinimumLength(5).WithMessage(localizer["PartnerCompanyAddressMinLength"]);
 
-        RuleFor(x => x.BusinessType)
-            .IsInEnum().WithMessage(localizer["PartnerBusinessTypeInvalid"]);
-
         RuleFor(x => x.CompanySize)
             .IsInEnum().WithMessage(localizer["PartnerCompanySizeInvalid"]);
 
-        RuleFor(x => x.CompanyWebsite)
-            .Must(uri => string.IsNullOrEmpty(uri) ||
-                System.Text.RegularExpressions.Regex.IsMatch(uri, @"^https?:\/\/.+\..+$"))
-            .WithMessage(localizer["PartnerCompanyWebsiteInvalid"]);
-
-        // Step 3: Products
+        // Step 2: Sản phẩm & dịch vụ cung cấp (tối giản: name bắt buộc)
         RuleFor(x => x.Products)
             .NotEmpty().WithMessage(localizer["PartnerProductsRequired"])
             .Must(list => list.Count > 0).WithMessage(localizer["PartnerProductsRequired"]);
@@ -64,29 +51,9 @@ public class PartnerRegisterValidator : AbstractValidator<PartnerRegisterRequest
             product.RuleFor(p => p.Name)
                 .NotEmpty().WithMessage(localizer["PartnerProductNameRequired"])
                 .MinimumLength(2).WithMessage(localizer["PartnerProductNameMinLength"]);
-
-            product.RuleFor(p => p.Category)
-                .IsInEnum().WithMessage(localizer["PartnerProductCategoryInvalid"]);
-
-            product.RuleFor(p => p.RetailPrice)
-                .GreaterThanOrEqualTo(0).WithMessage(localizer["PartnerRetailPriceNonNegative"]);
-
-            product.RuleFor(p => p.WholesalePrice)
-                .GreaterThanOrEqualTo(0).WithMessage(localizer["PartnerWholesalePriceNonNegative"]);
-
-            product.RuleFor(p => p.MinOrderQuantity)
-                .GreaterThanOrEqualTo(1).WithMessage(localizer["PartnerMinOrderQuantityPositive"]);
         });
 
-        // Step 3: Commission
-        RuleFor(x => x.CommissionType)
-            .IsInEnum().WithMessage(localizer["PartnerCommissionTypeInvalid"]);
-
-        RuleFor(x => x.CommissionRate)
-            .NotEmpty().WithMessage(localizer["PartnerCommissionRateRequired"])
-            .InclusiveBetween(0, 100).WithMessage(localizer["PartnerCommissionRateRange"]);
-
-        // Step 4: Confirmation
+        // Step 3: Confirmation
         RuleFor(x => x.AgreeTerms)
             .Equal(true).WithMessage(localizer["PartnerAgreeTermsRequired"]);
     }

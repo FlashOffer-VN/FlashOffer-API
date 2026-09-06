@@ -44,7 +44,8 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
                 CompanyAddress = src.CompanyAddress,
                 CompanyWebsite = src.CompanyWebsite,
                 BusinessType = src.BusinessType,
-                CompanySize = src.CompanySize
+                CompanySize = src.CompanySize,
+                BusinessField = src.BusinessField != null ? src.BusinessField.Name : null
             }));
 
         // ✅ Mapping cho các DTO con

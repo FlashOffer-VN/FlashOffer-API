@@ -26,6 +26,14 @@ public class GenericRepository<T> : IRepository<T> where T : class
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await _dbSet.FindAsync(new object[] { id }, cancellationToken);
 
+    /// <summary>
+    /// Lấy entity theo Id, BỎ QUA global soft-delete filter (để tìm record đã xóa mềm khi restore).
+    /// </summary>
+    public async Task<T?> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+        => await _dbSet
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+
     public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         => await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
 

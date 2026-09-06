@@ -258,8 +258,9 @@ public class CollaboratorService : ICollaboratorService
 
     public async Task RestoreAsync(Guid id)
     {
-        var collaborator = await _repository.GetFirstAsync(c => c.Id == id && c.IsDeleted);
-        if (collaborator == null)
+        // GetByIdIncludingDeletedAsync bỏ qua global soft-delete filter → tìm được record đã xóa mềm.
+        var collaborator = await _repository.GetByIdIncludingDeletedAsync(id);
+        if (collaborator == null || !collaborator.IsDeleted)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
         _repository.Restore(collaborator);

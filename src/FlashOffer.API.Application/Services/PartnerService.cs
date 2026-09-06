@@ -83,10 +83,14 @@ public class PartnerService : IPartnerService
         }
         partner.Products = products;
 
-        // 5. Map commission và gán PartnerId
-        partner.Commission = _mapper.Map<PartnerCommission>(request);
-        partner.Commission.PartnerId = partner.Id;
-        partner.Commission.PartnerCommissionCode = CodeGenerator.Generate("PCM");
+        // 5. Form mới không thu thập chính sách hoa hồng — tạo hoa hồng mặc định
+        partner.Commission = new PartnerCommission
+        {
+            Type = CommissionType.Percentage,
+            Rate = 0,
+            PartnerId = partner.Id,
+            PartnerCommissionCode = CodeGenerator.Generate("PCM")
+        };
 
         // 6. Lưu vào DB
         await _partnerRepo.AddAsync(partner);
@@ -106,7 +110,13 @@ public class PartnerService : IPartnerService
 
     public async Task<bool> IsReferralCodeValidAsync(string code)
     {
-        var user = await _userRepo.GetFirstAsync(u => u.Phone == code);
+        if (string.IsNullOrWhiteSpace(code)) return false;
+
+        // Mã giới thiệu có thể là SĐT hoặc UserCode (không phân biệt hoa/thường với code)
+        var trimmed = code.Trim();
+        var user = await _userRepo.GetFirstAsync(u =>
+            u.Phone == trimmed ||
+            (u.UserCode != null && u.UserCode.ToUpper() == trimmed.ToUpper()));
         return user != null;
     }
 
@@ -145,6 +155,7 @@ public class PartnerService : IPartnerService
             x => x.Id == id,
             query => query
                 .Include(x => x.User)
+                .Include(x => x.BusinessField)
                 .Include(x => x.Commission)
                 .Include(x => x.Products));
 

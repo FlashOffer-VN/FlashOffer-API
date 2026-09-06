@@ -491,8 +491,8 @@ public class SocialService : ISocialService
         if (!isAdmin)
             throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
 
-        // FindAsync/GetByIdAsync bypass global query filter → tìm được bài đã xóa
-        var post = await _postRepository.GetByIdAsync(id);
+        // GetByIdIncludingDeletedAsync bỏ qua global soft-delete filter → tìm được bài đã xóa
+        var post = await _postRepository.GetByIdIncludingDeletedAsync(id);
         if (post == null || !post.IsDeleted)
             throw new NotFoundException(_localizer["Social_NotFound"]);
 
