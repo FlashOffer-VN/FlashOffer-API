@@ -43,7 +43,7 @@ public class PurchaseRequestsController : ApiControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-	[HttpGet("purchase-requests/{id}")]
+	[HttpGet("{id:guid}")]
 	public async Task<IActionResult> GetByIdAsync(Guid id)
 	{
 		var response = await _mediator.Send(new GetPurchaseRequestByIdQuery { Id = id });
@@ -54,7 +54,7 @@ public class PurchaseRequestsController : ApiControllerBase
 	}
 
 	[Authorize(Roles = "Admin")]
-	[HttpGet("purchase-requests")]
+	[HttpGet]
 	public async Task<IActionResult> GetListAsync([FromQuery] PurchaseRequestQueryDto query)
 	{
 		var result = await _service.GetPagedAsync(query);
@@ -62,7 +62,7 @@ public class PurchaseRequestsController : ApiControllerBase
 	}
 
 	[Authorize(Roles = "Admin")]
-	[HttpPatch("purchase-requests/{id}/status")]
+	[HttpPatch("{id:guid}/status")]
 	public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdatePurchaseRequestStatusDto dto)
 	{
 		var result = await _service.UpdateStatusAsync(id, dto);
@@ -70,7 +70,7 @@ public class PurchaseRequestsController : ApiControllerBase
 	}
 
 	[Authorize(Roles = "Admin")]
-	[HttpGet("purchase-requests/export")]
+	[HttpGet("export")]
 	public async Task<IActionResult> ExportAsync([FromQuery] ExportPurchaseRequestsQuery query)
 	{
 		var bytes = await _mediator.Send(query);

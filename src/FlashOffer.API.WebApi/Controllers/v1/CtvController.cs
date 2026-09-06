@@ -48,4 +48,28 @@ public class CtvController : ApiControllerBase
         var result = await _ctvService.RejectAsync(id);
         return Ok(result, "CTV_RejectSuccess");
     }
+
+    [HttpGet("deleted")]
+    public async Task<IActionResult> GetDeleted(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null)
+    {
+        var result = await _ctvService.GetPagedDeletedAsync(pageNumber, pageSize, search);
+        return OkPaged(result, "Success");
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _ctvService.DeleteAsync(id);
+        return Ok(new { message = "Deleted successfully" });
+    }
+
+    [HttpPost("{id}/restore")]
+    public async Task<IActionResult> Restore(Guid id)
+    {
+        var result = await _ctvService.RestoreAsync(id);
+        return Ok(result, "Restored successfully");
+    }
 }

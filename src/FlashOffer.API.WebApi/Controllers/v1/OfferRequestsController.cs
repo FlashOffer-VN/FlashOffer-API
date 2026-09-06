@@ -95,4 +95,15 @@ public class OfferRequestsController : ApiControllerBase
         var response = await _mediator.Send(new DeleteOfferRequestCommand { Id = id });
         return Ok(response, _localizer["OfferRequest_DeleteSuccess"]);
     }
+
+    /// <summary>
+    /// Khôi phục yêu cầu nhận offer đã xóa (Chỉ Admin)
+    /// </summary>
+    [HttpPost("{id:guid}/restore")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Restore(Guid id)
+    {
+        var response = await _mediator.Send(new RestoreOfferRequestCommand { Id = id });
+        return Ok(response, _localizer["RestoreSuccess"]);
+    }
 }

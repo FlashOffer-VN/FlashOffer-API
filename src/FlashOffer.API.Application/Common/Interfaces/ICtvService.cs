@@ -11,4 +11,7 @@ public interface ICtvService
     Task<CtvDetailResponseDto?> GetDetailAsync(Guid id);
     Task<CtvResponseDto> ApproveAsync(Guid id);
     Task<CtvResponseDto> RejectAsync(Guid id);
+    Task<PagedList<CtvResponseDto>> GetPagedDeletedAsync(int pageNumber, int pageSize, string? search = null);
+    Task DeleteAsync(Guid id);
+    Task<CtvResponseDto> RestoreAsync(Guid id);
 }

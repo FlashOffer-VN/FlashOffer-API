@@ -94,6 +94,50 @@ public class CtvService : ICtvService
         return _mapper.Map<CtvResponseDto>(entity);
     }
 
+    public async Task<PagedList<CtvResponseDto>> GetPagedDeletedAsync(int pageNumber, int pageSize, string? search = null)
+    {
+        var query = _repository.GetQueryable();
+        query = query.IgnoreQueryFilters().Where(x => x.IsDeleted);
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(x =>
+                x.FullName.Contains(search) ||
+                x.Phone.Contains(search) ||
+                (x.Email != null && x.Email.Contains(search)) ||
+                (x.CollaboratorCode != null && x.CollaboratorCode.Contains(search)));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAt);
+
+        var paged = await PagedList<Collaborator>.CreateAsync(query, pageNumber, pageSize);
+        var items = _mapper.Map<List<CtvResponseDto>>(paged.Items);
+        return new PagedList<CtvResponseDto>(items, paged.TotalCount, pageNumber, pageSize);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var entity = await GetAndValidateAsync(id);
+        _repository.Delete(entity);
+        await _repository.SaveChangesAsync();
+    }
+
+    public async Task<CtvResponseDto> RestoreAsync(Guid id)
+    {
+        // GetByIdAsync dùng FindAsync (bypass global filter) → tìm được record đã xóa
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null || !entity.IsDeleted)
+            throw new KeyNotFoundException(_localizer["CTV_NotFound"]);
+
+        entity.IsDeleted = false;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        _repository.Update(entity);
+        await _repository.SaveChangesAsync();
+
+        return _mapper.Map<CtvResponseDto>(entity);
+    }
+
     private async Task<Collaborator> GetAndValidateAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id);

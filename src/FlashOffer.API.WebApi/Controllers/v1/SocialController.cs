@@ -92,6 +92,20 @@ public class SocialController : ApiControllerBase
     }
 
     /// <summary>
+    /// Admin: Lấy danh sách bài viết theo trạng thái (approved/pending/deleted/all)
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpGet("posts/admin")]
+    public async Task<IActionResult> GetAdminPosts(
+        [FromQuery] string? status = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        var result = await _socialService.GetAdminPostsAsync(status, pageNumber, pageSize);
+        return OkPaged(result, _stringLocalizer["Social_GetPostsSuccess"]);
+    }
+
+    /// <summary>
     /// Admin: Lấy danh sách bài viết cần duyệt
     /// </summary>
     [Authorize(Roles = "Admin")]
@@ -124,6 +138,17 @@ public class SocialController : ApiControllerBase
     {
         var result = await _socialService.RejectPostAsync(id, reason);
         return Ok(result, _stringLocalizer["Social_RejectSuccess"]);
+    }
+
+    /// <summary>
+    /// Admin: Khôi phục bài viết đã xóa
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("posts/{id}/restore")]
+    public async Task<IActionResult> RestorePost(Guid id)
+    {
+        var result = await _socialService.RestorePostAsync(id);
+        return Ok(result, _stringLocalizer["RestoreSuccess"]);
     }
 
     /// <summary>

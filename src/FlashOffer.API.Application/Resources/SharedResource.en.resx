@@ -57,6 +57,15 @@
 	<data name="UpdateStatusSuccess" xml:space="preserve">
     <value>Status updated successfully</value>
   </data>
+	<data name="RestoreSuccess" xml:space="preserve">
+    <value>Restored successfully</value>
+  </data>
+	<data name="FileEmpty" xml:space="preserve">
+    <value>File cannot be empty</value>
+  </data>
+	<data name="FileUploadSuccess" xml:space="preserve">
+    <value>Upload successful</value>
+  </data>
 
 	<!-- Purchase Request Status -->
 	<data name="PurchaseRequestStatus_Pending" xml:space="preserve">

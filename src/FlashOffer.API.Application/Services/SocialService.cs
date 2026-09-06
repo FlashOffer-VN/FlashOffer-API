@@ -413,6 +413,82 @@ public class SocialService : ISocialService
         );
     }
 
+    public async Task<PagedList<PostResponse>> GetAdminPostsAsync(string? status, int pageNumber, int pageSize)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        IQueryable<SocialPost> dbQuery = await _postRepository.GetQueryableAsync();
+
+        // Tab "Đã xóa": bỏ global filter để lấy các bài soft-delete
+        if (string.Equals(status, "deleted", StringComparison.OrdinalIgnoreCase))
+        {
+            dbQuery = dbQuery.IgnoreQueryFilters().Where(p => p.IsDeleted);
+        }
+        else if (string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase))
+        {
+            dbQuery = dbQuery.Where(p => p.IsApproved);
+        }
+        else if (string.Equals(status, "pending", StringComparison.OrdinalIgnoreCase))
+        {
+            dbQuery = dbQuery.Where(p => !p.IsApproved && p.Privacy == PrivacyType.Public);
+        }
+        // status = null / "all" => mọi bài chưa xóa
+
+        dbQuery = dbQuery
+            .Include(p => p.Author)
+            .Include(p => p.Likes)
+            .Include(p => p.Comments)
+            .Include(p => p.Shares)
+            .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag)
+            .OrderByDescending(p => p.CreatedAt);
+
+        var posts = await PagedList<SocialPost>.CreateAsync(dbQuery, pageNumber, pageSize);
+
+        var postResponses = _mapper.Map<List<PostResponse>>(posts.Items);
+        foreach (var response in postResponses)
+        {
+            var post = posts.Items.First(p => p.Id == response.Id);
+            response.Author = _mapper.Map<AuthorDto>(post.Author);
+        }
+
+        return new PagedList<PostResponse>(
+            postResponses,
+            posts.TotalCount,
+            pageNumber,
+            pageSize
+        );
+    }
+
+    public async Task<PostResponse> RestorePostAsync(Guid id)
+    {
+        var isAdmin = _currentUserService.IsInRole("Admin");
+        if (!isAdmin)
+            throw new ForbiddenException(_localizer["Social_NotAuthorized"]);
+
+        // FindAsync/GetByIdAsync bypass global query filter → tìm được bài đã xóa
+        var post = await _postRepository.GetByIdAsync(id);
+        if (post == null || !post.IsDeleted)
+            throw new NotFoundException(_localizer["Social_NotFound"]);
+
+        post.IsDeleted = false;
+        post.UpdatedAt = DateTime.UtcNow;
+
+        _postRepository.Update(post);
+        await _postRepository.SaveChangesAsync();
+
+        var refreshed = await _postRepository.GetFirstWithIncludesAsync(
+            p => p.Id == id,
+            includes: q => q.Include(p => p.Author));
+        var response = refreshed == null ? _mapper.Map<PostResponse>(post) : _mapper.Map<PostResponse>(refreshed);
+        response.Author = refreshed != null
+            ? _mapper.Map<AuthorDto>(refreshed.Author)
+            : (_mapper.Map<AuthorDto>(post.Author));
+        return response;
+    }
+
     public async Task<PostResponse> ApprovePostAsync(Guid id)
     {
         var isAdmin = _currentUserService.IsInRole("Admin");

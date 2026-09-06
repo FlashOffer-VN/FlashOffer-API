@@ -1,8 +1,10 @@
 ﻿using FlashOffer.API.Application;
 using FlashOffer.API.Application.Common.Configurations;
+using FlashOffer.API.Application.Common.Interfaces;
 using FlashOffer.API.Application.Resources;
 using FlashOffer.API.Application.Validators;
 using FlashOffer.API.Infrastructure;
+using FlashOffer.API.Infrastructure.Services;
 using FlashOffer.API.WebApi.Configurations;
 using FlashOffer.API.WebApi.Filters;
 using FlashOffer.API.WebApi.Responses;
@@ -114,6 +116,15 @@ public static class DependencyInjection
 
 		// Add Infrastructure layer services
 		services.AddInfrastructureServices(configuration);
+
+		// File storage (local disk). Muốn dùng S3/Cloudinary: thay impl này + giữ nguyên IFileStorage.
+		services.AddScoped<IFileStorage>(sp =>
+		{
+			var env = sp.GetRequiredService<IWebHostEnvironment>();
+			var root = Path.Combine(Path.GetFullPath(env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot")));
+			Directory.CreateDirectory(root);
+			return new LocalFileStorage(root);
+		});
 
 		// Add API specific services with FluentValidation
 		services.AddControllers(options =>
