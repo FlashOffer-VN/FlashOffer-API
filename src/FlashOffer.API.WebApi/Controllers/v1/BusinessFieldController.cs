@@ -6,7 +6,8 @@ namespace FlashOffer.API.WebApi.Controllers.v1;
 
 [ApiVersion("1.0")]
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
+// Route dạng kebab-case số nhiều (client gọi /business-fields/active).
+[Route("api/v{version:apiVersion}/business-fields")]
 public class BusinessFieldController : ApiControllerBase
 {
     private readonly IBusinessFieldService _businessFieldService;
