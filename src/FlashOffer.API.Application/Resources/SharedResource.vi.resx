@@ -517,6 +517,9 @@
   <data name="Partner_RestoreSuccess">
     <value>Khôi phục đối tác thành công</value>
   </data>
+  <data name="Partner_UpdateSuccess">
+    <value>Cập nhật đối tác thành công</value>
+  </data>
   <!-- Social Post Keys -->
   <data name="Social_GetPostsSuccess"><value>Lấy danh sách bài viết thành công</value></data>
   <data name="Social_CreateSuccess"><value>Tạo bài viết thành công</value></data>

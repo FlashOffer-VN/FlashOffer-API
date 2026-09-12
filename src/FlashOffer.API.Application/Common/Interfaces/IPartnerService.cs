@@ -13,6 +13,8 @@ public interface IPartnerService
     Task<PartnerResponseDto> ApproveAsync(Guid id);
     Task<PartnerResponseDto> RejectAsync(Guid id);
     Task<PartnerResponseDto> ActivateAsync(Guid id);
+    /// <summary>Cập nhật thông tin đối tác (partial update — field null giữ nguyên).</summary>
+    Task<PartnerResponseDto> UpdateAsync(Guid id, UpdatePartnerDto request);
 
     /// <summary>Xóa mềm đối tác.</summary>
     Task DeleteAsync(Guid id);

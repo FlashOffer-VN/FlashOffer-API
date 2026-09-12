@@ -16,7 +16,6 @@ using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace FlashOffer.API.WebApi;
 
@@ -131,12 +130,6 @@ public static class DependencyInjection
 		services.AddControllers(options =>
 		{
 			options.Filters.Add<ValidationFilter>();
-		})
-		.AddJsonOptions(options =>
-		{
-			// Enum serialize thành chuỗi (vd: "Approved") thay vì số — để FE dùng trực tiếp
-			// làm nhãn hiển thị, tránh phải tự duy trì bảng map số -> tên.
-			options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 		});
 		services.AddValidatorsFromAssemblyContaining<SharedResource>();
 		services.AddFluentValidationAutoValidation();

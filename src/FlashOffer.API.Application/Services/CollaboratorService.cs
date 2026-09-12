@@ -171,7 +171,30 @@ public class CollaboratorService : ICollaboratorService
         if (collaborator == null)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
+        // Partial update: field nào null thì AutoMapper giữ nguyên giá trị cũ
+        // (BusinessFieldId/BusinessFieldName đã Ignore, xử lý tay bên dưới).
         _mapper.Map(request, collaborator);
+
+        // Lĩnh vực kinh doanh — cùng logic với CreateAsync: ưu tiên Id, fallback find-or-create
+        // theo tên, và luôn ghi lại BusinessFieldName để cột denormalized khớp với Id.
+        if (request.BusinessFieldId.HasValue)
+        {
+            var field = await _businessFieldRepo.GetFirstAsync(
+                b => b.Id == request.BusinessFieldId.Value && !b.IsDeleted);
+
+            if (field == null)
+                throw new BadRequestException("Lĩnh vực hoạt động không tồn tại");
+
+            collaborator.BusinessFieldId = field.Id;
+            collaborator.BusinessFieldName = field.Name;
+        }
+        else if (!string.IsNullOrWhiteSpace(request.BusinessFieldName))
+        {
+            collaborator.BusinessFieldId =
+                await _businessFieldService.GetOrCreateBusinessFieldAsync(request.BusinessFieldName);
+            collaborator.BusinessFieldName = request.BusinessFieldName.Trim();
+        }
+
         _repository.Update(collaborator);
         await _repository.SaveChangesAsync();
 

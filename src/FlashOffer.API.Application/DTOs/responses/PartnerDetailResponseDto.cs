@@ -51,7 +51,9 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
         // ✅ Mapping cho các DTO con
         profile.CreateMap<User, UserBriefDto>();
         profile.CreateMap<PartnerCommission, PartnerCommissionDto>();
-        profile.CreateMap<PartnerProduct, PartnerProductDto>();
+        profile.CreateMap<PartnerProduct, PartnerProductDto>()
+            .ForMember(dest => dest.BusinessFieldName,
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : null));
     }
 }
 
@@ -80,10 +82,16 @@ public class PartnerProductDto
 {
     public Guid Id { get; set; }
     public string? PartnerProductCode { get; set; }
+    public Guid PartnerId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ProductCategory Category { get; set; }
     public decimal RetailPrice { get; set; }
     public decimal WholesalePrice { get; set; }
     public int MinOrderQuantity { get; set; }
+
+    /// <summary>Lĩnh vực kinh doanh của sản phẩm.</summary>
+    public Guid? BusinessFieldId { get; set; }
+    /// <summary>Tên lĩnh vực — lấy từ nav BusinessField (cần Include khi query).</summary>
+    public string? BusinessFieldName { get; set; }
 }
