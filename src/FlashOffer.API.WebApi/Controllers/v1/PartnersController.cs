@@ -128,7 +128,9 @@ public class PartnersController : ApiControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         await _partnerService.DeleteAsync(id);
-        return Ok(new { message = _localizer["Partner_DeleteSuccess"] });
+        // .Value là bắt buộc: LocalizedString nằm trong object ẩn danh sẽ bị
+        // System.Text.Json serialize thành { name, value, resourceNotFound }.
+        return Ok(new { message = _localizer["Partner_DeleteSuccess"].Value });
     }
 
     /// <summary>
