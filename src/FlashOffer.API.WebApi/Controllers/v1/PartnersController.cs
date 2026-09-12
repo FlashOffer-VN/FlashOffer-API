@@ -19,15 +19,18 @@ public class PartnersController : ApiControllerBase
 {
     private readonly IPartnerService _partnerService;
     private readonly IValidator<PartnerRegisterRequest> _validator;
+    private readonly IValidator<UpdatePartnerDto> _updateValidator;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public PartnersController(
         IPartnerService partnerService,
         IValidator<PartnerRegisterRequest> validator,
+        IValidator<UpdatePartnerDto> updateValidator,
         IStringLocalizer<SharedResource> localizer)
     {
         _partnerService = partnerService;
         _validator = validator;
+        _updateValidator = updateValidator;
         _localizer = localizer;
     }
 
@@ -63,6 +66,10 @@ public class PartnersController : ApiControllerBase
         return Ok(isValid,_localizer["Partner_ReferralCodeValid"]);
     }
 
+    /// <summary>
+    /// Lấy danh sách đối tác phân trang.
+    /// Truyền <c>isDeleted=true</c> để lấy danh sách đối tác đã xóa mềm.
+    /// </summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetList([FromQuery] PartnerFilterRequest filter)
@@ -104,5 +111,65 @@ public class PartnersController : ApiControllerBase
     {
         var result = await _partnerService.ActivateAsync(id);
         return Ok(result, _localizer["Partner_ActivateSuccess"]);
+    }
+
+    /// <summary>
+    /// Cập nhật thông tin đối tác (partial update — field null giữ nguyên)
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePartnerDto request)
+    {
+        var validationResult = await _updateValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Message = _localizer["PartnerValidationFailed"],
+                Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList()
+            });
+        }
+
+        var result = await _partnerService.UpdateAsync(id, request);
+        return Ok(result, _localizer["Partner_UpdateSuccess"]);
+    }
+
+    /// <summary>
+    /// Danh sách đối tác đã xóa mềm
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpGet("deleted")]
+    public async Task<IActionResult> GetDeleted(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null)
+    {
+        var result = await _partnerService.GetPagedDeletedAsync(pageNumber, pageSize, search);
+        return OkPaged(result, _localizer["Success"]);
+    }
+
+    /// <summary>
+    /// Xóa mềm đối tác
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _partnerService.DeleteAsync(id);
+        // .Value là bắt buộc: LocalizedString nằm trong object ẩn danh sẽ bị
+        // System.Text.Json serialize thành { name, value, resourceNotFound }.
+        return Ok(new { message = _localizer["Partner_DeleteSuccess"].Value });
+    }
+
+    /// <summary>
+    /// Khôi phục đối tác đã xóa
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/restore")]
+    public async Task<IActionResult> Restore(Guid id)
+    {
+        var result = await _partnerService.RestoreAsync(id);
+        return Ok(result, _localizer["Partner_RestoreSuccess"]);
     }
 }

@@ -27,6 +27,7 @@ public class PartnerService : IPartnerService
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IRepository<User> _userRepo;
     private readonly IQueryService _queryService;
+    private readonly IRepository<BusinessField> _businessFieldRepo;
 
     public PartnerService(
         IRepository<Partner> partnerRepo,
@@ -35,7 +36,8 @@ public class PartnerService : IPartnerService
         ICurrentUserService currentUserService,
         IMapper mapper,
         IStringLocalizer<SharedResource> localizer,
-        IQueryService queryService)
+        IQueryService queryService,
+        IRepository<BusinessField> businessFieldRepo)
     {
         _partnerRepo = partnerRepo;
         _userRepo = userRepo;
@@ -44,6 +46,7 @@ public class PartnerService : IPartnerService
         _mapper = mapper;
         _localizer = localizer;
         _queryService = queryService;
+        _businessFieldRepo = businessFieldRepo;
     }
 
     public async Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request)
@@ -122,7 +125,14 @@ public class PartnerService : IPartnerService
 
     public async Task<PagedList<PartnerResponseDto>> GetPagedAsync(PartnerFilterRequest filter)
     {
-        var q = _queryService.GetAllNoTracking<Partner>()
+        // isDeleted=true bỏ global soft-delete filter để lấy cả bản ghi đã xóa.
+        var q = filter.IsDeleted == true
+            ? _queryService.GetQueryableNoTracking<Partner>().IgnoreQueryFilters().Where(x => x.IsDeleted)
+            : _queryService.GetAllNoTracking<Partner>();
+
+        q = q
+            // Include nav lĩnh vực để map BusinessFieldName trong PartnerResponseDto
+            .Include(x => x.BusinessField)
             // Search filter
             .WhereIf(!string.IsNullOrEmpty(filter.Search), x =>
                 x.FullName.Contains(filter.Search!) ||
@@ -131,7 +141,10 @@ public class PartnerService : IPartnerService
                 x.CompanyName.Contains(filter.Search!) ||
                 x.CompanyTax.Contains(filter.Search!) ||
                 x.PartnerCode.Contains(filter.Search!) ||
-                (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)))
+                (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)) ||
+                // Tìm theo lĩnh vực kinh doanh — Partner không có cột tên denormalized
+                // nên phải qua nav (EF dịch thành LEFT JOIN).
+                (x.BusinessField != null && x.BusinessField.Name.Contains(filter.Search!)))
             // Status filter
             .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value)
             // Date range filter
@@ -157,7 +170,8 @@ public class PartnerService : IPartnerService
                 .Include(x => x.User)
                 .Include(x => x.BusinessField)
                 .Include(x => x.Commission)
-                .Include(x => x.Products));
+                // ThenInclude để PartnerProductDto.businessFieldName có dữ liệu
+                .Include(x => x.Products).ThenInclude(p => p.BusinessField));
 
         if (entity == null)
             return null;
@@ -167,7 +181,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> ApproveAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
@@ -185,7 +201,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> RejectAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
@@ -202,7 +220,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> ActivateAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
@@ -215,5 +235,98 @@ public class PartnerService : IPartnerService
         await _partnerRepo.SaveChangesAsync();
 
         return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task<PartnerResponseDto> UpdateAsync(Guid id, UpdatePartnerDto request)
+    {
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query
+                .Include(x => x.Products)
+                .Include(x => x.BusinessField));
+
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        // Partial update: field nào null thì AutoMapper giữ nguyên giá trị cũ.
+        _mapper.Map(request, entity);
+
+        // Lĩnh vực kinh doanh: validate tồn tại trước khi gán (Partner không có cột tên
+        // denormalized nên chỉ cần chốt Id, tên lấy qua nav).
+        if (request.BusinessFieldId.HasValue)
+        {
+            var field = await _businessFieldRepo.GetFirstAsync(
+                b => b.Id == request.BusinessFieldId.Value && !b.IsDeleted);
+
+            if (field == null)
+                throw new BadRequestException("Lĩnh vực hoạt động không tồn tại");
+
+            entity.BusinessFieldId = field.Id;
+        }
+
+        // Sản phẩm: null = giữ nguyên. Có giá trị = thay thế toàn bộ.
+        // Xóa khỏi collection của quan hệ required → EF đánh dấu Deleted, và
+        // SaveChangesAsync override chuyển thành xóa mềm (IsDeleted = true).
+        if (request.Products != null)
+        {
+            entity.Products.Clear();
+
+            foreach (var dto in request.Products)
+            {
+                var product = _mapper.Map<PartnerProduct>(dto);
+                product.PartnerId = entity.Id;
+                product.PartnerProductCode = CodeGenerator.Generate("PRDP");
+                entity.Products.Add(product);
+            }
+        }
+
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        // GetByIdAsync tôn trọng global soft-delete filter → chỉ xóa được bản ghi đang sống.
+        var entity = await _partnerRepo.GetByIdAsync(id);
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        // IRepository.Delete chuyển thành IsDeleted = true (không hard delete).
+        _partnerRepo.Delete(entity);
+        await _partnerRepo.SaveChangesAsync();
+    }
+
+    public async Task<PartnerResponseDto> RestoreAsync(Guid id)
+    {
+        // Bỏ global soft-delete filter để tìm được bản ghi đã xóa; Include nav lĩnh vực
+        // để response sau khi khôi phục vẫn có BusinessFieldName.
+        var entity = await _queryService.GetQueryable<Partner>()
+            .IgnoreQueryFilters()
+            .Include(x => x.BusinessField)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity == null || !entity.IsDeleted)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        entity.IsDeleted = false;
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task<PagedList<PartnerResponseDto>> GetPagedDeletedAsync(int pageNumber, int pageSize, string? search = null)
+    {
+        var filter = new PartnerFilterRequest
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            Search = search,
+            IsDeleted = true
+        };
+
+        return await GetPagedAsync(filter);
     }
 }

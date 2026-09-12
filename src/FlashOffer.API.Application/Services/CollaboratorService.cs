@@ -171,7 +171,30 @@ public class CollaboratorService : ICollaboratorService
         if (collaborator == null)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
 
+        // Partial update: field nào null thì AutoMapper giữ nguyên giá trị cũ
+        // (BusinessFieldId/BusinessFieldName đã Ignore, xử lý tay bên dưới).
         _mapper.Map(request, collaborator);
+
+        // Lĩnh vực kinh doanh — cùng logic với CreateAsync: ưu tiên Id, fallback find-or-create
+        // theo tên, và luôn ghi lại BusinessFieldName để cột denormalized khớp với Id.
+        if (request.BusinessFieldId.HasValue)
+        {
+            var field = await _businessFieldRepo.GetFirstAsync(
+                b => b.Id == request.BusinessFieldId.Value && !b.IsDeleted);
+
+            if (field == null)
+                throw new BadRequestException("Lĩnh vực hoạt động không tồn tại");
+
+            collaborator.BusinessFieldId = field.Id;
+            collaborator.BusinessFieldName = field.Name;
+        }
+        else if (!string.IsNullOrWhiteSpace(request.BusinessFieldName))
+        {
+            collaborator.BusinessFieldId =
+                await _businessFieldService.GetOrCreateBusinessFieldAsync(request.BusinessFieldName);
+            collaborator.BusinessFieldName = request.BusinessFieldName.Trim();
+        }
+
         _repository.Update(collaborator);
         await _repository.SaveChangesAsync();
 
@@ -182,7 +205,8 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetFirstWithIncludesAsync(
             c => c.Id == id,
-            q => q.Include(c => c.User));
+            q => q.Include(c => c.User)
+                  .Include(c => c.BusinessField));
 
         if (collaborator == null)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
@@ -199,12 +223,17 @@ public class CollaboratorService : ICollaboratorService
             predicate = c => c.FullName.Contains(search) ||
                              c.Phone.Contains(search) ||
                              (c.Email != null && c.Email.Contains(search)) ||
-                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search));
+                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search)) ||
+                             // Tìm theo lĩnh vực kinh doanh: khớp cả cột denormalized
+                             // (bản ghi cũ) lẫn tên trong bảng BusinessFields (tên hiển thị).
+                             (c.BusinessFieldName != null && c.BusinessFieldName.Contains(search)) ||
+                             (c.BusinessField != null && c.BusinessField.Name.Contains(search));
         }
 
         var paged = await _repository.GetPagedWithIncludesAsync(
             page, size,
-            includes: q => q.Include(c => c.User),
+            includes: q => q.Include(c => c.User)
+                            .Include(c => c.BusinessField),
             predicate: predicate,
             orderBy: c => c.CreatedAt,
             isDescending: true);
