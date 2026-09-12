@@ -200,7 +200,11 @@ public class CollaboratorService : ICollaboratorService
             predicate = c => c.FullName.Contains(search) ||
                              c.Phone.Contains(search) ||
                              (c.Email != null && c.Email.Contains(search)) ||
-                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search));
+                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search)) ||
+                             // Tìm theo lĩnh vực kinh doanh: khớp cả cột denormalized
+                             // (bản ghi cũ) lẫn tên trong bảng BusinessFields (tên hiển thị).
+                             (c.BusinessFieldName != null && c.BusinessFieldName.Contains(search)) ||
+                             (c.BusinessField != null && c.BusinessField.Name.Contains(search));
         }
 
         var paged = await _repository.GetPagedWithIncludesAsync(

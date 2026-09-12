@@ -133,7 +133,10 @@ public class PartnerService : IPartnerService
                 x.CompanyName.Contains(filter.Search!) ||
                 x.CompanyTax.Contains(filter.Search!) ||
                 x.PartnerCode.Contains(filter.Search!) ||
-                (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)))
+                (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)) ||
+                // Tìm theo lĩnh vực kinh doanh — Partner không có cột tên denormalized
+                // nên phải qua nav (EF dịch thành LEFT JOIN).
+                (x.BusinessField != null && x.BusinessField.Name.Contains(filter.Search!)))
             // Status filter
             .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value)
             // Date range filter
@@ -223,5 +226,60 @@ public class PartnerService : IPartnerService
         await _partnerRepo.SaveChangesAsync();
 
         return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        // GetByIdAsync tôn trọng global soft-delete filter → chỉ xóa được bản ghi đang sống.
+        var entity = await _partnerRepo.GetByIdAsync(id);
+        if (entity == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        // IRepository.Delete chuyển thành IsDeleted = true (không hard delete).
+        _partnerRepo.Delete(entity);
+        await _partnerRepo.SaveChangesAsync();
+    }
+
+    public async Task<PartnerResponseDto> RestoreAsync(Guid id)
+    {
+        // Bỏ global soft-delete filter để tìm được bản ghi đã xóa; Include nav lĩnh vực
+        // để response sau khi khôi phục vẫn có BusinessFieldName.
+        var entity = await _queryService.GetQueryable<Partner>()
+            .IgnoreQueryFilters()
+            .Include(x => x.BusinessField)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity == null || !entity.IsDeleted)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        entity.IsDeleted = false;
+        _partnerRepo.Update(entity);
+        await _partnerRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    public async Task<PagedList<PartnerResponseDto>> GetPagedDeletedAsync(int pageNumber, int pageSize, string? search = null)
+    {
+        var q = _queryService.GetQueryableNoTracking<Partner>()
+            // Bỏ global soft-delete filter rồi chỉ lấy bản ghi đã xóa.
+            .IgnoreQueryFilters()
+            .Where(x => x.IsDeleted)
+            .Include(x => x.BusinessField)
+            .WhereIf(!string.IsNullOrEmpty(search), x =>
+                x.FullName.Contains(search!) ||
+                x.Phone.Contains(search!) ||
+                x.Email.Contains(search!) ||
+                x.CompanyName.Contains(search!) ||
+                x.PartnerCode.Contains(search!))
+            .OrderByDescending(x => x.CreatedAt);
+
+        var paged = await q.ToPagedListAsync(pageNumber, pageSize);
+
+        return new PagedList<PartnerResponseDto>(
+            _mapper.Map<List<PartnerResponseDto>>(paged.Items),
+            paged.TotalCount,
+            paged.PageNumber,
+            paged.PageSize);
     }
 }

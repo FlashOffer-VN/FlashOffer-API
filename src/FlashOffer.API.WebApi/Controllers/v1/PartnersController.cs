@@ -105,4 +105,40 @@ public class PartnersController : ApiControllerBase
         var result = await _partnerService.ActivateAsync(id);
         return Ok(result, _localizer["Partner_ActivateSuccess"]);
     }
+
+    /// <summary>
+    /// Danh sách đối tác đã xóa mềm
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpGet("deleted")]
+    public async Task<IActionResult> GetDeleted(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null)
+    {
+        var result = await _partnerService.GetPagedDeletedAsync(pageNumber, pageSize, search);
+        return OkPaged(result, _localizer["Success"]);
+    }
+
+    /// <summary>
+    /// Xóa mềm đối tác
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _partnerService.DeleteAsync(id);
+        return Ok(new { message = _localizer["Partner_DeleteSuccess"] });
+    }
+
+    /// <summary>
+    /// Khôi phục đối tác đã xóa
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/restore")]
+    public async Task<IActionResult> Restore(Guid id)
+    {
+        var result = await _partnerService.RestoreAsync(id);
+        return Ok(result, _localizer["Partner_RestoreSuccess"]);
+    }
 }
