@@ -63,6 +63,10 @@ public class PartnersController : ApiControllerBase
         return Ok(isValid,_localizer["Partner_ReferralCodeValid"]);
     }
 
+    /// <summary>
+    /// Lấy danh sách đối tác phân trang.
+    /// Truyền <c>isDeleted=true</c> để lấy danh sách đối tác đã xóa mềm.
+    /// </summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetList([FromQuery] PartnerFilterRequest filter)

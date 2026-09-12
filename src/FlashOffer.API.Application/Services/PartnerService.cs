@@ -122,7 +122,12 @@ public class PartnerService : IPartnerService
 
     public async Task<PagedList<PartnerResponseDto>> GetPagedAsync(PartnerFilterRequest filter)
     {
-        var q = _queryService.GetAllNoTracking<Partner>()
+        // isDeleted=true bỏ global soft-delete filter để lấy cả bản ghi đã xóa.
+        var q = filter.IsDeleted == true
+            ? _queryService.GetQueryableNoTracking<Partner>().IgnoreQueryFilters().Where(x => x.IsDeleted)
+            : _queryService.GetAllNoTracking<Partner>();
+
+        q = q
             // Include nav lĩnh vực để map BusinessFieldName trong PartnerResponseDto
             .Include(x => x.BusinessField)
             // Search filter
@@ -261,25 +266,14 @@ public class PartnerService : IPartnerService
 
     public async Task<PagedList<PartnerResponseDto>> GetPagedDeletedAsync(int pageNumber, int pageSize, string? search = null)
     {
-        var q = _queryService.GetQueryableNoTracking<Partner>()
-            // Bỏ global soft-delete filter rồi chỉ lấy bản ghi đã xóa.
-            .IgnoreQueryFilters()
-            .Where(x => x.IsDeleted)
-            .Include(x => x.BusinessField)
-            .WhereIf(!string.IsNullOrEmpty(search), x =>
-                x.FullName.Contains(search!) ||
-                x.Phone.Contains(search!) ||
-                x.Email.Contains(search!) ||
-                x.CompanyName.Contains(search!) ||
-                x.PartnerCode.Contains(search!))
-            .OrderByDescending(x => x.CreatedAt);
+        var filter = new PartnerFilterRequest
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            Search = search,
+            IsDeleted = true
+        };
 
-        var paged = await q.ToPagedListAsync(pageNumber, pageSize);
-
-        return new PagedList<PartnerResponseDto>(
-            _mapper.Map<List<PartnerResponseDto>>(paged.Items),
-            paged.TotalCount,
-            paged.PageNumber,
-            paged.PageSize);
+        return await GetPagedAsync(filter);
     }
 }
