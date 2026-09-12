@@ -20,6 +20,10 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public SalesChannel? SalesChannel { get; set; }
     public string? Experience { get; set; }
     public string? Address { get; set; }
+    /// <summary>Id lĩnh vực kinh doanh (BusinessField).</summary>
+    public Guid? BusinessFieldId { get; set; }
+    /// <summary>Tên lĩnh vực kinh doanh.</summary>
+    public string? BusinessFieldName { get; set; }
     public int Level { get; set; }
     public string? CollaboratorCode { get; set; }
     public CollaboratorStatus Status { get; set; }
@@ -30,5 +34,9 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public DateTime CreatedAt { get; set; }
 
     public void Mapping(Profile profile)
-        => profile.CreateMap<Collaborator, CollaboratorResponseDto>();
+        => profile.CreateMap<Collaborator, CollaboratorResponseDto>()
+            // Ưu tiên tên từ bảng BusinessFields (đổi tên vẫn đúng), fallback cột denormalized
+            // để các bản ghi cũ / query không Include nav vẫn có dữ liệu.
+            .ForMember(dest => dest.BusinessFieldName,
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName));
 }

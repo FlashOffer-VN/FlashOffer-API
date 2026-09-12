@@ -20,6 +20,10 @@ public class PartnerResponseDto : IMapFrom<Partner>
     public BusinessType BusinessType { get; set; }
     public CompanySize CompanySize { get; set; }
     public string? CompanyWebsite { get; set; }
+    /// <summary>Id lĩnh vực kinh doanh (BusinessField).</summary>
+    public Guid? BusinessFieldId { get; set; }
+    /// <summary>Tên lĩnh vực kinh doanh — lấy từ bảng BusinessFields.</summary>
+    public string? BusinessFieldName { get; set; }
     public string? ReferralCode { get; set; }
     public string? Note { get; set; }
     public PartnerStatus Status { get; set; }
@@ -28,6 +32,9 @@ public class PartnerResponseDto : IMapFrom<Partner>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<Partner, PartnerResponseDto>();
+        profile.CreateMap<Partner, PartnerResponseDto>()
+            // Partner không có cột tên lĩnh vực denormalized → bắt buộc Include nav khi query.
+            .ForMember(dest => dest.BusinessFieldName,
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : null));
     }
 }

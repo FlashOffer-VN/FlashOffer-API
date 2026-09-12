@@ -182,7 +182,8 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborator = await _repository.GetFirstWithIncludesAsync(
             c => c.Id == id,
-            q => q.Include(c => c.User));
+            q => q.Include(c => c.User)
+                  .Include(c => c.BusinessField));
 
         if (collaborator == null)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
@@ -204,7 +205,8 @@ public class CollaboratorService : ICollaboratorService
 
         var paged = await _repository.GetPagedWithIncludesAsync(
             page, size,
-            includes: q => q.Include(c => c.User),
+            includes: q => q.Include(c => c.User)
+                            .Include(c => c.BusinessField),
             predicate: predicate,
             orderBy: c => c.CreatedAt,
             isDescending: true);

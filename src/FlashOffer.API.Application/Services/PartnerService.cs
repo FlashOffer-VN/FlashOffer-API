@@ -123,6 +123,8 @@ public class PartnerService : IPartnerService
     public async Task<PagedList<PartnerResponseDto>> GetPagedAsync(PartnerFilterRequest filter)
     {
         var q = _queryService.GetAllNoTracking<Partner>()
+            // Include nav lĩnh vực để map BusinessFieldName trong PartnerResponseDto
+            .Include(x => x.BusinessField)
             // Search filter
             .WhereIf(!string.IsNullOrEmpty(filter.Search), x =>
                 x.FullName.Contains(filter.Search!) ||
@@ -167,7 +169,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> ApproveAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
@@ -185,7 +189,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> RejectAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
@@ -202,7 +208,9 @@ public class PartnerService : IPartnerService
 
     public async Task<PartnerResponseDto> ActivateAsync(Guid id)
     {
-        var entity = await _partnerRepo.GetByIdAsync(id);
+        var entity = await _partnerRepo.GetFirstWithIncludesAsync(
+            x => x.Id == id,
+            query => query.Include(x => x.BusinessField));
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
 
