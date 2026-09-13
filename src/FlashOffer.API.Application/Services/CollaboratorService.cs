@@ -211,6 +211,25 @@ public class CollaboratorService : ICollaboratorService
             collaborator.BusinessFieldName = request.BusinessFieldName.Trim();
         }
 
+        // Company: if collaborator provided business/company info, create or update Company and link
+        // Use collaborator's denormalized fields (they were updated by AutoMapper when non-null)
+        if (!string.IsNullOrWhiteSpace(collaborator.BusinessName) || !string.IsNullOrWhiteSpace(collaborator.Website) || collaborator.BusinessSize.HasValue)
+        {
+            var company = await _companyService.AddOrUpdateFromLegacyAsync(
+                collaborator.BusinessName,
+                null,
+                collaborator.Address,
+                collaborator.Website,
+                collaborator.BusinessFieldId,
+                businessType: null,
+                companySize: collaborator.BusinessSize.HasValue ? (FlashOffer.API.Domain.Enums.CompanySize?)collaborator.BusinessSize.Value : null);
+
+            if (company != null)
+            {
+                collaborator.CompanyId = company.Id;
+            }
+        }
+
         _repository.Update(collaborator);
         await _repository.SaveChangesAsync();
 
@@ -257,7 +276,6 @@ public class CollaboratorService : ICollaboratorService
             isDescending: true);
 
         // Temporary migration for paged collaborators: ensure Company created/linked.
-        var anyUpdated = false;
         foreach (var item in paged.Items)
         {
             if (!item.CompanyId.HasValue && !string.IsNullOrWhiteSpace(item.BusinessName))
@@ -266,13 +284,18 @@ public class CollaboratorService : ICollaboratorService
                     item.BusinessName, null, item.Address, item.Website, item.BusinessFieldId);
                 if (company != null)
                 {
-                    item.CompanyId = company.Id;
-                    anyUpdated = true;
+                    // Persist CompanyId back to the tracked Collaborator entity
+                    var tracked = await _repository.GetByIdAsync(item.Id);
+                    if (tracked != null)
+                    {
+                        tracked.CompanyId = company.Id;
+                        _repository.Update(tracked);
+                        await _repository.SaveChangesAsync();
+                        item.CompanyId = company.Id; // update in-memory item for response
+                    }
                 }
             }
         }
-        if (anyUpdated)
-            await _repository.SaveChangesAsync();
 
         return new PagedList<CollaboratorResponseDto>(
             _mapper.Map<List<CollaboratorResponseDto>>(paged.Items),
