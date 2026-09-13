@@ -133,6 +133,7 @@ public class PartnerService : IPartnerService
             ? _queryService.GetQueryableNoTracking<Partner>().IgnoreQueryFilters().Where(x => x.IsDeleted)
             : _queryService.GetAllNoTracking<Partner>();
 
+        var searchUpper = filter.Search?.ToUpperInvariant();
         q = q
             // Include nav lĩnh vực để map BusinessFieldName trong PartnerResponseDto
             .Include(x => x.BusinessField)
@@ -147,7 +148,8 @@ public class PartnerService : IPartnerService
                 (x.ReferralCode != null && x.ReferralCode.Contains(filter.Search!)) ||
                 // Tìm theo lĩnh vực kinh doanh — Partner không có cột tên denormalized
                 // nên phải qua nav (EF dịch thành LEFT JOIN).
-                (x.BusinessField != null && x.BusinessField.Name.Contains(filter.Search!)))
+                (x.BusinessField != null && x.BusinessField.Name.Contains(filter.Search!)) ||
+                (x.BusinessField != null && x.BusinessField.NormalizedName.Contains(searchUpper!)))
             // Status filter
             .WhereIf(filter.Status.HasValue, x => x.Status == filter.Status!.Value)
             // Date range filter
