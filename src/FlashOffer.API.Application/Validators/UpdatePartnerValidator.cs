@@ -49,19 +49,6 @@ public class UpdatePartnerValidator : AbstractValidator<UpdatePartnerDto>
             .IsInEnum().WithMessage(localizer["PartnerBusinessTypeInvalid"])
             .When(x => x.BusinessType.HasValue);
 
-        // Gửi Products lên thì phải là danh sách không rỗng — muốn xóa hết thì dùng
-        // cách khác, tránh trường hợp FE gửi [] do bug rồi mất sạch sản phẩm.
-        RuleFor(x => x.Products)
-            .Must(list => list!.Count > 0).WithMessage(localizer["PartnerProductsRequired"])
-            .When(x => x.Products != null);
-
-        RuleForEach(x => x.Products)
-            .ChildRules(product =>
-            {
-                product.RuleFor(p => p.Name)
-                    .NotEmpty().WithMessage(localizer["PartnerProductNameRequired"])
-                    .MinimumLength(2).WithMessage(localizer["PartnerProductNameMinLength"]);
-            })
-            .When(x => x.Products != null);
+        // Sản phẩm không validate ở đây — có API và validator riêng.
     }
 }

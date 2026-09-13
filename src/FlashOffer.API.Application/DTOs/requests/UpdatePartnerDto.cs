@@ -30,14 +30,12 @@ public class UpdatePartnerDto : IMapFrom<Partner>
     /// <summary>Lĩnh vực kinh doanh. Chỉ cập nhật khi có giá trị.</summary>
     public Guid? BusinessFieldId { get; set; }
 
-    /// <summary>
-    /// Danh sách sản phẩm/dịch vụ. null = giữ nguyên danh sách cũ.
-    /// Có giá trị = thay thế toàn bộ (sản phẩm cũ bị xóa mềm).
-    /// </summary>
-    public List<ProductDto>? Products { get; set; }
+    // Sản phẩm KHÔNG nằm ở đây — quản lý qua API riêng:
+    //   POST   /partners/{id}/products
+    //   PUT    /partners/{id}/products/{productId}
+    //   DELETE /partners/{id}/products/{productId}
 
     public void Mapping(Profile profile)
         => profile.CreateMap<UpdatePartnerDto, Partner>()
-            .ForMember(dest => dest.Products, opt => opt.Ignore()) // Xử lý riêng trong service
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 }

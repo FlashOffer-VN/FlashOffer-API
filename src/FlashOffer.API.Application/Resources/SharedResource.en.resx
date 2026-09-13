@@ -526,6 +526,22 @@
   <data name="Partner_UpdateSuccess">
     <value>Partner updated successfully</value>
   </data>
+  <data name="Partner_ProductNotFound">
+    <value>Partner product not found</value>
+  </data>
+  <data name="Partner_ProductAddSuccess">
+    <value>Product added successfully</value>
+  </data>
+  <data name="Partner_ProductUpdateSuccess">
+    <value>Product updated successfully</value>
+  </data>
+  <data name="Partner_ProductDeleteSuccess">
+    <value>Product deleted successfully</value>
+  </data>
+  <data name="PartnerProductNameMaxLength" xml:space="preserve"><value>Product name cannot exceed 200 characters</value></data>
+  <data name="PartnerProductDescriptionMaxLength" xml:space="preserve"><value>Description cannot exceed 1000 characters</value></data>
+  <data name="PartnerProductPriceInvalid" xml:space="preserve"><value>Price cannot be negative</value></data>
+  <data name="PartnerProductMinOrderQuantityInvalid" xml:space="preserve"><value>Minimum order quantity must be at least 1</value></data>
   <!-- Social Post Keys -->
 <data name="Social_GetPostsSuccess"><value>Lấy danh sách bài viết thành công</value></data>
 <data name="Social_CreateSuccess"><value>Tạo bài viết thành công</value></data>
