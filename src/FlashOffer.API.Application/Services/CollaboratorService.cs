@@ -220,14 +220,15 @@ public class CollaboratorService : ICollaboratorService
 
         if (!string.IsNullOrEmpty(search))
         {
-            predicate = c => c.FullName.Contains(search) ||
-                             c.Phone.Contains(search) ||
-                             (c.Email != null && c.Email.Contains(search)) ||
-                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search)) ||
+            var s = search.ToLower();
+            predicate = c => c.FullName.Contains(s) ||
+                             c.Phone.Contains(s) ||
+                             (c.Email != null && c.Email.Contains(s)) ||
+                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(s)) ||
                              // Tìm theo lĩnh vực kinh doanh: khớp cả cột denormalized
                              // (bản ghi cũ) lẫn tên trong bảng BusinessFields (tên hiển thị).
-                             (c.BusinessFieldName != null && c.BusinessFieldName.Contains(search)) ||
-                             (c.BusinessField != null && c.BusinessField.Name.Contains(search));
+                             (c.BusinessFieldName != null && c.BusinessFieldName.ToLower().Contains(s)) ||
+                             (c.BusinessField != null && c.BusinessField.Name.ToLower().Contains(s));
         }
 
         var paged = await _repository.GetPagedWithIncludesAsync(
