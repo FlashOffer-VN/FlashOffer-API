@@ -77,6 +77,15 @@ public class CollaboratorConfiguration : IEntityTypeConfiguration<Collaborator>
         builder.Property(c => c.Website)
             .HasMaxLength(300);
 
+        // Company relation
+        builder.Property(c => c.CompanyId)
+            .HasColumnType("uuid");
+
+        builder.HasOne(c => c.Company)
+            .WithMany()
+            .HasForeignKey(c => c.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Indexes
         builder.HasIndex(c => c.UserId)
             .IsUnique();

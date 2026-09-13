@@ -29,6 +29,7 @@ public class PartnerService : IPartnerService
     private readonly IQueryService _queryService;
     private readonly IRepository<PartnerProduct> _productRepo;
     private readonly IRepository<BusinessField> _businessFieldRepo;
+    private readonly FlashOffer.API.Application.Common.Interfaces.ICompanyService _companyService;
 
     public PartnerService(
         IRepository<Partner> partnerRepo,
@@ -39,7 +40,8 @@ public class PartnerService : IPartnerService
         IStringLocalizer<SharedResource> localizer,
         IQueryService queryService,
         IRepository<PartnerProduct> productRepo,
-        IRepository<BusinessField> businessFieldRepo)
+        IRepository<BusinessField> businessFieldRepo,
+        FlashOffer.API.Application.Common.Interfaces.ICompanyService companyService)
     {
         _partnerRepo = partnerRepo;
         _userRepo = userRepo;
@@ -50,6 +52,7 @@ public class PartnerService : IPartnerService
         _queryService = queryService;
         _productRepo = productRepo;
         _businessFieldRepo = businessFieldRepo;
+        _companyService = companyService;
     }
 
     public async Task<PartnerRegisterResponse> RegisterAsync(PartnerRegisterRequest request)
@@ -164,6 +167,25 @@ public class PartnerService : IPartnerService
             defaultSortBy: "CreatedAt"
         );
 
+        // Temporary migration: for partners that still have legacy company fields but no CompanyId,
+        // ensure a Company record exists and link it.
+        var updated = false;
+        foreach (var item in result.Items)
+        {
+            if (!item.CompanyId.HasValue && (!string.IsNullOrWhiteSpace(item.CompanyName) || !string.IsNullOrWhiteSpace(item.CompanyTax)))
+            {
+                var company = await _companyService.AddOrUpdateFromLegacyAsync(
+                    item.CompanyName, item.CompanyTax, item.CompanyAddress, item.CompanyWebsite, item.BusinessFieldId, item.BusinessType, item.CompanySize);
+                if (company != null)
+                {
+                    item.CompanyId = company.Id;
+                    updated = true;
+                }
+            }
+        }
+        if (updated)
+            await _partnerRepo.SaveChangesAsync();
+
         return _mapper.MapPagedList<Partner, PartnerResponseDto>(result);
     }
 
@@ -180,6 +202,18 @@ public class PartnerService : IPartnerService
 
         if (entity == null)
             return null;
+
+        // Ensure company created/linked from legacy fields when needed
+        if (!entity.CompanyId.HasValue && (!string.IsNullOrWhiteSpace(entity.CompanyName) || !string.IsNullOrWhiteSpace(entity.CompanyTax)))
+        {
+            var company = await _companyService.AddOrUpdateFromLegacyAsync(
+                entity.CompanyName, entity.CompanyTax, entity.CompanyAddress, entity.CompanyWebsite, entity.BusinessFieldId, entity.BusinessType, entity.CompanySize);
+            if (company != null)
+            {
+                entity.CompanyId = company.Id;
+                await _partnerRepo.SaveChangesAsync();
+            }
+        }
 
         return _mapper.Map<PartnerDetailResponseDto>(entity);
     }

@@ -32,11 +32,23 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public DateTime? RejectedAt { get; set; }
     public string? RejectionReason { get; set; }
     public DateTime CreatedAt { get; set; }
+    // Company denormalized info (flat) returned for Get endpoints
+    public Guid? CompanyId { get; set; }
+    public string? CompanyName { get; set; }
+    public string? CompanyTax { get; set; }
+    public string? CompanyAddress { get; set; }
+    public string? CompanyWebsite { get; set; }
 
     public void Mapping(Profile profile)
         => profile.CreateMap<Collaborator, CollaboratorResponseDto>()
             // Ưu tiên tên từ bảng BusinessFields (đổi tên vẫn đúng), fallback cột denormalized
             // để các bản ghi cũ / query không Include nav vẫn có dữ liệu.
             .ForMember(dest => dest.BusinessFieldName,
-                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName));
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName))
+            // Company flat fields: prefer joined Company nav when included, fallback to legacy columns
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : src.CompanyId))
+            .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company != null ? src.Company.Name : src.BusinessName))
+            .ForMember(dest => dest.CompanyTax, opt => opt.MapFrom(src => src.Company != null ? src.Company.TaxCode : null))
+            .ForMember(dest => dest.CompanyAddress, opt => opt.MapFrom(src => src.Company != null ? src.Company.Address : src.Address))
+            .ForMember(dest => dest.CompanyWebsite, opt => opt.MapFrom(src => src.Company != null ? src.Company.Website : src.Website));
 }

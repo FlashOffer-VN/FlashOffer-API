@@ -24,6 +24,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Collaborator> Collaborators { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Partner> Partners { get; set; }
+	public DbSet<Company> Companies { get; set; }
     public DbSet<PartnerProduct> PartnerProducts { get; set; }
     public DbSet<PartnerCommission> PartnerCommissions { get; set; }
     public DbSet<SocialPost> SocialPosts { get; set; }

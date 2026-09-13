@@ -17,6 +17,7 @@ public class PartnerResponseDto : IMapFrom<Partner>
     public string CompanyName { get; set; } = string.Empty;
     public string CompanyTax { get; set; } = string.Empty;
     public string CompanyAddress { get; set; } = string.Empty;
+    public Guid? CompanyId { get; set; }
     public BusinessType BusinessType { get; set; }
     public CompanySize CompanySize { get; set; }
     public string? CompanyWebsite { get; set; }
@@ -35,6 +36,12 @@ public class PartnerResponseDto : IMapFrom<Partner>
         profile.CreateMap<Partner, PartnerResponseDto>()
             // Partner không có cột tên lĩnh vực denormalized → bắt buộc Include nav khi query.
             .ForMember(dest => dest.BusinessFieldName,
-                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : null));
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : null))
+            // Company flat fields: prefer Company nav when included, fallback to legacy partner columns
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : src.CompanyId))
+            .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company != null ? src.Company.Name : src.CompanyName))
+            .ForMember(dest => dest.CompanyTax, opt => opt.MapFrom(src => src.Company != null ? src.Company.TaxCode : src.CompanyTax))
+            .ForMember(dest => dest.CompanyAddress, opt => opt.MapFrom(src => src.Company != null ? src.Company.Address : src.CompanyAddress))
+            .ForMember(dest => dest.CompanyWebsite, opt => opt.MapFrom(src => src.Company != null ? src.Company.Website : src.CompanyWebsite));
     }
 }

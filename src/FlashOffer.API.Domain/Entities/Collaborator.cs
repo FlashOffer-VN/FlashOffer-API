@@ -25,6 +25,9 @@ public class Collaborator : BaseEntity
     public string? BusinessName { get; set; }
     public int? BusinessSize { get; set; }
     public string? Website { get; set; }
+    // Link to shared company table
+    public Guid? CompanyId { get; set; }
+    public virtual Company? Company { get; set; }
     // Hỗ trợ đa cấp
     public Guid? ParentCollaboratorId { get; set; }
     public int Level { get; set; } = 1;
