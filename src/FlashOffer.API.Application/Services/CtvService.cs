@@ -34,22 +34,33 @@ public class CtvService : ICtvService
 
     public async Task<PagedList<CtvResponseDto>> GetPagedAsync(CtvFilterRequest filter)
     {
-        var query = await _repository.GetPagedWithOrderAsync(
-        filter.PageNumber,
-        filter.PageSize,
-        x => (string.IsNullOrEmpty(filter.Search) ||
-              x.FullName.Contains(filter.Search) ||
-              x.Email.Contains(filter.Search) ||
-              x.Phone.Contains(filter.Search) ||
-              (x.CollaboratorCode != null && x.CollaboratorCode.Contains(filter.Search))) &&
-             (!filter.Status.HasValue || x.Status == filter.Status.Value) &&
-             (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime()) &&
-             (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime()),
-        x => x.CreatedAt,
-        true);
+        // Build predicate
+        System.Linq.Expressions.Expression<Func<Collaborator, bool>> predicate = x => true;
+        if (!string.IsNullOrEmpty(filter.Search))
+        {
+            var s = filter.Search;
+            predicate = x => (x.FullName.Contains(s) || x.Email.Contains(s) || x.Phone.Contains(s) || (x.CollaboratorCode != null && x.CollaboratorCode.Contains(s)) || (x.BusinessFieldName != null && x.BusinessFieldName.Contains(s)) || (x.BusinessField != null && x.BusinessField.Name.Contains(s)))
+                        && (!filter.Status.HasValue || x.Status == filter.Status.Value)
+                        && (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime())
+                        && (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime());
+        }
+        else
+        {
+            predicate = x => (!filter.Status.HasValue || x.Status == filter.Status.Value)
+                        && (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime())
+                        && (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime());
+        }
 
-        var items = _mapper.Map<List<CtvResponseDto>>(query.Items);
-        return new PagedList<CtvResponseDto>(items, query.TotalCount, query.PageNumber, query.PageSize);
+        var paged = await _repository.GetPagedWithIncludesAsync(
+            filter.PageNumber,
+            filter.PageSize,
+            includes: q => q.Include(x => x.User).Include(x => x.BusinessField).Include(x => x.Company),
+            predicate: predicate,
+            orderBy: x => x.CreatedAt,
+            isDescending: true);
+
+        var items = _mapper.Map<List<CtvResponseDto>>(paged.Items);
+        return new PagedList<CtvResponseDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
     }
 
     public async Task<CtvDetailResponseDto?> GetDetailAsync(Guid id)
@@ -103,14 +114,17 @@ public class CtvService : ICtvService
 
         if (!string.IsNullOrEmpty(search))
         {
+            var s = search;
             query = query.Where(x =>
-                x.FullName.Contains(search) ||
-                x.Phone.Contains(search) ||
-                (x.Email != null && x.Email.Contains(search)) ||
-                (x.CollaboratorCode != null && x.CollaboratorCode.Contains(search)));
+                x.FullName.Contains(s) ||
+                x.Phone.Contains(s) ||
+                (x.Email != null && x.Email.Contains(s)) ||
+                (x.CollaboratorCode != null && x.CollaboratorCode.Contains(s)) ||
+                (x.BusinessFieldName != null && x.BusinessFieldName.Contains(s)) ||
+                (x.BusinessField != null && x.BusinessField.Name.Contains(s)));
         }
 
-        query = query.OrderByDescending(x => x.CreatedAt);
+        query = query.Include(x => x.BusinessField).Include(x => x.Company).OrderByDescending(x => x.CreatedAt);
 
         var paged = await PagedList<Collaborator>.CreateAsync(query, pageNumber, pageSize);
         var items = _mapper.Map<List<CtvResponseDto>>(paged.Items);

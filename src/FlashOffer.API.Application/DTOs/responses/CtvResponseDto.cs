@@ -20,10 +20,16 @@ public class CtvResponseDto : IMapFrom<Collaborator>
     public bool IsApproved { get; set; }
     public DateTime? ApprovedAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    /// <summary>Business field (denormalized or from BusinessField table)</summary>
+    public Guid? BusinessFieldId { get; set; }
+    public string? BusinessFieldName { get; set; }
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<Collaborator, CtvResponseDto>();
+        profile.CreateMap<Collaborator, CtvResponseDto>()
+            .ForMember(dest => dest.BusinessFieldId, opt => opt.MapFrom(src => src.BusinessFieldId))
+            .ForMember(dest => dest.BusinessFieldName,
+                opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName));
     }
 }
 
