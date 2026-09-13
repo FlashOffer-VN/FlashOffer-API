@@ -38,6 +38,12 @@ public class PartnerRegisterValidator : AbstractValidator<PartnerRegisterRequest
             .NotEmpty().WithMessage(localizer["PartnerCompanyAddressRequired"])
             .MinimumLength(5).WithMessage(localizer["PartnerCompanyAddressMinLength"]);
 
+        RuleFor(x => x.CompanyTax)
+            .MaximumLength(50).WithMessage(localizer["PartnerCompanyTaxMaxLength"]).When(x => !string.IsNullOrWhiteSpace(x.CompanyTax));
+
+        RuleFor(x => x.CompanyWebsite)
+            .MaximumLength(300).WithMessage(localizer["PartnerCompanyWebsiteMaxLength"]) .When(x => !string.IsNullOrWhiteSpace(x.CompanyWebsite));
+
         RuleFor(x => x.CompanySize)
             .IsInEnum().WithMessage(localizer["PartnerCompanySizeInvalid"]);
 

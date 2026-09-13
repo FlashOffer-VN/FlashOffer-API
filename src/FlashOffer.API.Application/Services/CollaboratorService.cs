@@ -129,6 +129,19 @@ public class CollaboratorService : ICollaboratorService
         }
 
         //  Lưu
+        // Ensure Company created/linked from collaborator registration
+        var company = await _companyService.AddOrUpdateFromLegacyAsync(
+            request.BusinessName, request.CompanyTax, request.Address, request.Website, request.BusinessFieldId,
+            businessType: null, companySize: request.BusinessSize.HasValue ? (FlashOffer.API.Domain.Enums.CompanySize?)request.BusinessSize.Value : null);
+        if (company != null)
+        {
+            collaborator.CompanyId = company.Id;
+            // keep legacy BusinessName for compatibility
+            collaborator.BusinessName = request.BusinessName;
+            collaborator.BusinessSize = request.BusinessSize;
+            collaborator.Website = request.Website;
+        }
+
         await _repository.AddAsync(collaborator);
         await _repository.SaveChangesAsync();
 

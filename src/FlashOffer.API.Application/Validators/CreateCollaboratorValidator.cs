@@ -47,6 +47,10 @@ public class CreateCollaboratorValidator : AbstractValidator<CreateCollaboratorD
             .MaximumLength(200).When(x => !string.IsNullOrEmpty(x.BusinessName))
             .WithMessage(localizer["Collaborator_BusinessNameMaxLength"]);
 
+        RuleFor(x => x.CompanyTax)
+            .MaximumLength(50).When(x => !string.IsNullOrWhiteSpace(x.CompanyTax))
+            .WithMessage(localizer["Collaborator_CompanyTaxMaxLength"]);
+
         RuleFor(x => x.BusinessSize)
             .InclusiveBetween(1, 1000).When(x => x.BusinessSize.HasValue)
             .WithMessage(localizer["Collaborator_BusinessSizeInvalid"]);

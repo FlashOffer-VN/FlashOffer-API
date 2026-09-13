@@ -300,6 +300,8 @@
   <data name="PartnerBusinessTypeInvalid" xml:space="preserve"><value>Loại hình doanh nghiệp không hợp lệ</value></data>
   <data name="PartnerCompanySizeInvalid" xml:space="preserve"><value>Quy mô công ty không hợp lệ</value></data>
   <data name="PartnerCompanyWebsiteInvalid" xml:space="preserve"><value>Website không hợp lệ (VD: https://example.com)</value></data>
+  <data name="PartnerCompanyTaxMaxLength" xml:space="preserve"><value>Mã số thuế không được vượt quá 50 ký tự</value></data>
+  <data name="PartnerCompanyWebsiteMaxLength" xml:space="preserve"><value>Website không được vượt quá 300 ký tự</value></data>
 
   <!-- Validation - Products -->
   <data name="PartnerProductsRequired" xml:space="preserve"><value>Cần có ít nhất 1 sản phẩm</value></data>
@@ -608,6 +610,9 @@
   </data>
   <data name="Collaborator_WebsiteInvalid">
     <value>Website không hợp lệ</value>
+  </data>
+  <data name="Collaborator_CompanyTaxMaxLength">
+    <value>Mã số thuế không được vượt quá 50 ký tự</value>
   </data>
   <data name="Collaborator_ParentIdInvalid">
     <value>ParentCollaboratorId không hợp lệ</value>

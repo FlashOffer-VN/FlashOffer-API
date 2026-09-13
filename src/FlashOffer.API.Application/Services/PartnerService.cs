@@ -101,11 +101,24 @@ public class PartnerService : IPartnerService
             PartnerCommissionCode = CodeGenerator.Generate("PCM")
         };
 
-        // 6. Lưu vào DB
+        // 6. Ensure Company created/linked from registration form (do not lose legacy fields)
+        var company = await _companyService.AddOrUpdateFromLegacyAsync(
+            request.CompanyName, null, request.CompanyAddress, null,
+            request.BusinessFieldId, partner.BusinessType, request.CompanySize);
+        if (company != null)
+        {
+            partner.CompanyId = company.Id;
+            // keep legacy fields for backward compatibility
+            partner.CompanyName = request.CompanyName;
+            partner.CompanyAddress = request.CompanyAddress;
+            partner.CompanySize = request.CompanySize;
+        }
+
+        // 7. Lưu vào DB
         await _partnerRepo.AddAsync(partner);
         await _partnerRepo.SaveChangesAsync();
 
-        // 7. Return response
+        // 8. Return response
         return _mapper.Map<PartnerRegisterResponse>(partner);
     }
 
