@@ -182,7 +182,6 @@ public class PartnerService : IPartnerService
 
         // Temporary migration: for partners that still have legacy company fields but no CompanyId,
         // ensure a Company record exists and link it.
-        var updated = false;
         foreach (var item in result.Items)
         {
             if (!item.CompanyId.HasValue && (!string.IsNullOrWhiteSpace(item.CompanyName) || !string.IsNullOrWhiteSpace(item.CompanyTax)))
@@ -191,13 +190,21 @@ public class PartnerService : IPartnerService
                     item.CompanyName, item.CompanyTax, item.CompanyAddress, item.CompanyWebsite, item.BusinessFieldId, item.BusinessType, item.CompanySize);
                 if (company != null)
                 {
-                    item.CompanyId = company.Id;
-                    updated = true;
+                    // Persist CompanyId back to the tracked Partner entity
+                    var tracked = filter.IsDeleted == true
+                        ? await _partnerRepo.GetByIdIncludingDeletedAsync(item.Id)
+                        : await _partnerRepo.GetByIdAsync(item.Id);
+                    if (tracked != null)
+                    {
+                        tracked.CompanyId = company.Id;
+                        _partnerRepo.Update(tracked);
+                        await _partnerRepo.SaveChangesAsync();
+                        // update the item in the in-memory result for response
+                        item.CompanyId = company.Id;
+                    }
                 }
             }
         }
-        if (updated)
-            await _partnerRepo.SaveChangesAsync();
 
         return _mapper.MapPagedList<Partner, PartnerResponseDto>(result);
     }
