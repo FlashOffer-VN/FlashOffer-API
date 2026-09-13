@@ -30,6 +30,7 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
     public PartnerCommissionDto? Commission { get; set; }
     public List<PartnerProductDto> Products { get; set; } = new();
     public BusinessInfoDto? BusinessInfo { get; set; }
+    public CompanyInfoDto? CompanyInfo { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -48,6 +49,19 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
                 BusinessField = src.BusinessField != null ? src.BusinessField.Name : null
             }));
 
+        profile.CreateMap<Partner, PartnerDetailResponseDto>()
+            .ForMember(dest => dest.CompanyInfo, opt => opt.MapFrom(src => src.Company != null ? new CompanyInfoDto
+            {
+                Id = src.Company.Id,
+                CompanyName = src.Company.Name,
+                CompanyTax = src.Company.TaxCode,
+                CompanyAddress = src.Company.Address,
+                CompanyWebsite = src.Company.Website,
+                BusinessType = src.Company.BusinessType ?? src.BusinessType,
+                CompanySize = src.Company.CompanySize ?? src.CompanySize,
+                BusinessField = src.Company.BusinessField != null ? src.Company.BusinessField.Name : (src.BusinessField != null ? src.BusinessField.Name : null)
+            } : null));
+
         // ✅ Mapping cho các DTO con
         profile.CreateMap<User, UserBriefDto>();
         profile.CreateMap<PartnerCommission, PartnerCommissionDto>();
@@ -55,6 +69,18 @@ public class PartnerDetailResponseDto : IMapFrom<Partner>
             .ForMember(dest => dest.BusinessFieldName,
                 opt => opt.MapFrom(src => src.BusinessField != null ? src.BusinessField.Name : null));
     }
+
+public class CompanyInfoDto
+{
+    public Guid Id { get; set; }
+    public string CompanyName { get; set; } = string.Empty;
+    public string? CompanyTax { get; set; }
+    public string? CompanyAddress { get; set; }
+    public string? CompanyWebsite { get; set; }
+    public BusinessType BusinessType { get; set; }
+    public CompanySize CompanySize { get; set; }
+    public string? BusinessField { get; set; }
+}
 }
 
 public class UserBriefDto

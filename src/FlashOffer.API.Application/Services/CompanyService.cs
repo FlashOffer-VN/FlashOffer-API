@@ -164,4 +164,11 @@ public class CompanyService : ICompanyService
         var paged = await _companyRepo.GetPagedWithIncludesAsync(pageNumber, pageSize, includes: null, predicate: null);
         return _mapper.Map<PagedList<CompanyResponseDto>>(paged);
     }
+
+    public async Task<CompanyResponseDto?> GetByIdAsync(Guid id)
+    {
+        var company = await _companyRepo.GetByIdAsync(id);
+        if (company == null) return null;
+        return _mapper.Map<CompanyResponseDto>(company);
+    }
 }

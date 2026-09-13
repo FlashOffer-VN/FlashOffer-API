@@ -19,4 +19,5 @@ public interface ICompanyService
     Task<CompanyResponseDto> CreateAsync(CreateCompanyDto request);
     Task<CompanyResponseDto> UpdateAsync(Guid id, UpdateCompanyDto request);
     Task<PagedList<CompanyResponseDto>> GetPagedAsync(int pageNumber, int pageSize, string? search = null);
+    Task<CompanyResponseDto?> GetByIdAsync(Guid id);
 }
