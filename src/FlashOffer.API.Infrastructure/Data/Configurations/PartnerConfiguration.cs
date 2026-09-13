@@ -26,6 +26,14 @@ public class PartnerConfiguration : IEntityTypeConfiguration<Partner>
         builder.Property(x => x.CompanyTax).HasMaxLength(20).IsRequired();
         builder.Property(x => x.CompanyAddress).HasMaxLength(500).IsRequired();
         builder.Property(x => x.CompanyWebsite).HasMaxLength(200);
+        // Company relation (centralized company management)
+        builder.Property(x => x.CompanyId)
+            .HasColumnType("uuid");
+
+        builder.HasOne(x => x.Company)
+            .WithMany()
+            .HasForeignKey(x => x.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Property(x => x.ReferralCode).HasMaxLength(50);
         builder.Property(x => x.Note).HasMaxLength(500);
 
