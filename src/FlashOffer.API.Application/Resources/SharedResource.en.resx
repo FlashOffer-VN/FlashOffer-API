@@ -306,6 +306,8 @@
   <data name="PartnerBusinessTypeInvalid" xml:space="preserve"><value>Invalid business type</value></data>
   <data name="PartnerCompanySizeInvalid" xml:space="preserve"><value>Invalid company size</value></data>
   <data name="PartnerCompanyWebsiteInvalid" xml:space="preserve"><value>Invalid website (e.g., https://example.com)</value></data>
+  <data name="PartnerCompanyTaxMaxLength" xml:space="preserve"><value>Tax code must not exceed 50 characters</value></data>
+  <data name="PartnerCompanyWebsiteMaxLength" xml:space="preserve"><value>Website must not exceed 300 characters</value></data>
 
   <!-- Validation - Products -->
   <data name="PartnerProductsRequired" xml:space="preserve"><value>At least 1 product is required</value></data>
@@ -678,6 +680,9 @@
   </data>
   <data name="Collaborator_WebsiteInvalid">
     <value>Invalid website URL</value>
+  </data>
+  <data name="Collaborator_CompanyTaxMaxLength">
+    <value>Tax code must not exceed 50 characters</value>
   </data>
   <data name="Collaborator_ParentIdInvalid">
     <value>Invalid Parent Collaborator ID</value>

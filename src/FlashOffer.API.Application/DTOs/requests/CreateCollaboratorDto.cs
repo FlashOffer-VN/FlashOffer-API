@@ -25,6 +25,7 @@ public class CreateCollaboratorDto : IMapFrom<Collaborator>
 
     // Thông tin doanh nghiệp (thêm)
     public string? BusinessName { get; set; }
+    public string? CompanyTax { get; set; }
     /// <summary>Id lĩnh vực hoạt động (BusinessField). Được ưu tiên hơn BusinessFieldName.</summary>
     public Guid? BusinessFieldId { get; set; }
     /// <summary>Tên lĩnh vực — fallback find-or-create cho client chưa gửi BusinessFieldId.</summary>
