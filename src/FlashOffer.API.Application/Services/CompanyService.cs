@@ -1,0 +1,167 @@
+using AutoMapper;
+using FlashOffer.API.Application.Common.Interfaces;
+using FlashOffer.API.Application.DTOs.Requests;
+using FlashOffer.API.Application.DTOs.Responses;
+using FlashOffer.API.Domain.Entities;
+using FlashOffer.API.Domain.Enums;
+using FlashOffer.API.Domain.Interfaces;
+using FlashOffer.API.Domain.Models;
+
+namespace FlashOffer.API.Application.Services;
+
+public class CompanyService : ICompanyService
+{
+    private readonly IRepository<Company> _companyRepo;
+    private readonly IRepository<BusinessField> _businessFieldRepo;
+    private readonly IMapper _mapper;
+
+    public CompanyService(
+        IRepository<Company> companyRepo,
+        IRepository<BusinessField> businessFieldRepo,
+        IMapper mapper)
+    {
+        _companyRepo = companyRepo;
+        _businessFieldRepo = businessFieldRepo;
+        _mapper = mapper;
+    }
+
+    public async Task<Company?> AddOrUpdateFromLegacyAsync(
+        string? name,
+        string? taxCode,
+        string? address,
+        string? website,
+        Guid? businessFieldId = null,
+        BusinessType? businessType = null,
+        CompanySize? companySize = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        var nameTrim = name!.Trim();
+        Company? existing = null;
+
+        if (!string.IsNullOrWhiteSpace(taxCode))
+        {
+            existing = await _companyRepo.GetFirstAsync(c => c.TaxCode == taxCode && !c.IsDeleted);
+        }
+
+        if (existing == null)
+        {
+            var upper = nameTrim.ToUpperInvariant();
+            existing = await _companyRepo.GetFirstAsync(c => c.Name.ToUpper() == upper && !c.IsDeleted);
+        }
+
+        if (existing != null)
+        {
+            var updated = false;
+            if (!string.IsNullOrWhiteSpace(address) && existing.Address != address)
+            {
+                existing.Address = address;
+                updated = true;
+            }
+            if (!string.IsNullOrWhiteSpace(website) && existing.Website != website)
+            {
+                existing.Website = website;
+                updated = true;
+            }
+            if (!string.IsNullOrWhiteSpace(taxCode) && existing.TaxCode != taxCode)
+            {
+                existing.TaxCode = taxCode;
+                updated = true;
+            }
+            if (businessFieldId.HasValue && existing.BusinessFieldId != businessFieldId)
+            {
+                existing.BusinessFieldId = businessFieldId;
+                updated = true;
+            }
+            if (businessType.HasValue && existing.BusinessType != businessType)
+            {
+                existing.BusinessType = businessType;
+                updated = true;
+            }
+            if (companySize.HasValue && existing.CompanySize != companySize)
+            {
+                existing.CompanySize = companySize;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                _companyRepo.Update(existing);
+                await _companyRepo.SaveChangesAsync();
+            }
+
+            return existing;
+        }
+
+        var company = new Company
+        {
+            Name = nameTrim,
+            TaxCode = string.IsNullOrWhiteSpace(taxCode) ? null : taxCode,
+            Address = address,
+            Website = website,
+            BusinessFieldId = businessFieldId,
+            BusinessType = businessType,
+            CompanySize = companySize
+        };
+
+        await _companyRepo.AddAsync(company);
+        await _companyRepo.SaveChangesAsync();
+
+        return company;
+    }
+
+    public async Task<CompanyResponseDto> CreateAsync(CreateCompanyDto request)
+    {
+        var company = new Company
+        {
+            Name = request.Name.Trim(),
+            TaxCode = request.TaxCode,
+            Address = request.Address,
+            Website = request.Website,
+            BusinessFieldId = request.BusinessFieldId,
+            BusinessType = request.BusinessType,
+            CompanySize = request.CompanySize
+        };
+
+        await _companyRepo.AddAsync(company);
+        await _companyRepo.SaveChangesAsync();
+
+        return _mapper.Map<CompanyResponseDto>(company);
+    }
+
+    public async Task<CompanyResponseDto> UpdateAsync(Guid id, UpdateCompanyDto request)
+    {
+        var company = await _companyRepo.GetByIdAsync(id);
+        if (company == null)
+            throw new KeyNotFoundException("Company not found");
+
+        if (!string.IsNullOrWhiteSpace(request.Name)) company.Name = request.Name.Trim();
+        if (!string.IsNullOrWhiteSpace(request.TaxCode)) company.TaxCode = request.TaxCode;
+        if (request.Address != null) company.Address = request.Address;
+        if (request.Website != null) company.Website = request.Website;
+        if (request.BusinessFieldId.HasValue) company.BusinessFieldId = request.BusinessFieldId;
+        if (request.BusinessType.HasValue) company.BusinessType = request.BusinessType;
+        if (request.CompanySize.HasValue) company.CompanySize = request.CompanySize;
+
+        _companyRepo.Update(company);
+        await _companyRepo.SaveChangesAsync();
+
+        return _mapper.Map<CompanyResponseDto>(company);
+    }
+
+    public async Task<PagedList<CompanyResponseDto>> GetPagedAsync(int pageNumber, int pageSize, string? search = null)
+    {
+        var q = await _companyRepo.GetQueryableAsync();
+        var queryable = q.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            queryable = queryable.Where(c => c.Name.Contains(s) || (c.TaxCode != null && c.TaxCode.Contains(s)));
+        }
+
+        var paged = await _companyRepo.GetPagedWithIncludesAsync(pageNumber, pageSize, includes: null, predicate: null);
+        return _mapper.Map<PagedList<CompanyResponseDto>>(paged);
+    }
+}

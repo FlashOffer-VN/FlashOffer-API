@@ -28,6 +28,7 @@ public class CollaboratorService : ICollaboratorService
     private readonly IRepository<User> _userRepo;
     private readonly IRepository<BusinessField> _businessFieldRepo;
     private readonly IBusinessFieldService _businessFieldService;
+    private readonly ICompanyService _companyService;
 
     public CollaboratorService(
         IRepository<Collaborator> repository,
@@ -38,7 +39,8 @@ public class CollaboratorService : ICollaboratorService
         IRepository<User> userRepo,
         IStringLocalizer<ExceptionMessages> exceptionLocalizer,
         IRepository<BusinessField> businessFieldRepo,
-        IBusinessFieldService businessFieldService)
+        IBusinessFieldService businessFieldService,
+        ICompanyService companyService)
     {
         _businessFieldService = businessFieldService;
         _repository = repository;
@@ -49,6 +51,7 @@ public class CollaboratorService : ICollaboratorService
         _exceptionLocalizer = exceptionLocalizer;
         _userRepo = userRepo;
         _businessFieldRepo = businessFieldRepo;
+        _companyService = companyService; // injected by DI (ICompanyService)
     }
 
     public async Task<CollaboratorResponseDto> CreateAsync(CreateCollaboratorDto request)
@@ -238,6 +241,24 @@ public class CollaboratorService : ICollaboratorService
             predicate: predicate,
             orderBy: c => c.CreatedAt,
             isDescending: true);
+
+        // Temporary migration for paged collaborators: ensure Company created/linked.
+        var anyUpdated = false;
+        foreach (var item in paged.Items)
+        {
+            if (!item.CompanyId.HasValue && !string.IsNullOrWhiteSpace(item.BusinessName))
+            {
+                var company = await _companyService.AddOrUpdateFromLegacyAsync(
+                    item.BusinessName, null, item.Address, item.Website, item.BusinessFieldId);
+                if (company != null)
+                {
+                    item.CompanyId = company.Id;
+                    anyUpdated = true;
+                }
+            }
+        }
+        if (anyUpdated)
+            await _repository.SaveChangesAsync();
 
         return new PagedList<CollaboratorResponseDto>(
             _mapper.Map<List<CollaboratorResponseDto>>(paged.Items),
