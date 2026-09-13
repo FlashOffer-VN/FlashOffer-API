@@ -39,10 +39,18 @@ public class CtvService : ICtvService
         if (!string.IsNullOrEmpty(filter.Search))
         {
             var s = filter.Search;
-            predicate = x => (x.FullName.Contains(s) || x.Email.Contains(s) || x.Phone.Contains(s) || (x.CollaboratorCode != null && x.CollaboratorCode.Contains(s)) || (x.BusinessFieldName != null && x.BusinessFieldName.Contains(s)) || (x.BusinessField != null && x.BusinessField.Name.Contains(s)))
-                        && (!filter.Status.HasValue || x.Status == filter.Status.Value)
-                        && (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime())
-                        && (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime());
+            var sUpper = filter.Search.ToUpperInvariant();
+            predicate = x =>
+                (x.FullName.Contains(s) ||
+                 x.Email.Contains(s) ||
+                 x.Phone.Contains(s) ||
+                 (x.CollaboratorCode != null && x.CollaboratorCode.Contains(s)) ||
+                 (x.BusinessFieldName != null && x.BusinessFieldName.Contains(s)) ||
+                 (x.BusinessField != null && x.BusinessField.Name.Contains(s)) ||
+                 (x.BusinessField != null && x.BusinessField.NormalizedName.Contains(sUpper)))
+                && (!filter.Status.HasValue || x.Status == filter.Status.Value)
+                && (!filter.FromDate.HasValue || x.CreatedAt >= filter.FromDate.Value.Date.ToUniversalTime())
+                && (!filter.ToDate.HasValue || x.CreatedAt < filter.ToDate.Value.Date.AddDays(1).ToUniversalTime());
         }
         else
         {
@@ -54,7 +62,9 @@ public class CtvService : ICtvService
         var paged = await _repository.GetPagedWithIncludesAsync(
             filter.PageNumber,
             filter.PageSize,
-            includes: q => q.Include(x => x.User).Include(x => x.BusinessField).Include(x => x.Company),
+            includes: q => q.Include(x => x.User)
+            .Include(x => x.BusinessField)
+            .Include(x => x.Company),
             predicate: predicate,
             orderBy: x => x.CreatedAt,
             isDescending: true);
