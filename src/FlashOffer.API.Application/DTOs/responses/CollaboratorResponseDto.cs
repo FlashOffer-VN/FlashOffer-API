@@ -38,6 +38,7 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     public string? CompanyTax { get; set; }
     public string? CompanyAddress { get; set; }
     public string? CompanyWebsite { get; set; }
+    public CompanyInfoDto? CompanyInfo { get; set; }
 
     public void Mapping(Profile profile)
         => profile.CreateMap<Collaborator, CollaboratorResponseDto>()
@@ -50,5 +51,16 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
             .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company != null ? src.Company.Name : src.BusinessName))
             .ForMember(dest => dest.CompanyTax, opt => opt.MapFrom(src => src.Company != null ? src.Company.TaxCode : null))
             .ForMember(dest => dest.CompanyAddress, opt => opt.MapFrom(src => src.Company != null ? src.Company.Address : src.Address))
-            .ForMember(dest => dest.CompanyWebsite, opt => opt.MapFrom(src => src.Company != null ? src.Company.Website : src.Website));
+            .ForMember(dest => dest.CompanyWebsite, opt => opt.MapFrom(src => src.Company != null ? src.Company.Website : src.Website))
+            .ForMember(dest => dest.CompanyInfo, opt => opt.MapFrom(src => src.Company != null ? new CompanyInfoDto
+            {
+                Id = src.Company.Id,
+                CompanyName = src.Company.Name,
+                CompanyTax = src.Company.TaxCode,
+                CompanyAddress = src.Company.Address ?? src.Address,
+                CompanyWebsite = src.Company.Website ?? src.Website,
+                BusinessType = src.Company.BusinessType ?? null,
+                CompanySize = src.Company.CompanySize ?? (src.BusinessSize.HasValue ? (CompanySize?)src.BusinessSize.Value : null),
+                BusinessField = src.Company.BusinessField != null ? src.Company.BusinessField.Name : (src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName)
+            } : null));
 }

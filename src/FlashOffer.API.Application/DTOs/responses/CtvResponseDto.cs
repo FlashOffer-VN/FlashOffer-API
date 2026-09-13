@@ -37,6 +37,7 @@ public class CtvDetailResponseDto : CtvResponseDto
 {
     public UserInfoDto? User { get; set; }
     public BusinessInfoDto? BusinessInfo { get; set; }
+    public CompanyInfoDto? CompanyInfo { get; set; }
 
     public new void Mapping(Profile profile)
     {
@@ -50,7 +51,18 @@ public class CtvDetailResponseDto : CtvResponseDto
                 CompanyWebsite = src.Website,
                 BusinessField = src.BusinessFieldName,
                 CompanySize = src.BusinessSize.HasValue ? (CompanySize?)src.BusinessSize.Value : null
-            }));
+            }))
+            .ForMember(dest => dest.CompanyInfo, opt => opt.MapFrom(src => src.Company != null ? new CompanyInfoDto
+            {
+                Id = src.Company.Id,
+                CompanyName = src.Company.Name,
+                CompanyTax = src.Company.TaxCode,
+                CompanyAddress = src.Company.Address ?? src.Address,
+                CompanyWebsite = src.Company.Website ?? src.Website,
+                BusinessType = src.Company.BusinessType ?? null,
+                CompanySize = src.Company.CompanySize ?? (src.BusinessSize.HasValue ? (CompanySize?)src.BusinessSize.Value : null),
+                BusinessField = src.Company.BusinessField != null ? src.Company.BusinessField.Name : (src.BusinessField != null ? src.BusinessField.Name : src.BusinessFieldName)
+            } : null));
     }
 }
 

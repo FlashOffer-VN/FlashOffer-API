@@ -67,7 +67,7 @@ public class CtvService : ICtvService
     {
         var entity = await _repository.GetFirstWithIncludesAsync(
         x => x.Id == id,
-        includes: query => query.Include(x => x.User));
+        includes: query => query.Include(x => x.User).Include(x => x.BusinessField).Include(x => x.Company));
 
         return entity == null ? null : _mapper.Map<CtvDetailResponseDto>(entity);
     }
