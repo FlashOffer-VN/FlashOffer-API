@@ -222,7 +222,8 @@ public class CollaboratorService : ICollaboratorService
         var collaborator = await _repository.GetFirstWithIncludesAsync(
             c => c.Id == id,
             q => q.Include(c => c.User)
-                  .Include(c => c.BusinessField));
+                  .Include(c => c.BusinessField)
+                  .Include(c => c.Company));
 
         if (collaborator == null)
             throw CollaboratorException.NotFound(_exceptionLocalizer, id);
