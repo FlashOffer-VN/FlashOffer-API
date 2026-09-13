@@ -27,6 +27,7 @@ public class PartnerService : IPartnerService
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IRepository<User> _userRepo;
     private readonly IQueryService _queryService;
+    private readonly IRepository<PartnerProduct> _productRepo;
     private readonly IRepository<BusinessField> _businessFieldRepo;
 
     public PartnerService(
@@ -37,6 +38,7 @@ public class PartnerService : IPartnerService
         IMapper mapper,
         IStringLocalizer<SharedResource> localizer,
         IQueryService queryService,
+        IRepository<PartnerProduct> productRepo,
         IRepository<BusinessField> businessFieldRepo)
     {
         _partnerRepo = partnerRepo;
@@ -46,6 +48,7 @@ public class PartnerService : IPartnerService
         _mapper = mapper;
         _localizer = localizer;
         _queryService = queryService;
+        _productRepo = productRepo;
         _businessFieldRepo = businessFieldRepo;
     }
 
@@ -241,9 +244,7 @@ public class PartnerService : IPartnerService
     {
         var entity = await _partnerRepo.GetFirstWithIncludesAsync(
             x => x.Id == id,
-            query => query
-                .Include(x => x.Products)
-                .Include(x => x.BusinessField));
+            query => query.Include(x => x.BusinessField));
 
         if (entity == null)
             throw new NotFoundException(_localizer["Partner_NotFound"]);
@@ -264,26 +265,68 @@ public class PartnerService : IPartnerService
             entity.BusinessFieldId = field.Id;
         }
 
-        // Sản phẩm: null = giữ nguyên. Có giá trị = thay thế toàn bộ.
-        // Xóa khỏi collection của quan hệ required → EF đánh dấu Deleted, và
-        // SaveChangesAsync override chuyển thành xóa mềm (IsDeleted = true).
-        if (request.Products != null)
-        {
-            entity.Products.Clear();
-
-            foreach (var dto in request.Products)
-            {
-                var product = _mapper.Map<PartnerProduct>(dto);
-                product.PartnerId = entity.Id;
-                product.PartnerProductCode = CodeGenerator.Generate("PRDP");
-                entity.Products.Add(product);
-            }
-        }
-
-        _partnerRepo.Update(entity);
+        // KHÔNG gọi _partnerRepo.Update(entity): entity đang được tracking nên EF tự phát
+        // hiện thay đổi (và Update còn lưu đồng bộ ngay bên trong, gây lưu thừa).
         await _partnerRepo.SaveChangesAsync();
 
         return _mapper.Map<PartnerResponseDto>(entity);
+    }
+
+    // ===== Sản phẩm / dịch vụ của đối tác =====
+    // Tách thành API riêng thay vì gửi kèm trong PUT /partners/{id}: mỗi sản phẩm giữ
+    // nguyên Id và mã PRDP khi sửa, không bị xóa mềm rồi tạo lại mỗi lần lưu partner.
+
+    public async Task<PartnerProductDto> AddProductAsync(Guid partnerId, CreatePartnerProductDto request)
+    {
+        var partner = await _partnerRepo.GetByIdAsync(partnerId);
+        if (partner == null)
+            throw new NotFoundException(_localizer["Partner_NotFound"]);
+
+        var product = _mapper.Map<PartnerProduct>(request);
+        product.PartnerId = partnerId;
+        product.PartnerProductCode = CodeGenerator.Generate("PRDP");
+
+        await _productRepo.AddAsync(product);
+
+        return _mapper.Map<PartnerProductDto>(product);
+    }
+
+    public async Task<PartnerProductDto> UpdateProductAsync(
+        Guid partnerId,
+        Guid productId,
+        UpdatePartnerProductDto request)
+    {
+        var product = await GetProductOfPartnerAsync(partnerId, productId);
+
+        // Partial update: field null giữ nguyên.
+        _mapper.Map(request, product);
+
+        await _productRepo.SaveChangesAsync();
+
+        return _mapper.Map<PartnerProductDto>(product);
+    }
+
+    public async Task DeleteProductAsync(Guid partnerId, Guid productId)
+    {
+        var product = await GetProductOfPartnerAsync(partnerId, productId);
+
+        // Xóa mềm — bản ghi vẫn còn trong DB với IsDeleted = true.
+        _productRepo.Delete(product);
+    }
+
+    /// <summary>
+    /// Lấy sản phẩm và xác nhận nó thuộc đúng partner trong route.
+    /// </summary>
+    private async Task<PartnerProduct> GetProductOfPartnerAsync(Guid partnerId, Guid productId)
+    {
+        var product = await _productRepo.GetFirstWithIncludesAsync(
+            p => p.Id == productId && p.PartnerId == partnerId,
+            query => query.Include(p => p.BusinessField));
+
+        if (product == null)
+            throw new NotFoundException(_localizer["Partner_ProductNotFound"]);
+
+        return product;
     }
 
     public async Task DeleteAsync(Guid id)

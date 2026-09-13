@@ -520,6 +520,22 @@
   <data name="Partner_UpdateSuccess">
     <value>Cập nhật đối tác thành công</value>
   </data>
+  <data name="Partner_ProductNotFound">
+    <value>Không tìm thấy sản phẩm của đối tác</value>
+  </data>
+  <data name="Partner_ProductAddSuccess">
+    <value>Thêm sản phẩm thành công</value>
+  </data>
+  <data name="Partner_ProductUpdateSuccess">
+    <value>Cập nhật sản phẩm thành công</value>
+  </data>
+  <data name="Partner_ProductDeleteSuccess">
+    <value>Xóa sản phẩm thành công</value>
+  </data>
+  <data name="PartnerProductNameMaxLength" xml:space="preserve"><value>Tên sản phẩm không được vượt quá 200 ký tự</value></data>
+  <data name="PartnerProductDescriptionMaxLength" xml:space="preserve"><value>Mô tả không được vượt quá 1000 ký tự</value></data>
+  <data name="PartnerProductPriceInvalid" xml:space="preserve"><value>Giá không được âm</value></data>
+  <data name="PartnerProductMinOrderQuantityInvalid" xml:space="preserve"><value>Số lượng đặt tối thiểu phải từ 1 trở lên</value></data>
   <!-- Social Post Keys -->
   <data name="Social_GetPostsSuccess"><value>Lấy danh sách bài viết thành công</value></data>
   <data name="Social_CreateSuccess"><value>Tạo bài viết thành công</value></data>

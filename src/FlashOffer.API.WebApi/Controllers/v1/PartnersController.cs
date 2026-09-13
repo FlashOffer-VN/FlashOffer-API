@@ -20,17 +20,23 @@ public class PartnersController : ApiControllerBase
     private readonly IPartnerService _partnerService;
     private readonly IValidator<PartnerRegisterRequest> _validator;
     private readonly IValidator<UpdatePartnerDto> _updateValidator;
+    private readonly IValidator<CreatePartnerProductDto> _createProductValidator;
+    private readonly IValidator<UpdatePartnerProductDto> _updateProductValidator;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public PartnersController(
         IPartnerService partnerService,
         IValidator<PartnerRegisterRequest> validator,
         IValidator<UpdatePartnerDto> updateValidator,
+        IValidator<CreatePartnerProductDto> createProductValidator,
+        IValidator<UpdatePartnerProductDto> updateProductValidator,
         IStringLocalizer<SharedResource> localizer)
     {
         _partnerService = partnerService;
         _validator = validator;
         _updateValidator = updateValidator;
+        _createProductValidator = createProductValidator;
+        _updateProductValidator = updateProductValidator;
         _localizer = localizer;
     }
 
@@ -172,4 +178,60 @@ public class PartnersController : ApiControllerBase
         var result = await _partnerService.RestoreAsync(id);
         return Ok(result, _localizer["Partner_RestoreSuccess"]);
     }
+
+    // ===== Sản phẩm / dịch vụ của đối tác =====
+    // Quản lý riêng thay vì gửi kèm trong PUT /partners/{id} — nhờ vậy sửa một sản phẩm
+    // không làm xóa mềm rồi tạo lại toàn bộ danh sách (giữ nguyên Id và mã PRDP).
+
+    /// <summary>
+    /// Thêm sản phẩm/dịch vụ cho đối tác
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/products")]
+    public async Task<IActionResult> AddProduct(Guid id, [FromBody] CreatePartnerProductDto request)
+    {
+        var validationResult = await _createProductValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return ValidationFailed(validationResult);
+
+        var result = await _partnerService.AddProductAsync(id, request);
+        return Ok(result, _localizer["Partner_ProductAddSuccess"]);
+    }
+
+    /// <summary>
+    /// Cập nhật sản phẩm/dịch vụ của đối tác (partial update — field null giữ nguyên)
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/products/{productId}")]
+    public async Task<IActionResult> UpdateProduct(
+        Guid id,
+        Guid productId,
+        [FromBody] UpdatePartnerProductDto request)
+    {
+        var validationResult = await _updateProductValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return ValidationFailed(validationResult);
+
+        var result = await _partnerService.UpdateProductAsync(id, productId, request);
+        return Ok(result, _localizer["Partner_ProductUpdateSuccess"]);
+    }
+
+    /// <summary>
+    /// Xóa mềm sản phẩm/dịch vụ của đối tác
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}/products/{productId}")]
+    public async Task<IActionResult> DeleteProduct(Guid id, Guid productId)
+    {
+        await _partnerService.DeleteProductAsync(id, productId);
+        return Ok(new { message = _localizer["Partner_ProductDeleteSuccess"].Value });
+    }
+
+    private IActionResult ValidationFailed(FluentValidation.Results.ValidationResult result)
+        => BadRequest(new ApiResponse<object>
+        {
+            Success = false,
+            Message = _localizer["PartnerValidationFailed"],
+            Errors = result.Errors.Select(e => e.ErrorMessage).ToList()
+        });
 }

@@ -16,6 +16,11 @@ public interface IPartnerService
     /// <summary>Cập nhật thông tin đối tác (partial update — field null giữ nguyên).</summary>
     Task<PartnerResponseDto> UpdateAsync(Guid id, UpdatePartnerDto request);
 
+    // ===== Sản phẩm / dịch vụ của đối tác =====
+    Task<PartnerProductDto> AddProductAsync(Guid partnerId, CreatePartnerProductDto request);
+    Task<PartnerProductDto> UpdateProductAsync(Guid partnerId, Guid productId, UpdatePartnerProductDto request);
+    Task DeleteProductAsync(Guid partnerId, Guid productId);
+
     /// <summary>Xóa mềm đối tác.</summary>
     Task DeleteAsync(Guid id);
     /// <summary>Khôi phục đối tác đã xóa mềm.</summary>
