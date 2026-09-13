@@ -144,7 +144,7 @@ public class PartnersController : ApiControllerBase
     /// <summary>
     /// Danh sách đối tác đã xóa mềm
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [HttpGet("deleted")]
     public async Task<IActionResult> GetDeleted(
         [FromQuery] int pageNumber = 1,
