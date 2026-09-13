@@ -217,17 +217,18 @@ public class CollaboratorService : ICollaboratorService
     public async Task<PagedList<CollaboratorResponseDto>> GetPagedAsync(int page, int size, string? search = null)
     {
         Expression<Func<Collaborator, bool>> predicate = c => true;
-
+        var searchUpper = search?.ToUpperInvariant();
         if (!string.IsNullOrEmpty(search))
         {
-            predicate = c => c.FullName.Contains(search) ||
-                             c.Phone.Contains(search) ||
-                             (c.Email != null && c.Email.Contains(search)) ||
-                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(search)) ||
+            predicate = c => c.FullName.Contains(searchUpper) ||
+                             c.Phone.Contains(searchUpper) ||
+                             (c.Email != null && c.Email.Contains(searchUpper)) ||
+                             (c.CollaboratorCode != null && c.CollaboratorCode.Contains(searchUpper)) ||
                              // Tìm theo lĩnh vực kinh doanh: khớp cả cột denormalized
                              // (bản ghi cũ) lẫn tên trong bảng BusinessFields (tên hiển thị).
-                             (c.BusinessFieldName != null && c.BusinessFieldName.Contains(search)) ||
-                             (c.BusinessField != null && c.BusinessField.Name.Contains(search));
+                             (c.BusinessFieldName != null && c.BusinessFieldName.Contains(searchUpper)) ||
+                             (c.BusinessField != null && c.BusinessField.Name.Contains(searchUpper)) ||
+                             (c.BusinessField != null && c.BusinessField.NormalizedName.Contains(searchUpper));
         }
 
         var paged = await _repository.GetPagedWithIncludesAsync(
