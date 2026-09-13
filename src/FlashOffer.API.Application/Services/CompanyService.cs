@@ -37,6 +37,8 @@ public class CompanyService : ICompanyService
         if (string.IsNullOrWhiteSpace(name))
             return null;
 
+        var validBusinessFieldId = await ResolveBusinessFieldIdAsync(businessFieldId);
+
         var nameTrim = name!.Trim();
         Company? existing = null;
 
@@ -69,9 +71,9 @@ public class CompanyService : ICompanyService
                 existing.TaxCode = taxCode;
                 updated = true;
             }
-            if (businessFieldId.HasValue && existing.BusinessFieldId != businessFieldId)
+            if (businessFieldId.HasValue && existing.BusinessFieldId != validBusinessFieldId)
             {
-                existing.BusinessFieldId = businessFieldId;
+                existing.BusinessFieldId = validBusinessFieldId;
                 updated = true;
             }
             if (businessType.HasValue && existing.BusinessType != businessType)
@@ -100,7 +102,7 @@ public class CompanyService : ICompanyService
             TaxCode = string.IsNullOrWhiteSpace(taxCode) ? null : taxCode,
             Address = address,
             Website = website,
-            BusinessFieldId = businessFieldId,
+            BusinessFieldId = validBusinessFieldId,
             BusinessType = businessType,
             CompanySize = companySize
         };
@@ -113,13 +115,14 @@ public class CompanyService : ICompanyService
 
     public async Task<CompanyResponseDto> CreateAsync(CreateCompanyDto request)
     {
+        var validBusinessFieldId = await ResolveBusinessFieldIdAsync(request.BusinessFieldId);
         var company = new Company
         {
             Name = request.Name.Trim(),
             TaxCode = request.TaxCode,
             Address = request.Address,
             Website = request.Website,
-            BusinessFieldId = request.BusinessFieldId,
+            BusinessFieldId = validBusinessFieldId,
             BusinessType = request.BusinessType,
             CompanySize = request.CompanySize
         };
@@ -132,6 +135,8 @@ public class CompanyService : ICompanyService
 
     public async Task<CompanyResponseDto> UpdateAsync(Guid id, UpdateCompanyDto request)
     {
+        var validBusinessFieldId = await ResolveBusinessFieldIdAsync(request.BusinessFieldId);
+
         var company = await _companyRepo.GetByIdAsync(id);
         if (company == null)
             throw new KeyNotFoundException("Company not found");
@@ -140,7 +145,7 @@ public class CompanyService : ICompanyService
         if (!string.IsNullOrWhiteSpace(request.TaxCode)) company.TaxCode = request.TaxCode;
         if (request.Address != null) company.Address = request.Address;
         if (request.Website != null) company.Website = request.Website;
-        if (request.BusinessFieldId.HasValue) company.BusinessFieldId = request.BusinessFieldId;
+        if (request.BusinessFieldId.HasValue) company.BusinessFieldId = validBusinessFieldId;
         if (request.BusinessType.HasValue) company.BusinessType = request.BusinessType;
         if (request.CompanySize.HasValue) company.CompanySize = request.CompanySize;
 
@@ -170,5 +175,20 @@ public class CompanyService : ICompanyService
         var company = await _companyRepo.GetByIdAsync(id);
         if (company == null) return null;
         return _mapper.Map<CompanyResponseDto>(company);
+    }
+
+    /// <summary>
+    /// Kiểm tra BusinessFieldId có tồn tại (chưa xóa mềm) không.
+    /// Trả về Id hợp lệ, hoặc null nếu không tồn tại.
+    /// </summary>
+    private async Task<Guid?> ResolveBusinessFieldIdAsync(Guid? businessFieldId)
+    {
+        if (!businessFieldId.HasValue)
+            return null;
+
+        var exists = await _businessFieldRepo.AnyAsync(
+            b => b.Id == businessFieldId.Value && !b.IsDeleted);
+
+        return exists ? businessFieldId.Value : null;
     }
 }
