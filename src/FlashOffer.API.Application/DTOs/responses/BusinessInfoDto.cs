@@ -9,7 +9,7 @@ namespace FlashOffer.API.Application.DTOs.Responses;
 public class BusinessInfoDto
 {
     public string? CompanyName { get; set; }
-    public string? CompanyTax { get; set; }
+    public string? CompanyTax { get; set; } = string.Empty;
     public string? CompanyAddress { get; set; }
     public string? CompanyWebsite { get; set; }
     public BusinessType? BusinessType { get; set; }

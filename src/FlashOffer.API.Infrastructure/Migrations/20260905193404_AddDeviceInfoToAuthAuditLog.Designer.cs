@@ -525,7 +525,6 @@ namespace FlashOffer.API.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("CompanyTax")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 

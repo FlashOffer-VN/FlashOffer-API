@@ -20,7 +20,7 @@ public class UpdatePartnerDto : IMapFrom<Partner>
 
     // Thông tin doanh nghiệp
     public string? CompanyName { get; set; }
-    public string? CompanyTax { get; set; }
+    public string? CompanyTax { get; set; } = string.Empty;
     public string? CompanyAddress { get; set; }
     public string? CompanyWebsite { get; set; }
     public BusinessType? BusinessType { get; set; }

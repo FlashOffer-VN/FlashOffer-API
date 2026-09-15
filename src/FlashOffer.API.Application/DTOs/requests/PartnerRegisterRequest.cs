@@ -18,7 +18,7 @@ public class PartnerRegisterRequest : IMapFrom<Partner>
     // Step 2: Business Info (lĩnh vực hoạt động quản lý tập trung qua BusinessField)
     public string CompanyName { get; set; } = string.Empty;
     public string CompanyAddress { get; set; } = string.Empty;
-    public string? CompanyTax { get; set; }
+    public string? CompanyTax { get; set; } = string.Empty;
     public string? CompanyWebsite { get; set; }
     public Guid? BusinessFieldId { get; set; }
     public CompanySize CompanySize { get; set; }
