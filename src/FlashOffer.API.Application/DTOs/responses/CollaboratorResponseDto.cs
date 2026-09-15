@@ -35,7 +35,7 @@ public class CollaboratorResponseDto : IMapFrom<Collaborator>
     // Company denormalized info (flat) returned for Get endpoints
     public Guid? CompanyId { get; set; }
     public string? CompanyName { get; set; }
-    public string? CompanyTax { get; set; }
+    public string? CompanyTax { get; set; } = string.Empty;
     public string? CompanyAddress { get; set; }
     public string? CompanyWebsite { get; set; }
     public CompanyInfoDto? CompanyInfo { get; set; }
